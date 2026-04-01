@@ -1857,6 +1857,16 @@
     ts-essentials "10.0.3"
     tsx "4.20.6"
 
+"@payloadcms/graphql@3.78.0":
+  version "3.78.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/graphql/-/graphql-3.78.0.tgz#c68249c0eb067718c703e9e9ae5b042d9bc54f42"
+  integrity sha512-w7oGFJFAMHg50SY5L6jmQXqMky0ZRHfn+8V8rpqRyyXF9TxkrDVMacKGRulluF0qS38n40CQBxr1GfE2LfO91w==
+  dependencies:
+    graphql-scalars "1.22.2"
+    pluralize "8.0.0"
+    ts-essentials "10.0.3"
+    tsx "4.21.0"
+
 "@payloadcms/live-preview-react@3.70.0":
   version "3.70.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/live-preview-react/-/live-preview-react-3.70.0.tgz#bc37c0c566e63100cb8fd4fa5e11872f6a85b169"
@@ -1880,6 +1890,28 @@
     "@payloadcms/graphql" "3.70.0"
     "@payloadcms/translations" "3.70.0"
     "@payloadcms/ui" "3.70.0"
+    busboy "^1.6.0"
+    dequal "2.0.3"
+    file-type "19.3.0"
+    graphql-http "^1.22.0"
+    graphql-playground-html "1.6.30"
+    http-status "2.1.0"
+    path-to-regexp "6.3.0"
+    qs-esm "7.0.2"
+    sass "1.77.4"
+    uuid "10.0.0"
+
+"@payloadcms/next@3.78.0":
+  version "3.78.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/next/-/next-3.78.0.tgz#95fd76a8d43fc88f3daf62fc5ea6d3935984924a"
+  integrity sha512-uV8eYfOEl78BOiWd59Y2iv4NR3mrMbazWnCurmrab6CNRUARdF6IMtEfiEZkzOViMLmhfNDSBtqiMXiO8i3QIg==
+  dependencies:
+    "@dnd-kit/core" "6.3.1"
+    "@dnd-kit/modifiers" "9.0.0"
+    "@dnd-kit/sortable" "10.0.0"
+    "@payloadcms/graphql" "3.78.0"
+    "@payloadcms/translations" "3.78.0"
+    "@payloadcms/ui" "3.78.0"
     busboy "^1.6.0"
     dequal "2.0.3"
     file-type "19.3.0"
@@ -1976,6 +2008,13 @@
   dependencies:
     date-fns "4.1.0"
 
+"@payloadcms/translations@3.78.0":
+  version "3.78.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/translations/-/translations-3.78.0.tgz#12737b427749d2081a24d9752c613a5698317324"
+  integrity sha512-b4Ww/DqJD5ZtRl29FGbpBl/MOud4JAjKw9+FRqkDz6WhozdleQOodJUfiphrB4JWMaqxU/GCIDJ6awIZgeOdtg==
+  dependencies:
+    date-fns "4.1.0"
+
 "@payloadcms/ui@3.70.0":
   version "3.70.0"
   resolved "https://registry.yarnpkg.com/@payloadcms/ui/-/ui-3.70.0.tgz#23f714df4391859014ee11d0fcb517f758790fe7"
@@ -1990,6 +2029,35 @@
     "@faceless-ui/window-info" "3.0.1"
     "@monaco-editor/react" "4.7.0"
     "@payloadcms/translations" "3.70.0"
+    bson-objectid "2.0.4"
+    date-fns "4.1.0"
+    dequal "2.0.3"
+    md5 "2.3.0"
+    object-to-formdata "4.5.1"
+    qs-esm "7.0.2"
+    react-datepicker "7.6.0"
+    react-image-crop "10.1.8"
+    react-select "5.9.0"
+    scheduler "0.25.0"
+    sonner "^1.7.2"
+    ts-essentials "10.0.3"
+    use-context-selector "2.0.0"
+    uuid "10.0.0"
+
+"@payloadcms/ui@3.78.0":
+  version "3.78.0"
+  resolved "https://registry.yarnpkg.com/@payloadcms/ui/-/ui-3.78.0.tgz#64717fc71b3cadd9c1f0da077dd2320e6bded17d"
+  integrity sha512-8JfRcwD/bX5/9P4Gb7qKq/TxJUUjXMa4ZMM/W51oHrkj5bi33K37SdDbN8bIdIh0e3wTLdO6K57JgM3g9uzJWw==
+  dependencies:
+    "@date-fns/tz" "1.2.0"
+    "@dnd-kit/core" "6.3.1"
+    "@dnd-kit/sortable" "10.0.0"
+    "@dnd-kit/utilities" "3.2.2"
+    "@faceless-ui/modal" "3.0.0"
+    "@faceless-ui/scroll-info" "2.0.0"
+    "@faceless-ui/window-info" "3.0.1"
+    "@monaco-editor/react" "4.7.0"
+    "@payloadcms/translations" "3.78.0"
     bson-objectid "2.0.4"
     date-fns "4.1.0"
     dequal "2.0.3"
