@@ -1969,10 +1969,10 @@
   dependencies:
     date-fns "4.1.0"
 
-"@payloadcms/translations@3.75.0":
-  version "3.75.0"
-  resolved "https://registry.yarnpkg.com/@payloadcms/translations/-/translations-3.75.0.tgz#90061fdc3837922dd72a1a8f070cd56fd9ce284b"
-  integrity sha512-WbSf105UVAeanl7zPUcemhIgVM9mR8wF92nmNmic4I5+rDChC99btfvlnQrUEOt/+Y7THSiaQTgL4ytun8xd0w==
+"@payloadcms/translations@3.79.1":
+  version "3.79.1"
+  resolved "https://registry.yarnpkg.com/@payloadcms/translations/-/translations-3.79.1.tgz#63863e3584344b03f0d37823604d78b47b8d72ca"
+  integrity sha512-v+UUDMqVl50TQhCPOVuVmsayw2tupDqWHfW6CzkPjA7hYuF5Wb8Bm2wyPE6sPUJB7+TqprziN3ecCUhwXyGr2A==
   dependencies:
     date-fns "4.1.0"
 
@@ -6029,13 +6029,13 @@ payload@3.70.0:
     uuid "10.0.0"
     ws "^8.16.0"
 
-payload@3.75.0:
-  version "3.75.0"
-  resolved "https://registry.yarnpkg.com/payload/-/payload-3.75.0.tgz#d54ee639d0d5eccd29ca26f55fac706ff121f458"
-  integrity sha512-JYJ545zu6URTMlhst1SBXW8WOAMeSfaIXffKluPUgzNfwWB/NcyzXjea+H7AGnL4nZiWJQhfbaRxvGherByXew==
+payload@3.79.1:
+  version "3.79.1"
+  resolved "https://registry.yarnpkg.com/payload/-/payload-3.79.1.tgz#ee10712a9a7f7be43bcda14e2a48d1e2ee73a16a"
+  integrity sha512-dvXxvxUdffVJBNOOQPIZCuTvbxHifypYfTf/Irpe5DlVS6htEv2Eit/BpZiu2TDUsdXcnjeNG6Ys07GpCUnkBg==
   dependencies:
     "@next/env" "^15.1.5"
-    "@payloadcms/translations" "3.75.0"
+    "@payloadcms/translations" "3.79.1"
     "@types/busboy" "1.5.4"
     ajv "8.17.1"
     bson-objectid "2.0.4"
