@@ -24,6 +24,10 @@ export const hero: Field = {
           value: 'none',
         },
         {
+          label: 'Home Hero',
+          value: 'homeHero',
+        },
+        {
           label: 'High Impact',
           value: 'highImpact',
         },
@@ -38,6 +42,36 @@ export const hero: Field = {
       ],
       required: true,
     },
+    // ── Home Hero fields ──────────────────────────────────────────
+    {
+      name: 'tagline',
+      type: 'text',
+      label: 'Tagline',
+      admin: {
+        condition: (_, { type } = {}) => type === 'homeHero',
+        description: 'Small text displayed above the logo (e.g. "Willkommen beim")',
+      },
+    },
+    {
+      name: 'backgroundMedia',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Background Image',
+      admin: {
+        condition: (_, { type } = {}) => type === 'homeHero',
+      },
+    },
+    {
+      name: 'logoMedia',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Logo Image',
+      admin: {
+        condition: (_, { type } = {}) => type === 'homeHero',
+        description: 'Logo displayed below the tagline in the bottom-right corner',
+      },
+    },
+    // ── Other hero type fields ────────────────────────────────────
     {
       name: 'richText',
       type: 'richText',
@@ -52,10 +86,16 @@ export const hero: Field = {
         },
       }),
       label: false,
+      admin: {
+        condition: (_, { type } = {}) => type !== 'homeHero',
+      },
     },
     linkGroup({
       overrides: {
         maxRows: 2,
+        admin: {
+          condition: (_, { type } = {}) => type !== 'homeHero',
+        },
       },
     }),
     {
