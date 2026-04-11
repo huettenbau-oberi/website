@@ -45,7 +45,7 @@
     "graphql": "^16.8.2",
     "lucide-react": "^0.378.0",
     "next": "16.2.3",
-    "next-intl": "^4.7.0",
+    "next-intl": "^4.9.1",
     "next-sitemap": "^4.2.3",
     "payload": "3.79.1",
     "prism-react-renderer": "^2.3.1",
