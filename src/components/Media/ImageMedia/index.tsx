@@ -75,6 +75,9 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     src = getMediaUrl(url, cacheTag)
   }
 
+  const srcString = src.toString()
+  const isLocalUrl = srcString.startsWith('http://localhost') || srcString.startsWith('http://127.')
+
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)
 
   // NOTE: this is used by the browser to determine which image to download at different screen sizes
@@ -85,7 +88,10 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .join(', ')
 
   return (
-    <picture className={cn(pictureClassName)}>
+    <picture
+      className={cn(pictureClassName)}
+      style={fill ? { position: 'absolute', inset: 0 } : undefined}
+    >
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}
@@ -98,6 +104,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         loading={loading}
         sizes={sizes}
         src={src}
+        unoptimized={isLocalUrl}
         width={!fill ? width : undefined}
       />
     </picture>
