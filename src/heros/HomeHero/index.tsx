@@ -5,6 +5,7 @@ import './styles.scss'
 
 import type { Page } from '@/payload-types'
 
+import { Logo } from '@/components/Logo/Logo'
 import { Media } from '@/components/Media'
 
 type HomeHeroProps = Page['hero'] & {
@@ -41,14 +42,9 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia, lo
         {tagline && (
           <h3 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h3>
         )}
-        {logoMedia && typeof logoMedia === 'object' && (
-          <div className="w-40 md:w-56 logo-container">
-            <Media
-              imgClassName="w-full h-auto object-contain drop-shadow-lg"
-              resource={logoMedia}
-            />
-          </div>
-        )}
+        <div className="logo-container">
+          <Logo loading="eager" priority="high" className="w-full invert dark:invert-0" />
+        </div>
       </div>
     </section>
   )

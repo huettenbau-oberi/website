@@ -22,6 +22,15 @@
   }
 
   .logo-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
     width: 100%;
+
+    img {
+      width: 100% !important;
+      max-width: none !important;
+      height: auto;
+    }
   }
 }
