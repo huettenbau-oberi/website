@@ -165,14 +165,10 @@ export interface Page {
   hero: {
     type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact';
     /**
-     * Small text displayed above the logo (e.g. "Willkommen beim")
+     * Small text displayed above the logo (e.g. "Welcome to")
      */
     tagline?: string | null;
     backgroundMedia?: (number | null) | Media;
-    /**
-     * Logo displayed below the tagline in the bottom-right corner
-     */
-    logoMedia?: (number | null) | Media;
     richText?: {
       root: {
         type: string;
@@ -1133,7 +1129,6 @@ export interface PagesSelect<T extends boolean = true> {
         type?: T;
         tagline?: T;
         backgroundMedia?: T;
-        logoMedia?: T;
         richText?: T;
         links?:
           | T

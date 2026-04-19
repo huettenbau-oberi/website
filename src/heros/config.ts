@@ -49,7 +49,7 @@ export const hero: Field = {
       label: 'Tagline',
       admin: {
         condition: (_, { type } = {}) => type === 'homeHero',
-        description: 'Small text displayed above the logo (e.g. "Willkommen beim")',
+        description: 'Small text displayed above the logo (e.g. "Welcome to")',
       },
     },
     {
@@ -59,16 +59,6 @@ export const hero: Field = {
       label: 'Background Image',
       admin: {
         condition: (_, { type } = {}) => type === 'homeHero',
-      },
-    },
-    {
-      name: 'logoMedia',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Logo Image',
-      admin: {
-        condition: (_, { type } = {}) => type === 'homeHero',
-        description: 'Logo displayed below the tagline in the bottom-right corner',
       },
     },
     // ── Other hero type fields ────────────────────────────────────

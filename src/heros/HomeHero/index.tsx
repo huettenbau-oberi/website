@@ -11,10 +11,9 @@ import { Media } from '@/components/Media'
 type HomeHeroProps = Page['hero'] & {
   tagline?: string | null
   backgroundMedia?: Page['hero']['media']
-  logoMedia?: Page['hero']['media']
 }
 
-export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia, logoMedia }) => {
+export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) => {
   const { setHeaderTheme } = useHeaderTheme()
 
   useEffect(() => {
