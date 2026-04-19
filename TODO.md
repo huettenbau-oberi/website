@@ -1,5 +1,6 @@
 # TODO List
 
+- [ ] Text slide Animations
 - [ ] Deployment
 - [ ] Email Provider
 - [ ] Main Page
