@@ -1,6 +1,7 @@
 'use client'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import React, { useEffect } from 'react'
+import './styles.scss'
 
 import type { Page } from '@/payload-types'
 
@@ -35,13 +36,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia, lo
         />
       )}
 
-      {/* Bottom-right content, above the image */}
-      <div className="absolute bottom-0 right-0 z-10 flex flex-col items-end gap-1 p-4 md:p-8">
+      {/* Bottom-right content, z-index above the image */}
+      <div className="absolute bottom-0 right-0 z-10 flex flex-col items-end gap-1 p-4 md:p-8 hero-intro">
         {tagline && (
-          <p className="text-sm font-medium text-white drop-shadow md:text-base">{tagline}</p>
+          <h3 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h3>
         )}
         {logoMedia && typeof logoMedia === 'object' && (
-          <div className="w-40 md:w-56">
+          <div className="w-40 md:w-56 logo-container">
             <Media
               imgClassName="w-full h-auto object-contain drop-shadow-lg"
               resource={logoMedia}

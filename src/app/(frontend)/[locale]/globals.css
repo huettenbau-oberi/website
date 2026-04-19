@@ -127,7 +127,7 @@
      Mobile  (default):    17px                                                   */
   h3 {
     font-family: var(--font-inter), sans-serif;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 1.0625rem; /* 17px — mobile */
     line-height: 150%;
   }
