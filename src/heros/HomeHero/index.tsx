@@ -42,7 +42,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) 
           <h3 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h3>
         )}
         <div className="logo-container">
-          <Logo loading="eager" priority="high" className="w-full invert dark:invert-0" />
+          <Logo loading="eager" priority="high" />
         </div>
       </div>
     </section>
