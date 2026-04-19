@@ -3,7 +3,20 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
+import { Inter, Playfair_Display } from 'next/font/google'
 import React from 'react'
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  weight: ['900'],
+  variable: '--font-playfair',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-inter',
+})
 
 import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
@@ -42,7 +55,7 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cn(GeistSans.variable, GeistMono.variable)}
+      className={cn(GeistSans.variable, GeistMono.variable, playfairDisplay.variable, inter.variable)}
       lang={locale}
       suppressHydrationWarning
     >
