@@ -71,6 +71,7 @@ export const CampHero: Block = {
           name: 'flyerImage',
           type: 'upload',
           relationTo: 'media',
+          required: true,
           label: 'Flyer Preview Image',
           admin: {
             width: '50%',
@@ -81,6 +82,7 @@ export const CampHero: Block = {
           name: 'flyerFile',
           type: 'upload',
           relationTo: 'media',
+          required: true,
           label: 'Flyer PDF / File',
           admin: {
             width: '50%',

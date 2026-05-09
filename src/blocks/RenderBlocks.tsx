@@ -2,21 +2,19 @@ import React, { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
 
-import { ArchiveBlock } from '@/blocks/ArchiveBlock/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { CampHeroBlock } from '@/blocks/CampHero/Component'
+import { CampMainBlock } from '@/blocks/CampMain/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
-import { HomeSectionBlock } from '@/blocks/HomeSection/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 
 const blockComponents = {
-  archive: ArchiveBlock,
   campHero: CampHeroBlock,
+  campMain: CampMainBlock,
   content: ContentBlock,
   cta: CallToActionBlock,
   formBlock: FormBlock,
-  homeSection: HomeSectionBlock,
   mediaBlock: MediaBlock,
 }
 

@@ -2,12 +2,10 @@ import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Archive } from '../../blocks/ArchiveBlock/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
 import { CampHero } from '../../blocks/CampHero/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
-import { HomeSection } from '../../blocks/HomeSection/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
@@ -22,6 +20,7 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { CampMain } from '@/blocks/CampMain/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -74,7 +73,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CampHero, HomeSection, CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [CampHero, CampMain, CallToAction, Content, MediaBlock, FormBlock],
               required: true,
               admin: {
                 initCollapsed: true,
