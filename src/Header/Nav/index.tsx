@@ -5,6 +5,7 @@ import { useLocale } from 'next-intl'
 
 import type { Header as HeaderType } from '@/payload-types'
 
+import { UserDropdown } from '@/components/UserDropdown'
 import { CMSLink } from '@/components/Link'
 import Link from 'next/link'
 
@@ -24,6 +25,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
       >
         {menuLabel}
       </Link>
+      <UserDropdown />
     </nav>
   )
 }

@@ -18,13 +18,11 @@ const inter = Inter({
   variable: '--font-inter',
 })
 
-import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { draftMode } from 'next/headers'
 
 import { NextIntlClientProvider } from 'next-intl'
 import { routing } from '@/i18n/routing'
@@ -51,8 +49,6 @@ export default async function RootLayout({
   setRequestLocale(locale)
   const message = await getMessages()
 
-  const { isEnabled } = await draftMode()
-
   return (
     <html
       className={cn(GeistSans.variable, GeistMono.variable, playfairDisplay.variable, inter.variable)}
@@ -73,12 +69,6 @@ export default async function RootLayout({
       <body>
         <NextIntlClientProvider messages={message}>
           <Providers>
-            <AdminBar
-              adminBarProps={{
-                preview: isEnabled,
-              }}
-            />
-
             <Header />
             {children}
             <Footer />
