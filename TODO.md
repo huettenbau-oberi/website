@@ -4,5 +4,5 @@
 - [ ] Deployment
 - [ ] Email Provider
 - [ ] Main Page
-- [ ] Remove or adjust `BeforeLogin` component
+- [x] Remove or adjust `BeforeLogin` component
 - [x] Adjust `BeforeDashboard` component

@@ -560,7 +560,7 @@ export default buildConfig({
       afterDashboard: ['/components/Analytics'],
 
       // Auth
-      beforeLogin: ['/components/SSOButtons'],
+      // beforeLogin: ['/components/SSOButtons'],
       logout: { Button: '/components/LogoutButton' },
 
       // Settings

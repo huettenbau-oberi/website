@@ -209,7 +209,6 @@ Root Components affect the entire Admin Panel.
 | `header`          | Above header (array)             | `admin.components.header`          |
 | `beforeDashboard` | Before dashboard content (array) | `admin.components.beforeDashboard` |
 | `afterDashboard`  | After dashboard content (array)  | `admin.components.afterDashboard`  |
-| `beforeLogin`     | Before login form (array)        | `admin.components.beforeLogin`     |
 | `afterLogin`      | After login form (array)         | `admin.components.afterLogin`      |
 | `beforeNavLinks`  | Before nav links (array)         | `admin.components.beforeNavLinks`  |
 | `afterNavLinks`   | After nav links (array)          | `admin.components.afterNavLinks`   |
