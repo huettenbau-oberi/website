@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
-import { ChevronRight, X } from 'lucide-react'
+import { ChevronRight, Moon, Sun, X } from 'lucide-react'
 
 import type { Header as HeaderType } from '@/payload-types'
 import type { Page, Post } from '@/payload-types'
@@ -11,6 +11,7 @@ import type { Page, Post } from '@/payload-types'
 import { UserDropdown } from '@/components/UserDropdown'
 import { Logo } from '@/components/Logo/Logo'
 import { locales, localeSlugs } from '@/i18n/localization'
+import { useTheme } from '@/providers/Theme'
 import { cn } from '@/utilities/ui'
 
 type NavLink = NonNullable<HeaderType['navItems']>[number]['link']
@@ -33,7 +34,9 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   const pathname = usePathname()
   const router = useRouter()
   const [open, setOpen] = useState(false)
+  const { theme, setTheme } = useTheme()
   const menuLabel = locale === 'de' ? 'Menü' : 'Menu'
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     if (!open) return
@@ -83,6 +86,27 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             )
           })}
         </div>
+
+        <button
+          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+          className="relative h-8 w-8 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+        >
+          <Sun
+            size={18}
+            className={cn(
+              'absolute inset-0 m-auto transition-all duration-300',
+              isDark ? 'rotate-0 opacity-100' : 'rotate-90 opacity-0',
+            )}
+          />
+          <Moon
+            size={18}
+            className={cn(
+              'absolute inset-0 m-auto transition-all duration-300',
+              isDark ? '-rotate-90 opacity-0' : 'rotate-0 opacity-100',
+            )}
+          />
+        </button>
 
         <button
           onClick={() => setOpen(true)}
