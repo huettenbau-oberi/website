@@ -47,6 +47,7 @@ export const hero: Field = {
       name: 'tagline',
       type: 'text',
       label: 'Tagline',
+      localized: true,
       admin: {
         condition: (_, { type } = {}) => type === 'homeHero',
         description: 'Small text displayed above the logo (e.g. "Welcome to")',
