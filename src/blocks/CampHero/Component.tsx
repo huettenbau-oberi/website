@@ -1,10 +1,11 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { cn } from '@/utilities/ui'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import type { CampHeroBlock as CampHeroBlockProps } from '@/payload-types'
-import './index.scss'
 
 type TimeLeft = {
   days: number
@@ -43,108 +44,141 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
     return () => clearInterval(id)
   }, [countdownDate])
 
+  const t = useTranslations()
+  const pad = (n: number) => String(n).padStart(2, '0')
   const showDays = timeLeft !== null && timeLeft.days > 0
 
   const units = timeLeft
     ? showDays
       ? [
-          { value: timeLeft.days, label: 'Tage' },
-          { value: timeLeft.hours, label: 'Stunden' },
-          { value: timeLeft.minutes, label: 'Minuten' },
+          { value: String(timeLeft.days), label: t('days') },
+          { value: pad(timeLeft.hours), label: t('hours') },
+          { value: pad(timeLeft.minutes), label: t('minutes') },
         ]
       : [
-          { value: timeLeft.hours, label: 'Stunden' },
-          { value: timeLeft.minutes, label: 'Minuten' },
-          { value: timeLeft.seconds, label: 'Sekunden' },
+          { value: pad(timeLeft.hours), label: t('hours') },
+          { value: pad(timeLeft.minutes), label: t('minutes') },
+          { value: pad(timeLeft.seconds), label: t('seconds') },
         ]
     : null
 
   const flyerUrl =
-    flyerFile && typeof flyerFile === 'object' ? flyerFile.url ?? undefined : undefined
+    flyerFile && typeof flyerFile === 'object' ? (flyerFile.url ?? undefined) : undefined
   const hasFlyerImage = flyerImage && typeof flyerImage === 'object'
 
   return (
-    <section className="camp-hero">
-      <div className="container camp-hero__inner">
-        {/* Left column */}
-        <div className="camp-hero__content">
-          <h1 className="camp-hero__title">{title}</h1>
-          {subtitle && <p className="camp-hero__subtitle">{subtitle}</p>}
+    <section className="overflow-hidden py-20 pb-16">
+      <div className="container px-4">
+        <h1
+          style={{
+            fontSize: 'clamp(2rem, 5vw, 3.25rem)',
+          }}
+          className="m-0 font-bold leading-[1.1] tracking-[-0.02em] text-foreground text-center"
+        >
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="mt-2 mb-0 text-base font-semibold text-muted-foreground text-center">
+            {subtitle}
+          </p>
+        )}
 
-          {countdownDate && units && (
-            <div className="camp-hero__countdown-wrap">
-              {countdownLabel && (
-                <p className="camp-hero__countdown-label">{countdownLabel}</p>
-              )}
-              <div className="camp-hero__countdown">
-                {units.map(({ value, label }, i) => (
-                  <React.Fragment key={label}>
-                    <div className="camp-hero__unit">
-                      <span className="camp-hero__number">{value}</span>
-                      <span className="camp-hero__unit-label">{label}</span>
+        <div className="mt-6 grid grid-cols-1 items-start gap-12 md:grid-cols-[1fr_380px] md:items-center md:gap-16 lg:grid-cols-[1fr_420px]">
+          {/* Left column */}
+          <div className="flex flex-col gap-6">
+            {countdownDate && units && (
+              <div className="flex flex-col gap-2">
+                {countdownLabel && (
+                  <p className="text-[0.9375rem] font-semibold text-muted-foreground">
+                    {countdownLabel}
+                  </p>
+                )}
+                <div className="flex justify-start items-center gap-6">
+                  {units.map(({ value, label }, i) => (
+                    <div
+                      key={label}
+                      className={cn(
+                        'flex flex-col gap-1',
+                        i < units.length - 1 && 'mr-6 border-r border-foreground/15 pr-6',
+                      )}
+                    >
+                      <span
+                        style={{ fontSize: 'clamp(2.5rem, 6vw, 3.5rem)' }}
+                        className="font-bold leading-none tabular-nums tracking-[-0.03em] text-foreground"
+                      >
+                        {value}
+                      </span>
+                      <span className="text-xs font-medium uppercase tracking-[0.05em] text-muted-foreground">
+                        {label}
+                      </span>
                     </div>
-                    {i < units.length - 1 && (
-                      <span className="camp-hero__sep" aria-hidden="true" />
-                    )}
-                  </React.Fragment>
-                ))}
+                  ))}
+                </div>
+                {countdownSuffix && (
+                  <p className="m-0 mt-1 text-[0.9375rem] font-semibold text-muted-foreground">
+                    {countdownSuffix}
+                  </p>
+                )}
               </div>
-              {countdownSuffix && (
-                <p className="camp-hero__countdown-suffix">{countdownSuffix}</p>
+            )}
+
+            {registrationText && (
+              <p className="m-0 max-w-[38rem] text-[0.9375rem] leading-relaxed text-foreground">
+                {registrationText}
+              </p>
+            )}
+
+            {Array.isArray(links) && links.length > 0 && (
+              <ul className="m-0 flex list-none flex-wrap gap-3 p-0">
+                {links.map(({ link }, i) => (
+                  <li key={i}>
+                    <CMSLink {...link} />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Right column — flyer */}
+          {(hasFlyerImage || flyerUrl) && (
+            <div className="flex justify-center md:justify-end">
+              {flyerUrl ? (
+                <Link
+                  href={flyerUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Open flyer"
+                  className="block w-full max-w-[380px] no-underline transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:rotate-1 hover:shadow-[0_16px_48px_rgba(0,0,0,0.15)]"
+                >
+                  <FlyerCard image={hasFlyerImage ? flyerImage : null} />
+                </Link>
+              ) : (
+                <div className="w-full max-w-[380px]">
+                  <FlyerCard image={hasFlyerImage ? flyerImage : null} />
+                </div>
               )}
             </div>
           )}
-
-          {registrationText && (
-            <p className="camp-hero__registration">{registrationText}</p>
-          )}
-
-          {Array.isArray(links) && links.length > 0 && (
-            <ul className="camp-hero__buttons">
-              {links.map(({ link }, i) => (
-                <li key={i}>
-                  <CMSLink {...link} />
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
-
-        {/* Right column — flyer */}
-        {(hasFlyerImage || flyerUrl) && (
-          <div className="camp-hero__flyer-col">
-            {flyerUrl ? (
-              <Link
-                href={flyerUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="camp-hero__flyer-link"
-                aria-label="Flyer öffnen"
-              >
-                <FlyerCard image={hasFlyerImage ? flyerImage : null} />
-              </Link>
-            ) : (
-              <div className="camp-hero__flyer-link">
-                <FlyerCard image={hasFlyerImage ? flyerImage : null} />
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </section>
   )
 }
 
 const FlyerCard: React.FC<{ image: CampHeroBlockProps['flyerImage'] | null }> = ({ image }) => (
-  <div className="camp-hero__flyer">
+  <div
+    style={{ backgroundColor: 'color-mix(in srgb, var(--foreground) 8%, transparent)' }}
+    className="relative w-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.12)] [aspect-ratio:1/1.415]"
+  >
     {image && typeof image === 'object' ? (
-      <Media
-        resource={image}
-        imgClassName="camp-hero__flyer-img"
-        fill
-      />
+      <Media resource={image} imgClassName="block h-full w-full object-cover" fill />
     ) : (
-      <span className="camp-hero__flyer-placeholder">Flyer</span>
+      <span
+        style={{ fontFamily: 'var(--font-playfair), Georgia, serif' }}
+        className="pointer-events-none absolute inset-0 flex select-none items-center justify-center -rotate-[15deg] text-5xl font-black tracking-[-0.03em] text-foreground opacity-30"
+      >
+        Flyer
+      </span>
     )}
   </div>
 )

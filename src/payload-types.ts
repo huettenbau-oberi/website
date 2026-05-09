@@ -463,11 +463,11 @@ export interface User {
 export interface CampHeroBlock {
   title: string;
   subtitle?: string | null;
-  countdownDate: string;
   countdownLabel?: string | null;
+  countdownDate: string;
   countdownSuffix?: string | null;
   /**
-   * z.B. "Die Anmeldung wird am 12.12.2025 um 12:12 freigeschaltet."
+   * e.g. "Registration opens on 12.12.2025 at 12:12."
    */
   registrationText?: string | null;
   links?:
@@ -495,11 +495,11 @@ export interface CampHeroBlock {
       }[]
     | null;
   /**
-   * Bild das als Flyer-Vorschau angezeigt wird
+   * Image displayed as the flyer preview
    */
   flyerImage?: (number | null) | Media;
   /**
-   * Datei die beim Klick auf den Flyer geöffnet wird
+   * File opened when the flyer is clicked
    */
   flyerFile?: (number | null) | Media;
   id?: string | null;
@@ -1237,8 +1237,8 @@ export interface PagesSelect<T extends boolean = true> {
 export interface CampHeroBlockSelect<T extends boolean = true> {
   title?: T;
   subtitle?: T;
-  countdownDate?: T;
   countdownLabel?: T;
+  countdownDate?: T;
   countdownSuffix?: T;
   registrationText?: T;
   links?:

@@ -16,5 +16,9 @@
   "users": "Users",
   "settings": "Settings",
   "language": "Language",
-  "contact-us": "Contact us"
+  "contact-us": "Contact us",
+  "days": "Days",
+  "hours": "Hours",
+  "minutes": "Minutes",
+  "seconds": "Seconds"
 }

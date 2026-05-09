@@ -16,5 +16,9 @@
   "users": "Benutzer",
   "settings": "Einstellungen",
   "language": "Sprache",
-  "contact-us": "Kontaktieren Sie uns"
+  "contact-us": "Kontaktieren Sie uns",
+  "days": "Tage",
+  "hours": "Stunden",
+  "minutes": "Minuten",
+  "seconds": "Sekunden"
 }
