@@ -1,24 +1,138 @@
-@import '~@payloadcms/ui/scss';
+.before-dashboard {
+  margin-bottom: 2rem;
+}
 
-.dashboard .before-dashboard {
-  margin-bottom: base(1.5);
+/* ── Hero ─────────────────────────────────────────── */
 
-  &__banner {
-    & h4 {
-      margin: 0;
+.before-dashboard__hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px solid var(--theme-elevation-150);
+  margin-bottom: 1.5rem;
+  padding: 2.5rem;
+  background: linear-gradient(135deg, var(--theme-elevation-100) 0%, var(--theme-elevation-50) 100%);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,180 L0,110 L80,55 L160,100 L280,20 L400,90 L500,35 L600,80 L700,30 L800,60 L800,180 Z' fill='%23000' opacity='0.04'/%3E%3Cpath d='M0,180 L0,135 L120,90 L220,130 L340,70 L460,120 L560,75 L680,110 L800,85 L800,180 Z' fill='%23000' opacity='0.03'/%3E%3C/svg%3E");
+    background-size: cover;
+    background-position: bottom;
+    pointer-events: none;
+  }
+
+  html[data-theme='dark'] & {
+    background: linear-gradient(135deg, #1a2e1c 0%, var(--theme-elevation-50) 100%);
+
+    &::before {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,180 L0,110 L80,55 L160,100 L280,20 L400,90 L500,35 L600,80 L700,30 L800,60 L800,180 Z' fill='%23fff' opacity='0.04'/%3E%3Cpath d='M0,180 L0,135 L120,90 L220,130 L340,70 L460,120 L560,75 L680,110 L800,85 L800,180 Z' fill='%23fff' opacity='0.03'/%3E%3C/svg%3E");
     }
   }
+}
 
-  &__instructions {
-    list-style: decimal;
-    margin-bottom: base(0.5);
+.before-dashboard__hero-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
 
-    & li {
-      width: 100%;
+.before-dashboard__hero-left {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.before-dashboard__logo-wrap {
+  flex-shrink: 0;
+}
+
+.before-dashboard__title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin: 0 0 0.2rem;
+  color: var(--theme-text);
+  letter-spacing: -0.01em;
+}
+
+.before-dashboard__subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--theme-elevation-500);
+}
+
+.before-dashboard__date {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--theme-elevation-400);
+  background: var(--theme-elevation-0);
+  border: 1px solid var(--theme-elevation-150);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+}
+
+/* ── Quick-link grid ──────────────────────────────── */
+
+.before-dashboard__section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--theme-elevation-400);
+  margin: 0 0 0.75rem;
+}
+
+.before-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 0.75rem;
+}
+
+.before-dashboard__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border-radius: 0.625rem;
+  border: 1px solid var(--theme-elevation-150);
+  background: var(--theme-elevation-50);
+  text-decoration: none;
+  color: var(--theme-text);
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    background: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-200);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+    .before-dashboard__card-icon {
+      color: var(--theme-success-500);
     }
   }
+}
 
-  & a:hover {
-    opacity: 0.85;
-  }
+.before-dashboard__card-icon {
+  color: var(--theme-elevation-500);
+  transition: color 0.15s ease;
+  display: flex;
+}
+
+.before-dashboard__card-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.before-dashboard__card-desc {
+  font-size: 0.75rem;
+  color: var(--theme-elevation-500);
+  margin: 0;
 }
