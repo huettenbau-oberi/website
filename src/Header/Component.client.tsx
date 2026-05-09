@@ -11,9 +11,10 @@ import { HeaderNav } from './Nav'
 
 interface HeaderClientProps {
   data: Header
+  isPreview: boolean
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
@@ -50,7 +51,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
         <Link href="/">
           <Logo loading="eager" priority="high" />
         </Link>
-        <HeaderNav data={data} />
+        <HeaderNav data={data} isPreview={isPreview} />
       </div>
     </header>
   )

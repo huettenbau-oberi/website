@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  EyeOffIcon,
   FileTextIcon,
   ImageIcon,
   LayoutDashboardIcon,
@@ -29,7 +30,7 @@ type User = {
   email?: string
 }
 
-export const UserDropdown: React.FC = () => {
+export const UserDropdown: React.FC<{ isPreview: boolean }> = ({ isPreview }) => {
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
 
@@ -48,6 +49,13 @@ export const UserDropdown: React.FC = () => {
         .slice(0, 2)
         .toUpperCase()
     : (user?.email?.slice(0, 2).toUpperCase() ?? '')
+
+  const handleExitPreview = () => {
+    fetch('/next/exit-preview').then(() => {
+      router.push('/')
+      router.refresh()
+    })
+  }
 
   const handleLogout = () => {
     fetch(`${getClientSideURL()}/api/users/logout`, {
@@ -87,6 +95,18 @@ export const UserDropdown: React.FC = () => {
               Dashboard
             </DropdownMenuItem>
           </DropdownMenuGroup>
+          {isPreview && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={handleExitPreview}
+                className="text-destructive focus:text-destructive"
+              >
+                <EyeOffIcon />
+                Exit Preview
+              </DropdownMenuItem>
+            </>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem onSelect={() => router.push('/admin/collections/pages')}>

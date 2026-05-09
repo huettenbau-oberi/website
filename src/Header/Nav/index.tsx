@@ -9,7 +9,7 @@ import { UserDropdown } from '@/components/UserDropdown'
 import { CMSLink } from '@/components/Link'
 import Link from 'next/link'
 
-export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
+export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({ data, isPreview }) => {
   const navItems = data?.navItems || []
   const locale = useLocale()
   const menuLabel = locale === 'de' ? 'MENÜ' : 'MENU'
@@ -25,7 +25,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
       >
         {menuLabel}
       </Link>
-      <UserDropdown />
+      <UserDropdown isPreview={isPreview} />
     </nav>
   )
 }
