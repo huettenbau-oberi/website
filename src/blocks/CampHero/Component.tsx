@@ -141,7 +141,7 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
 
           {/* Right column — flyer */}
           {(hasFlyerImage || flyerUrl) && (
-            <div className="flex justify-center md:justify-end">
+            <div className="flex justify-center md:justify-start">
               {flyerUrl ? (
                 <Link
                   href={flyerUrl}
