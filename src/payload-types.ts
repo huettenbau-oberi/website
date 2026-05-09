@@ -210,7 +210,15 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (HomeSectionBlock | CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CampHeroBlock
+    | HomeSectionBlock
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -447,6 +455,56 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampHeroBlock".
+ */
+export interface CampHeroBlock {
+  title: string;
+  subtitle?: string | null;
+  countdownDate: string;
+  countdownLabel?: string | null;
+  countdownSuffix?: string | null;
+  /**
+   * z.B. "Die Anmeldung wird am 12.12.2025 um 12:12 freigeschaltet."
+   */
+  registrationText?: string | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Bild das als Flyer-Vorschau angezeigt wird
+   */
+  flyerImage?: (number | null) | Media;
+  /**
+   * Datei die beim Klick auf den Flyer geöffnet wird
+   */
+  flyerFile?: (number | null) | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campHero';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1150,6 +1208,7 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        campHero?: T | CampHeroBlockSelect<T>;
         homeSection?: T | HomeSectionBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
@@ -1170,6 +1229,37 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampHeroBlock_select".
+ */
+export interface CampHeroBlockSelect<T extends boolean = true> {
+  title?: T;
+  subtitle?: T;
+  countdownDate?: T;
+  countdownLabel?: T;
+  countdownSuffix?: T;
+  registrationText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  flyerImage?: T;
+  flyerFile?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

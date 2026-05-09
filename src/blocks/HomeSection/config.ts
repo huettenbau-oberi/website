@@ -13,8 +13,8 @@ export const HomeSection: Block = {
   slug: 'homeSection',
   interfaceName: 'HomeSectionBlock',
   labels: {
-    plural: 'Home Sections',
-    singular: 'Home Section',
+    plural: 'Home Intros',
+    singular: 'Home Intro',
   },
   fields: [
     {
