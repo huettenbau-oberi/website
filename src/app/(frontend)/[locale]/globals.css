@@ -167,3 +167,20 @@ html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
 }
+
+button {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+button.primary {
+  padding: 1rem 1.4rem;
+  font-weight: bold;
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  transition: background-color 0.3s ease;
+}
+
+button.primary:hover {
+  background-color: hsl(var(--primary) / 0.9);
+}

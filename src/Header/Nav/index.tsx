@@ -20,7 +20,7 @@ export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
       })}
       <Link
         href="/search"
-        className="text-sm font-bold tracking-widest text-foreground hover:text-primary transition-colors"
+        className="text-md font-bold tracking-widest text-foreground hover:text-primary transition-colors"
       >
         {menuLabel}
       </Link>
