@@ -168,7 +168,7 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
 const FlyerCard: React.FC<{ image: CampHeroBlockProps['flyerImage'] | null }> = ({ image }) => (
   <div
     style={{ backgroundColor: 'color-mix(in srgb, var(--foreground) 8%, transparent)' }}
-    className="relative w-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.12)] [aspect-ratio:1/1.415]"
+    className="relative w-full overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.12)] [aspect-ratio:1/1.415] rounded-lg"
   >
     {image && typeof image === 'object' ? (
       <Media resource={image} imgClassName="block h-full w-full object-cover" fill />

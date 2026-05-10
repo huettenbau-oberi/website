@@ -50,7 +50,7 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
           return (
             <div
               key={i}
-              className="absolute overflow-hidden bg-muted"
+              className="absolute overflow-hidden bg-muted rounded-lg"
               style={{ left: `${l}%`, top: `${t}%`, width: `${w}%`, height: `${h}%` }}
             >
               {item?.image && typeof item.image === 'object' && (
@@ -93,7 +93,7 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
               className="absolute pointer-events-none select-none"
               style={{ left: `${l}%`, top: `${t}%`, width: `${s}%` }}
             >
-              <Media resource={item.icon} imgClassName="w-full h-auto object-contain" />
+              <Media resource={item.icon} imgClassName="w-full h-auto object-contain dark:invert" />
             </div>
           )
         })}
@@ -105,22 +105,22 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
         <div className="relative px-10 pt-14 pb-8 text-center">
           {icons?.[0]?.icon && typeof icons[0].icon === 'object' && (
             <div className="absolute top-8 left-2 w-14 -rotate-12 pointer-events-none select-none">
-              <Media resource={icons[0].icon} imgClassName="w-full h-auto object-contain" />
+              <Media resource={icons[0].icon} imgClassName="w-full h-auto object-contain dark:invert" />
             </div>
           )}
           {icons?.[4]?.icon && typeof icons[4].icon === 'object' && (
             <div className="absolute top-6 right-2 w-12 rotate-6 pointer-events-none select-none">
-              <Media resource={icons[4].icon} imgClassName="w-full h-auto object-contain" />
+              <Media resource={icons[4].icon} imgClassName="w-full h-auto object-contain dark:invert" />
             </div>
           )}
           {icons?.[6]?.icon && typeof icons[6].icon === 'object' && (
             <div className="absolute bottom-4 left-5 w-11 rotate-6 pointer-events-none select-none">
-              <Media resource={icons[6].icon} imgClassName="w-full h-auto object-contain" />
+              <Media resource={icons[6].icon} imgClassName="w-full h-auto object-contain dark:invert" />
             </div>
           )}
           {icons?.[9]?.icon && typeof icons[9].icon === 'object' && (
             <div className="absolute bottom-2 right-5 w-10 -rotate-6 pointer-events-none select-none">
-              <Media resource={icons[9].icon} imgClassName="w-full h-auto object-contain" />
+              <Media resource={icons[9].icon} imgClassName="w-full h-auto object-contain dark:invert" />
             </div>
           )}
           <h2
@@ -158,7 +158,7 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
               return (
                 <div
                   key={i}
-                  className={`relative flex-none overflow-hidden bg-muted${!isTall ? ' mt-10' : ''}`}
+                  className={`relative flex-none overflow-hidden bg-muted rounded-lg${!isTall ? ' mt-10' : ''}`}
                   style={{ width: '280px', height: isTall ? '260px' : '200px' }}
                 >
                   {item?.image && typeof item.image === 'object' && (
