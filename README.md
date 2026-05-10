@@ -1,7 +1,7 @@
 # Hüttenbau Oberi — Website
 
 <p align="center">
-  <img src="/public/images/logo_light.svg" alt="Hüttenbau Oberi" width="180" />
+  <img src="/public/images/logo_light.svg" alt="Hüttenbau Oberi" width="400" />
 </p>
 
 <p align="center">
