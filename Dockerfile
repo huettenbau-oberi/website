@@ -25,10 +25,16 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+# Build-time variables — passed in via --build-arg.
+# DATABASE_URL is intentionally omitted: generateStaticParams catches DB errors
+# and returns [] so the build succeeds without a live database.
+ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000
+ARG PAYLOAD_SECRET=build-time-placeholder
+ARG NODE_OPTIONS=--no-deprecation
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV NODE_OPTIONS=$NODE_OPTIONS
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
