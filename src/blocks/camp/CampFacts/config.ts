@@ -3,6 +3,8 @@ import type { Block } from 'payload'
 export const CampFacts: Block = {
   slug: 'campFacts',
   interfaceName: 'CampFactsBlock',
+  imageURL: '/blocks/camp-facts.svg',
+  imageAltText: 'Row of animated statistics on a taupe background with corner brackets',
   labels: {
     singular: 'Camp Facts',
     plural: 'Camp Facts',

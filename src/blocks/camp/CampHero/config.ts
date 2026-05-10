@@ -5,6 +5,8 @@ import { linkGroup } from '../../../fields/linkGroup'
 export const CampHero: Block = {
   slug: 'campHero',
   interfaceName: 'CampHeroBlock',
+  imageURL: '/blocks/camp-hero.svg',
+  imageAltText: 'Full-width hero with countdown and call-to-action buttons',
   labels: {
     plural: 'Camp Heroes',
     singular: 'Camp Hero',

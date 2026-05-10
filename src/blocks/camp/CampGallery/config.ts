@@ -5,6 +5,8 @@ import { link } from '@/fields/link'
 export const CampGallery: Block = {
   slug: 'campGallery',
   interfaceName: 'CampGalleryBlock',
+  imageURL: '/blocks/camp-gallery.svg',
+  imageAltText: 'Asymmetric mosaic photo gallery with a centered title',
   labels: {
     singular: 'Camp Gallery',
     plural: 'Camp Galleries',

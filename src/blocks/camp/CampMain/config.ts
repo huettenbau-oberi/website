@@ -9,6 +9,8 @@ import {
 export const CampMain: Block = {
   slug: 'campMain',
   interfaceName: 'CampMainBlock',
+  imageURL: '/blocks/camp-main.svg',
+  imageAltText: 'Two-column layout with text on the left and an image on the right',
   labels: {
     plural: 'Camp Mains',
     singular: 'Camp Main',
