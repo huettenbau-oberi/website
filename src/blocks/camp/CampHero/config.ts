@@ -1,6 +1,6 @@
 import type { Block } from 'payload'
 
-import { linkGroup } from '../../fields/linkGroup'
+import { linkGroup } from '../../../fields/linkGroup'
 
 export const CampHero: Block = {
   slug: 'campHero',

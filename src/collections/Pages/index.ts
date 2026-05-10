@@ -2,8 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { CampGallery } from '../../blocks/CampGallery/config'
-import { CampHero } from '../../blocks/CampHero/config'
+import { CampGallery } from '../../blocks/camp/CampGallery/config'
+import { CampHero } from '../../blocks/camp/CampHero/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
@@ -20,9 +20,9 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
-import { CampMain } from '@/blocks/CampMain/config'
-import { CampFacts } from '@/blocks/CampFacts/config'
-import { CampSponsors } from '@/blocks/CampSponsors/config'
+import { CampMain } from '@/blocks/camp/CampMain/config'
+import { CampFacts } from '@/blocks/camp/CampFacts/config'
+import { CampSponsors } from '@/blocks/camp/CampSponsors/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -76,7 +76,16 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CampFacts, CampGallery, CampHero, CampMain, CampSponsors, Content, MediaBlock, FormBlock],
+              blocks: [
+                CampFacts,
+                CampGallery,
+                CampHero,
+                CampMain,
+                CampSponsors,
+                Content,
+                MediaBlock,
+                FormBlock,
+              ],
               required: true,
               localized: true,
               admin: {
