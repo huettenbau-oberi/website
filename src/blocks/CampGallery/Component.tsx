@@ -1,4 +1,6 @@
+'use client'
 import React from 'react'
+import { motion } from 'framer-motion'
 
 import type { CampGalleryBlock as CampGalleryBlockProps } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
@@ -34,6 +36,8 @@ const ICON_SLOTS: [number, number, number][] = [
   [20,  87, 6], // hat / beanie      — below slot 5 (bottom 82%)
 ]
 
+const vp = { once: true, margin: '-60px' as const }
+
 export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link, images, icons }) => {
   return (
     <section className="w-full bg-background">
@@ -48,17 +52,21 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
         {IMAGE_SLOTS.map(([l, t, w, h], i) => {
           const item = images?.[i]
           return (
-            <div
+            <motion.div
               key={i}
               className="absolute overflow-hidden bg-muted rounded-lg"
               style={{ left: `${l}%`, top: `${t}%`, width: `${w}%`, height: `${h}%` }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={vp}
+              transition={{ duration: 0.55, delay: i * 0.07, ease: 'easeOut' }}
             >
               {item?.image && typeof item.image === 'object' && (
                 <div className="relative w-full h-full">
                   <Media resource={item.image} fill imgClassName="object-cover" />
                 </div>
               )}
-            </div>
+            </motion.div>
           )
         })}
 
@@ -67,20 +75,27 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
           className="absolute z-10 flex flex-col items-center justify-center text-center"
           style={{ left: '36%', top: '53%', width: '31%', transform: 'translateY(-50%)' }}
         >
-          <h2
-            className="m-0 font-black text-foreground leading-tight"
-            style={{
-              fontFamily: 'var(--font-playfair), Georgia, serif',
-              fontSize: 'clamp(1rem, 3.5vw, 2.5rem)',
-            }}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.25, ease: 'easeOut' }}
           >
-            {title}
-          </h2>
-          {link && (
-            <div className="mt-3">
-              <CMSLink {...link} appearance="outline" />
-            </div>
-          )}
+            <h2
+              className="m-0 font-black text-foreground leading-tight"
+              style={{
+                fontFamily: 'var(--font-playfair), Georgia, serif',
+                fontSize: 'clamp(1rem, 3.5vw, 2.5rem)',
+              }}
+            >
+              {title}
+            </h2>
+            {link && (
+              <div className="mt-3">
+                <CMSLink {...link} appearance="outline" />
+              </div>
+            )}
+          </motion.div>
         </div>
 
         {/* Icons — overflow: visible so edge icons aren't clipped by the container */}
@@ -88,13 +103,17 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
           const item = icons?.[i]
           if (!item?.icon || typeof item.icon !== 'object') return null
           return (
-            <div
+            <motion.div
               key={i}
               className="absolute pointer-events-none select-none"
               style={{ left: `${l}%`, top: `${t}%`, width: `${s}%` }}
+              initial={{ opacity: 0, scale: 0.75 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.4 + i * 0.05, ease: 'easeOut' }}
             >
               <Media resource={item.icon} imgClassName="w-full h-auto object-contain dark:invert" />
-            </div>
+            </motion.div>
           )
         })}
       </div>
@@ -102,7 +121,13 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
       {/* ── Mobile ─────────────────────────────────────────────── */}
       <div className="md:hidden bg-background overflow-hidden">
         {/* Title card — icons scatter at the four corners like a pinboard */}
-        <div className="relative px-10 pt-14 pb-8 text-center">
+        <motion.div
+          className="relative px-10 pt-14 pb-8 text-center"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+        >
           {icons?.[0]?.icon && typeof icons[0].icon === 'object' && (
             <div className="absolute top-8 left-2 w-14 -rotate-12 pointer-events-none select-none">
               <Media resource={icons[0].icon} imgClassName="w-full h-auto object-contain dark:invert" />
@@ -137,7 +162,7 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
               <CMSLink {...link} appearance="outline" />
             </div>
           )}
-        </div>
+        </motion.div>
 
         {/* Infinite auto-scroll: duplicate the image list so the loop is seamless.
             CSS translates the track by -50% (one full copy), then resets to 0. */}

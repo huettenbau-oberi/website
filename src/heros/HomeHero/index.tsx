@@ -1,6 +1,7 @@
 'use client'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import React, { useEffect } from 'react'
+import { motion } from 'framer-motion'
 import './styles.scss'
 
 import type { Page } from '@/payload-types'
@@ -25,26 +26,36 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) 
       className="relative -mt-[10.4rem] h-[60vh] overflow-hidden md:h-[75vh]"
       data-theme="dark"
     >
-      {/* Full-bleed background: Media wrapper becomes the positioned fill container */}
       {backgroundMedia && typeof backgroundMedia === 'object' && (
-        <Media
-          fill
+        <motion.div
           className="absolute inset-0"
-          imgClassName="object-cover object-center"
-          priority
-          resource={backgroundMedia}
-        />
+          initial={{ scale: 1.06 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 3, ease: 'easeOut' }}
+        >
+          <Media
+            fill
+            className="absolute inset-0"
+            imgClassName="object-cover object-center"
+            priority
+            resource={backgroundMedia}
+          />
+        </motion.div>
       )}
 
-      {/* Bottom-right content, z-index above the image */}
-      <div className="absolute bottom-0 right-0 z-10 flex flex-col items-end gap-1 p-4 md:p-8 hero-intro">
+      <motion.div
+        className="absolute bottom-0 right-0 z-10 flex flex-col items-end gap-1 p-4 md:p-8 hero-intro"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.6, ease: 'easeOut' }}
+      >
         {tagline && (
           <h3 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h3>
         )}
         <div className="logo-container">
           <Logo loading="eager" priority="high" />
         </div>
-      </div>
+      </motion.div>
     </section>
   )
 }

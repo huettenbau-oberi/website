@@ -1,6 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 import { cn } from '@/utilities/ui'
 import { CMSLink } from '@/components/Link'
@@ -69,23 +70,36 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
   return (
     <section className="overflow-hidden py-20 pb-16">
       <div className="container px-4">
-        <h1
+        <motion.h1
           style={{
             fontSize: 'clamp(2rem, 5vw, 3.25rem)',
           }}
           className="m-0 font-bold leading-[1.1] tracking-[-0.02em] text-foreground text-center"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           {title}
-        </h1>
+        </motion.h1>
         {subtitle && (
-          <p className="mt-2 mb-0 text-base font-semibold text-muted-foreground text-center">
+          <motion.p
+            className="mt-2 mb-0 text-base font-semibold text-muted-foreground text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.15, ease: 'easeOut' }}
+          >
             {subtitle}
-          </p>
+          </motion.p>
         )}
 
         <div className="mt-6 grid grid-cols-1 items-start gap-12 md:grid-cols-[1fr_380px] md:items-center md:gap-16 lg:grid-cols-[1fr_420px]">
           {/* Left column */}
-          <div className="flex flex-col gap-6">
+          <motion.div
+            className="flex flex-col gap-6"
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+          >
             {countdownDate && units && (
               <div className="flex flex-col gap-2">
                 {countdownLabel && (
@@ -137,11 +151,16 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
                 ))}
               </ul>
             )}
-          </div>
+          </motion.div>
 
           {/* Right column — flyer */}
           {(hasFlyerImage || flyerUrl) && (
-            <div className="flex justify-center md:justify-start">
+            <motion.div
+              className="flex justify-center md:justify-start"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.3, ease: 'easeOut' }}
+            >
               {flyerUrl ? (
                 <Link
                   href={flyerUrl}
@@ -157,7 +176,7 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
                   <FlyerCard image={hasFlyerImage ? flyerImage : null} />
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
