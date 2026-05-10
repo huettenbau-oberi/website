@@ -10,14 +10,41 @@ export const Footer: GlobalConfig = {
   },
   fields: [
     {
-      name: 'navItems',
+      name: 'legalItems',
+      label: 'Legal Links (Below Logo in Footer)',
       type: 'array',
+      localized: true,
       fields: [
         link({
           appearances: false,
         }),
       ],
-      maxRows: 6,
+      admin: {
+        components: {
+          RowLabel: '@/Footer/RowLabel#RowLabel',
+        },
+      },
+    },
+    {
+      name: 'navItems',
+      type: 'array',
+      localized: true,
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'links',
+          type: 'array',
+          fields: [
+            link({
+              appearances: false,
+            }),
+          ],
+        },
+      ],
       admin: {
         initCollapsed: true,
         components: {

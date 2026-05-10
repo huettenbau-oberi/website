@@ -6,13 +6,15 @@ import type { Footer } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 import { SendIcon } from 'lucide-react'
-import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
-
+import { getLocale } from 'next-intl/server'
+import type { TypedLocale } from 'payload'
 
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  const locale = (await getLocale()) as TypedLocale
+  const footerData = (await getCachedGlobal('footer', 1, locale)()) as Footer
 
   const navItems = footerData?.navItems || []
+  const legalItems = footerData?.legalItems || []
 
   return (
     <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
@@ -21,23 +23,43 @@ export async function Footer() {
           <Link className="flex items-center" href="/" data-theme="dark">
             <Logo />
           </Link>
+          {legalItems.length > 0 && (
+            <div className="flex items-center flex-wrap gap-x-2 mt-2 text-sm">
+              {legalItems.map(({ link }, i) => (
+                <span key={i} className="flex items-center gap-x-2">
+                  {i > 0 && <span className="text-white/40">|</span>}
+                  <CMSLink className="text-white/70 hover:text-white transition-colors" {...link} />
+                </span>
+              ))}
+            </div>
+          )}
 
-          <button className="primary flex items-center mt-4">
+          <button className="primary flex items-center mt-8">
             Kontakt <SendIcon className="size-4 ml-1 stroke-2" />
           </button>
-
-          <ThemeSelector />
         </div>
 
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
-          <nav className="flex flex-col md:flex-row gap-4">
-            {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
-            })}
-          </nav>
+        <div className="flex flex-col items-start md:flex-row gap-8">
+          {navItems.map(({ title, links }, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              <span className="font-semibold text-white text-sm uppercase tracking-wide">
+                {title}
+              </span>
+              <nav className="flex flex-col gap-2">
+                {(links || []).map(({ link }, j) => (
+                  <CMSLink
+                    className="text-white/70 hover:text-white transition-colors text-sm"
+                    key={j}
+                    {...link}
+                  />
+                ))}
+              </nav>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="text-center py-4 text-sm">
+
+      <div className="text-center py-4 text-sm text-white/50">
         &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
       </div>
     </footer>
