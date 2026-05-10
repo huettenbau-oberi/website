@@ -208,7 +208,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CampHeroBlock | CampMainBlock | ContentBlock | MediaBlock | FormBlock)[];
+  layout: (CampGalleryBlock | CampHeroBlock | CampMainBlock | ContentBlock | MediaBlock | FormBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -445,6 +445,49 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampGalleryBlock".
+ */
+export interface CampGalleryBlock {
+  title: string;
+  link: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
+  /**
+   * Up to 7 images. They fill the mosaic positions from left to right.
+   */
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Up to 12 icons scattered around the gallery perimeter.
+   */
+  icons?:
+    | {
+        icon: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campGallery';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1108,6 +1151,7 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        campGallery?: T | CampGalleryBlockSelect<T>;
         campHero?: T | CampHeroBlockSelect<T>;
         campMain?: T | CampMainBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
@@ -1127,6 +1171,36 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampGalleryBlock_select".
+ */
+export interface CampGalleryBlockSelect<T extends boolean = true> {
+  title?: T;
+  link?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+      };
+  images?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  icons?:
+    | T
+    | {
+        icon?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
