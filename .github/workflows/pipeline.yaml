@@ -144,6 +144,14 @@ jobs:
             nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
             nextjs-${{ runner.os }}-
 
+      # Create the initial migration from the Payload schema (fresh DB has no tables).
+      # --forceAcceptWarning skips the interactive confirmation prompt.
+      - name: Create database schema
+        run: pnpm payload migrate:create --name initial --forceAcceptWarning
+
+      - name: Run database migrations
+        run: pnpm payload migrate
+
       - name: Build
         run: pnpm build
 
