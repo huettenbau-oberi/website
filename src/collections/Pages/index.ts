@@ -21,6 +21,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { CampMain } from '@/blocks/CampMain/config'
+import { CampFacts } from '@/blocks/CampFacts/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -74,7 +75,7 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CampGallery, CampHero, CampMain, Content, MediaBlock, FormBlock],
+              blocks: [CampFacts, CampGallery, CampHero, CampMain, Content, MediaBlock, FormBlock],
               required: true,
               localized: true,
               admin: {

@@ -208,7 +208,7 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CampGalleryBlock | CampHeroBlock | CampMainBlock | ContentBlock | MediaBlock | FormBlock)[];
+  layout: (CampFactsBlock | CampGalleryBlock | CampHeroBlock | CampMainBlock | ContentBlock | MediaBlock | FormBlock)[];
   meta?: {
     title?: string | null;
     /**
@@ -445,6 +445,33 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampFactsBlock".
+ */
+export interface CampFactsBlock {
+  title?: string | null;
+  facts?:
+    | {
+        /**
+         * e.g. "Zusammen mit"
+         */
+        prefix?: string | null;
+        /**
+         * The large number or text, e.g. "64"
+         */
+        value: string;
+        /**
+         * e.g. "Kindern"
+         */
+        suffix?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campFacts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1151,6 +1178,7 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        campFacts?: T | CampFactsBlockSelect<T>;
         campGallery?: T | CampGalleryBlockSelect<T>;
         campHero?: T | CampHeroBlockSelect<T>;
         campMain?: T | CampMainBlockSelect<T>;
@@ -1171,6 +1199,23 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampFactsBlock_select".
+ */
+export interface CampFactsBlockSelect<T extends boolean = true> {
+  title?: T;
+  facts?:
+    | T
+    | {
+        prefix?: T;
+        value?: T;
+        suffix?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

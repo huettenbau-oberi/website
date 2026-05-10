@@ -35,8 +35,10 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
   const menuLabel = locale === 'de' ? 'Menü' : 'Menu'
-  const isDark = theme === 'dark'
+  const isDark = mounted && theme === 'dark'
 
   useEffect(() => {
     if (!open) return

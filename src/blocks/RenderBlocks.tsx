@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 
 import type { Page } from '@/payload-types'
 
+import { CampFactsBlock } from '@/blocks/CampFacts/Component'
 import { CampGalleryBlock } from '@/blocks/CampGallery/Component'
 import { CampHeroBlock } from '@/blocks/CampHero/Component'
 import { CampMainBlock } from '@/blocks/CampMain/Component'
@@ -10,6 +11,7 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 
 const blockComponents = {
+  campFacts: CampFactsBlock,
   campGallery: CampGalleryBlock,
   campHero: CampHeroBlock,
   campMain: CampMainBlock,
