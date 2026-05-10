@@ -7,6 +7,7 @@ export const CampHero: Block = {
   interfaceName: 'CampHeroBlock',
   imageURL: '/blocks/camp-hero.svg',
   imageAltText: 'Full-width hero with countdown and call-to-action buttons',
+  admin: { group: 'Hüttenbau Homepage' },
   labels: {
     plural: 'Camp Heroes',
     singular: 'Camp Hero',

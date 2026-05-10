@@ -8,6 +8,7 @@ import {
 export const CampSponsors: Block = {
   imageURL: '/blocks/camp-sponsors.svg',
   imageAltText: 'Scattered sponsor logos with title and intro/outro text',
+  admin: { group: 'Hüttenbau Homepage' },
   slug: 'campSponsors',
   interfaceName: 'CampSponsorsBlock',
   labels: {

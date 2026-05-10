@@ -7,6 +7,7 @@ export const CampGallery: Block = {
   interfaceName: 'CampGalleryBlock',
   imageURL: '/blocks/camp-gallery.svg',
   imageAltText: 'Asymmetric mosaic photo gallery with a centered title',
+  admin: { group: 'Hüttenbau Homepage' },
   labels: {
     singular: 'Camp Gallery',
     plural: 'Camp Galleries',

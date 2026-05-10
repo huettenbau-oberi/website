@@ -5,6 +5,7 @@ export const CampFacts: Block = {
   interfaceName: 'CampFactsBlock',
   imageURL: '/blocks/camp-facts.svg',
   imageAltText: 'Row of animated statistics on a taupe background with corner brackets',
+  admin: { group: 'Hüttenbau Homepage' },
   labels: {
     singular: 'Camp Facts',
     plural: 'Camp Facts',

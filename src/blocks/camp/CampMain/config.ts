@@ -11,6 +11,7 @@ export const CampMain: Block = {
   interfaceName: 'CampMainBlock',
   imageURL: '/blocks/camp-main.svg',
   imageAltText: 'Two-column layout with text on the left and an image on the right',
+  admin: { group: 'Hüttenbau Homepage' },
   labels: {
     plural: 'Camp Mains',
     singular: 'Camp Main',
