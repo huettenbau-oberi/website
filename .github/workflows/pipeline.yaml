@@ -1,0 +1,259 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel any in-progress run for the same ref so pushes don't queue up
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+  NODE_OPTIONS: --no-deprecation
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Shared PostgreSQL service snippet (YAML anchors keep the file DRY)
+# ─────────────────────────────────────────────────────────────────────────────
+# Note: GitHub Actions doesn't support top-level anchors, so the service block
+# is repeated per-job. All jobs use the same credentials; each gets its own DB.
+
+jobs:
+  # ── 1. Lint & type-check ──────────────────────────────────────────────────
+  # Runs without a database — fast first gate that catches obvious problems.
+  lint:
+    name: Lint & Type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: TypeScript
+        run: pnpm exec tsc --noEmit
+
+  # ── 2. Integration tests ──────────────────────────────────────────────────
+  # Vitest tests under tests/int/ — needs a live Postgres instance.
+  test-integration:
+    name: Integration Tests
+    needs: lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: payload_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/payload_test
+      PAYLOAD_SECRET: ci-secret-only
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CRON_SECRET: ci-cron
+      PREVIEW_SECRET: ci-preview
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run integration tests
+        run: pnpm test:int
+
+  # ── 3. Production build ───────────────────────────────────────────────────
+  # Verifies the Next.js + Payload build succeeds end-to-end.
+  # The resulting .next directory is uploaded as an artifact for the E2E job.
+  build:
+    name: Build
+    needs: lint
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: payload_build
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/payload_build
+      PAYLOAD_SECRET: ci-secret-only
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CRON_SECRET: ci-cron
+      PREVIEW_SECRET: ci-preview
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Restore the Next.js compiler cache between runs. The key covers both
+      # the lockfile (dependency changes) and source files (code changes).
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.tsx', 'src/**/*.css') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            nextjs-${{ runner.os }}-
+
+      - name: Build
+        run: pnpm build
+
+      # Share the build output with the E2E job instead of rebuilding there.
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+          retention-days: 1
+
+  # ── 4. E2E tests ──────────────────────────────────────────────────────────
+  # Playwright tests running against the production build from job 3.
+  # The HTML report is always uploaded so failures are easy to investigate.
+  test-e2e:
+    name: E2E Tests
+    needs: build
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: payload_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/payload_e2e
+      PAYLOAD_SECRET: ci-secret-only
+      NEXT_PUBLIC_SERVER_URL: http://localhost:3000
+      CRON_SECRET: ci-cron
+      PREVIEW_SECRET: ci-preview
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      # Cache the Playwright browser binaries — they are large and slow to download.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: pw-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright browsers
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Install Playwright system deps (cached browsers)
+        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ── 5. Deploy ─────────────────────────────────────────────────────────────
+  # Only runs on a push to main after all tests pass.
+  # Uses a protected "production" environment so deployments can require
+  # manual approval in the GitHub repository settings.
+  deploy:
+    name: Deploy
+    needs: [test-integration, test-e2e]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+
+      # ── Replace the step below with your hosting provider ──────────────────
+      # Vercel:   vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }}
+      # Coolify:  curl -X POST "${{ secrets.COOLIFY_WEBHOOK }}"
+      # SSH:      rsync -az .next user@host:/app && ssh user@host "cd /app && pnpm start"
+      # Docker:   docker build -t app . && docker push registry/app:${{ github.sha }}
+      - name: Deploy
+        run: echo "🚀 Configure your deployment provider here"
