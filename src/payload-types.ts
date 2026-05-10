@@ -208,7 +208,16 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CampFactsBlock | CampGalleryBlock | CampHeroBlock | CampMainBlock | ContentBlock | MediaBlock | FormBlock)[];
+  layout: (
+    | CampFactsBlock
+    | CampGalleryBlock
+    | CampHeroBlock
+    | CampMainBlock
+    | CampSponsorsBlock
+    | ContentBlock
+    | MediaBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -612,6 +621,56 @@ export interface CampMainBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'campMain';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampSponsorsBlock".
+ */
+export interface CampSponsorsBlock {
+  title: string;
+  introText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  sponsors?:
+    | {
+        image: number | Media;
+        /**
+         * Used as alt text for accessibility
+         */
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  outroText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campSponsors';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1182,6 +1241,7 @@ export interface PagesSelect<T extends boolean = true> {
         campGallery?: T | CampGalleryBlockSelect<T>;
         campHero?: T | CampHeroBlockSelect<T>;
         campMain?: T | CampMainBlockSelect<T>;
+        campSponsors?: T | CampSponsorsBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
@@ -1287,6 +1347,24 @@ export interface CampMainBlockSelect<T extends boolean = true> {
   image1?: T;
   richText2?: T;
   image2?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampSponsorsBlock_select".
+ */
+export interface CampSponsorsBlockSelect<T extends boolean = true> {
+  title?: T;
+  introText?: T;
+  sponsors?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        id?: T;
+      };
+  outroText?: T;
   id?: T;
   blockName?: T;
 }
