@@ -38,14 +38,15 @@ export default async function RootLayout({
   params,
 }: {
   children: React.ReactNode
-  params: Promise<{ locale: TypedLocale }>
+  params: Promise<{ locale: string }>
 }) {
-  const { locale } = await params
+  const { locale: localeParam } = await params
 
-  if (!routing.locales.includes(locale as any)) {
+  if (!routing.locales.includes(localeParam as TypedLocale)) {
     return notFound()
   }
 
+  const locale = localeParam as TypedLocale
   setRequestLocale(locale)
   const message = await getMessages()
 
