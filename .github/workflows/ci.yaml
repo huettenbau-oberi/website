@@ -52,14 +52,18 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       # Layer cache is stored in the GitHub Actions cache so warm builds are fast.
-      - name: Build and push
+      - name: Build
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: false
+          load: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NEXT_PUBLIC_SERVER_URL=https://${{ github.ref_name == 'develop' && 'dev.' || '' }}huettenbau-oberi.ch
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Push
+        run: docker push --all-tags ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
