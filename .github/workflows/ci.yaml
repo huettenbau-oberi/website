@@ -60,6 +60,6 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_SERVER_URL=https://huettenbau-oberi.ch
+            NEXT_PUBLIC_SERVER_URL=https://${{ github.ref_name == 'develop' && 'dev.' || '' }}huettenbau-oberi.ch
           cache-from: type=gha
           cache-to: type=gha,mode=max

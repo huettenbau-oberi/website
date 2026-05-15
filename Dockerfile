@@ -24,18 +24,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build-time variables — passed in via --build-arg.
-# DATABASE_URL is intentionally omitted: generateStaticParams catches DB errors
-# and returns [] so the build succeeds without a live database.
+# Only NEXT_PUBLIC_SERVER_URL must be set at build time — Next.js bakes NEXT_PUBLIC_* vars
+# into the client bundle. DATABASE_URL is intentionally omitted: all generateStaticParams
+# and page components catch DB errors and return empty state so the build succeeds without
+# a live database. PAYLOAD_SECRET is a placeholder; the real value is injected at runtime.
 ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-ARG PAYLOAD_SECRET=build-time-placeholder
-ARG NODE_OPTIONS=--no-deprecation
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
-ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
-ENV NODE_OPTIONS=$NODE_OPTIONS
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN pnpm run build
+RUN PAYLOAD_SECRET=build-time-placeholder pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -65,7 +62,8 @@ USER nextjs
 EXPOSE 3000
 
 ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD HOSTNAME="0.0.0.0" node server.js
+CMD ["node", "server.js"]
