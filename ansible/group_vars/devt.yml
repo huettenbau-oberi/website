@@ -1,0 +1,19 @@
+# --- Project ---
+project_name: huettenbau-oberi-devt
+deploy_dir: /opt/huettenbau-oberi/devt
+# Image built and pushed by CI (e.g. GitHub Actions → GHCR)
+app_image: ghcr.io/nevah5/huettenbau-oberi
+app_image_tag: latest
+
+# --- Domain & TLS ---
+domain: dev.huettenbau-oberi.ch
+letsencrypt_email: webmaster@huettenbau-oberi.ch
+
+# --- Traefik ---
+traefik_dir: /opt/traefik
+traefik_version: v3.3
+# Shared Docker network used by Traefik and all proxied services
+docker_network_name: proxy
+# Basic-auth credentials for the Traefik dashboard (leave empty to disable).
+# Generate with: echo $(htpasswd -nB admin) | sed -e 's/\$/\$\$/g'
+#traefik_dashboard_auth: ""

@@ -1,0 +1,26 @@
+services:
+  app:
+    image: {{ app_image }}:{{ app_image_tag }}
+    container_name: {{ project_name }}
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+      - internal
+      - postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.{{ project_name }}.rule=Host(`{{ domain }}`)"
+      - "traefik.http.routers.{{ project_name }}.entrypoints=websecure"
+      - "traefik.http.routers.{{ project_name }}.tls=letsencrypt"
+      - "traefik.http.services.{{ project_name }}.loadbalancer.server.port=3000"
+
+networks:
+  postgres:
+    external: true
+  proxy:
+    external: true
+  internal:
+    driver: bridge

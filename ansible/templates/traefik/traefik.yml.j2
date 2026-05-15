@@ -1,0 +1,35 @@
+api:
+  dashboard: {{ 'true' if traefik_dashboard_auth else 'false' }}
+
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: {{ letsencrypt_email }}
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: {{ docker_network_name }}
+
+tls:
+  options:
+    default:
+      sniStrict: true

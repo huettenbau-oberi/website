@@ -1,0 +1,10 @@
+[DEFAULT]
+# Ban for 1 hour after 5 failures within 10 minutes
+bantime  = 1h
+findtime = 10m
+maxretry = 5
+
+[sshd]
+enabled  = true
+backend  = systemd
+maxretry = 3
