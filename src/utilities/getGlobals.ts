@@ -8,15 +8,19 @@ import { unstable_cache } from 'next/cache'
 type Global = keyof Config['globals']
 
 async function getGlobal(slug: Global, depth = 0, locale?: TypedLocale) {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const global = await payload.findGlobal({
-    slug,
-    depth,
-    ...(locale ? { locale } : {}),
-  })
+    const global = await payload.findGlobal({
+      slug,
+      depth,
+      ...(locale ? { locale } : {}),
+    })
 
-  return global
+    return global
+  } catch {
+    return null
+  }
 }
 
 /**
