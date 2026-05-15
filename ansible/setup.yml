@@ -95,9 +95,17 @@
         group: root
         mode: "0755"
 
+    - name: Create Traefik letsencrypt directory
+      ansible.builtin.file:
+        path: "{{ traefik_dir }}/letsencrypt"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
     - name: Create acme.json for Let's Encrypt certificates
       ansible.builtin.copy:
-        content: ""
+        content: "{}"
         dest: "{{ traefik_dir }}/letsencrypt/acme.json"
         force: false
         owner: root

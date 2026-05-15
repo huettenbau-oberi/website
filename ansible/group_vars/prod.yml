@@ -16,4 +16,4 @@ traefik_version: v3.3
 docker_network_name: proxy
 # Basic-auth credentials for the Traefik dashboard (leave empty to disable).
 # Generate with: echo $(htpasswd -nB admin) | sed -e 's/\$/\$\$/g'
-#traefik_dashboard_auth: ""
+traefik_dashboard_auth: ""
