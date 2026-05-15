@@ -1,0 +1,136 @@
+---
+- name: Initial VPS Setup
+  hosts: vps
+  become: true
+
+  handlers:
+    - name: Restart Fail2Ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        state: restarted
+
+    - name: Restart Traefik
+      community.docker.docker_compose_v2:
+        project_src: "{{ traefik_dir }}"
+        state: present
+        recreate: always
+
+  tasks:
+    # ── System ──────────────────────────────────────────────────────────────
+    - name: Update apt cache and upgrade packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 3600
+
+    - name: Install common utilities
+      ansible.builtin.apt:
+        name:
+          - curl
+          - ca-certificates
+          - gnupg
+          - ufw
+        state: present
+
+    # ── Fail2Ban ────────────────────────────────────────────────────────────
+    - name: Install Fail2Ban
+      ansible.builtin.apt:
+        name: fail2ban
+        state: present
+
+    - name: Configure Fail2Ban jail
+      ansible.builtin.template:
+        src: templates/fail2ban/jail.local.j2
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart Fail2Ban
+
+    - name: Enable and start Fail2Ban
+      ansible.builtin.systemd:
+        name: fail2ban
+        enabled: true
+        state: started
+
+    # ── Docker ──────────────────────────────────────────────────────────────
+    - name: Add Docker GPG key
+      ansible.builtin.apt_key:
+        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+        state: present
+
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker CE and compose plugin
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: true
+
+    - name: Enable and start Docker
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    # ── Docker network ───────────────────────────────────────────────────────
+    - name: Create shared proxy network for Traefik
+      community.docker.docker_network:
+        name: "{{ docker_network_name }}"
+        state: present
+
+    # ── Traefik ──────────────────────────────────────────────────────────────
+    - name: Create Traefik directory
+      ansible.builtin.file:
+        path: "{{ traefik_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create acme.json for Let's Encrypt certificates
+      ansible.builtin.copy:
+        content: ""
+        dest: "{{ traefik_dir }}/letsencrypt/acme.json"
+        force: false
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Deploy Traefik static config
+      ansible.builtin.template:
+        src: templates/traefik/traefik.yml.j2
+        dest: "{{ traefik_dir }}/traefik.yml"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart Traefik
+
+    - name: Deploy Traefik docker-compose
+      ansible.builtin.template:
+        src: templates/traefik/docker-compose.yml.j2
+        dest: "{{ traefik_dir }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Start Traefik
+      community.docker.docker_compose_v2:
+        project_src: "{{ traefik_dir }}"
+        state: present
+
+    # ── Deployment directory ─────────────────────────────────────────────────
+    - name: Create project deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"

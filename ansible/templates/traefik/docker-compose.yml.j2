@@ -1,0 +1,28 @@
+services:
+  traefik:
+    image: traefik:{{ traefik_version }}
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - {{ traefik_dir }}/traefik.yml:/traefik.yml:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - proxy
+{% if traefik_dashboard_auth %}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.{{ domain }}`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users={{ traefik_dashboard_auth }}"
+{% endif %}
+
+networks:
+  proxy:
+    external: true
