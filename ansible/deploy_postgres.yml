@@ -34,7 +34,7 @@
 
     - name: Copy .env file to server
       ansible.builtin.copy:
-        src: files/env.postgres
+        src: files/postgres.env
         dest: "{{ deploy_dir_postgres }}/.env"
         owner: root
         group: root

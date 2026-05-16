@@ -4,6 +4,7 @@ deploy_dir: /opt/huettenbau-oberi/prod
 # Image built and pushed by CI (e.g. GitHub Actions → GHCR)
 app_image: ghcr.io/nevah5/huettenbau-oberi
 app_image_tag: latest
+env_file: files/prod.env
 
 # --- PostgreSQL ---
 deploy_dir_postgres: "/opt/postgres"

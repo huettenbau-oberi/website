@@ -17,6 +17,13 @@
   become: true
 
   tasks:
+    - name: Create Deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
         src: templates/app/docker-compose.prod.yml.j2
@@ -27,7 +34,7 @@
 
     - name: Copy .env file to server
       ansible.builtin.copy:
-        src: files/env.production
+        src: "{{ env_file }}"
         dest: "{{ deploy_dir }}/.env"
         owner: root
         group: root

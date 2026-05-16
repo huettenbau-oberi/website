@@ -1,4 +1,4 @@
 *.vault
-files/env.*
-!env.*.example
+files/*.env
+!*.example.env
 inventory.ini
