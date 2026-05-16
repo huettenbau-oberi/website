@@ -4,6 +4,11 @@
   become: true
 
   handlers:
+    - name: Restart SSH
+      ansible.builtin.systemd:
+        name: ssh
+        state: restarted
+
     - name: Restart Fail2Ban
       ansible.builtin.systemd:
         name: fail2ban
@@ -32,6 +37,31 @@
           - ufw
         state: present
 
+    # ── SSH ─────────────────────────────────────────────────────────────────
+    - name: Disable SSH password authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?PasswordAuthentication"
+        line: "PasswordAuthentication no"
+        state: present
+      notify: Restart SSH
+
+    - name: Disable SSH challenge-response authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?KbdInteractiveAuthentication"
+        line: "KbdInteractiveAuthentication no"
+        state: present
+      notify: Restart SSH
+
+    - name: Disable SSH PAM authentication
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?UsePAM"
+        line: "UsePAM no"
+        state: present
+      notify: Restart SSH
+
     # ── Fail2Ban ────────────────────────────────────────────────────────────
     - name: Install Fail2Ban
       ansible.builtin.apt:
@@ -54,15 +84,35 @@
         state: started
 
     # ── Docker ──────────────────────────────────────────────────────────────
-    - name: Add Docker GPG key
-      ansible.builtin.apt_key:
-        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-        state: present
+    - name: Create apt keyrings directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Download Docker GPG key
+      ansible.builtin.get_url:
+        url: "https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}/gpg"
+        dest: /etc/apt/keyrings/docker.asc
+        owner: root
+        group: root
+        mode: "0644"
 
     - name: Add Docker apt repository
-      ansible.builtin.apt_repository:
-        repo: "deb https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-        state: present
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/docker.sources
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          Types: deb
+          URIs: https://download.docker.com/linux/{{ ansible_facts['distribution'] | lower }}
+          Suites: {{ ansible_facts['distribution_release'] }}
+          Components: stable
+          Architectures: {{ {'x86_64': 'amd64', 'aarch64': 'arm64', 'armv7l': 'armhf'}[ansible_facts['architecture']] }}
+          Signed-By: /etc/apt/keyrings/docker.asc
 
     - name: Install Docker CE and compose plugin
       ansible.builtin.apt:
@@ -70,6 +120,7 @@
           - docker-ce
           - docker-ce-cli
           - containerd.io
+          - docker-buildx-plugin
           - docker-compose-plugin
         state: present
         update_cache: true
