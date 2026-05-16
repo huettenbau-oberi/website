@@ -44,6 +44,11 @@
         group: root
         mode: "0600"
 
+    - name: Create shared postgres network for app
+      community.docker.docker_network:
+        name: "postgres"
+        state: present
+
     # Pull happens while the old container is still running
     - name: Pull latest image (old container keeps serving)
       community.docker.docker_compose_v2:

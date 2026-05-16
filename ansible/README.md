@@ -50,7 +50,7 @@ Run once on a fresh server. Sets up:
 - The application deployment directory
 
 ```bash
-ansible-playbook -i inventory.ini setup.yml -e @group_vars/prod.yml
+ansible-playbook -i inventory.ini setup.yml
 ```
 
 ### `deploy_postgres.yml` — Postgres deployment

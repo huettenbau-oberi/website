@@ -3,6 +3,9 @@
   hosts: vps
   become: true
 
+  vars_files:
+    - group_vars/prod.yml
+
   handlers:
     - name: Restart SSH
       ansible.builtin.systemd:
@@ -179,6 +182,7 @@
         owner: root
         group: root
         mode: "0644"
+      notify: Restart Traefik
 
     - name: Start Traefik
       community.docker.docker_compose_v2:
