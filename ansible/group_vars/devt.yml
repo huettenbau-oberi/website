@@ -3,7 +3,7 @@ project_name: huettenbau-oberi-devt
 deploy_dir: /opt/huettenbau-oberi/devt
 # Image built and pushed by CI (e.g. GitHub Actions → GHCR)
 app_image: ghcr.io/nevah5/huettenbau-oberi
-app_image_tag: latest
+app_image_tag: develop
 
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch

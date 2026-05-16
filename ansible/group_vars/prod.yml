@@ -5,6 +5,10 @@ deploy_dir: /opt/huettenbau-oberi/prod
 app_image: ghcr.io/nevah5/huettenbau-oberi
 app_image_tag: latest
 
+# --- PostgreSQL ---
+deploy_dir_postgres: "/opt/postgres"
+app_image_tag_postgres: "postgres:15-alpine"
+
 # --- Domain & TLS ---
 domain: huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
