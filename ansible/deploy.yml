@@ -16,6 +16,9 @@
   hosts: vps
   become: true
 
+  vars_files:
+    - files/postgres_users.vault
+
   tasks:
     - name: Create Deployment directory
       ansible.builtin.file:
@@ -33,7 +36,7 @@
         mode: "0644"
 
     - name: Copy .env file to server
-      ansible.builtin.copy:
+      ansible.builtin.template:
         src: "{{ env_file }}"
         dest: "{{ deploy_dir }}/.env"
         owner: root

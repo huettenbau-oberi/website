@@ -53,6 +53,16 @@ Run once on a fresh server. Sets up:
 ansible-playbook -i inventory.ini setup.yml -e @group_vars/prod.yml
 ```
 
+### `deploy_postgres.yml` — Postgres deployment
+
+Deploys the postgresql instance as a docker container. Run this before `deploy.yml` to ensure the database is available.
+
+```bash
+ansible-playbook -i inventory.ini deploy_postgres.yml
+```
+
+Needs to have prod.yml vars used.
+
 ### `deploy.yml` — Application deployment
 
 Deploys the app with minimal downtime: pulls the new image while the old container is still serving traffic, then restarts only changed containers.

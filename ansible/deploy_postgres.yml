@@ -16,6 +16,10 @@
   hosts: vps
   become: true
 
+  vars_files:
+    - files/postgres_users.vault
+    - group_vars/prod.yml # always use prod for the database
+
   tasks:
     - name: Create PostgreSQL directory
       ansible.builtin.file:
@@ -33,8 +37,8 @@
         mode: "0644"
 
     - name: Copy .env file to server
-      ansible.builtin.copy:
-        src: files/postgres.env
+      ansible.builtin.template:
+        src: templates/database/postgres.env.j2
         dest: "{{ deploy_dir_postgres }}/.env"
         owner: root
         group: root
@@ -59,3 +63,84 @@
         name: "{{ project_name }}_postgres"
       register: container_info
       failed_when: not container_info.container.State.Running
+
+    - name: Wait for PostgreSQL to be healthy
+      community.docker.docker_container_info:
+        name: "{{ project_name }}_postgres"
+      register: pg_info
+      until: pg_info.container.State.Health.Status == 'healthy'
+      retries: 10
+      delay: 6
+
+    # ── Databases ────────────────────────────────────────────────────────────
+    - name: Create devt database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '{{ devt_database_name }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE DATABASE \"{{ devt_database_name }}\";"
+      changed_when: false
+
+    # ── Users ────────────────────────────────────────────────────────────────
+    - name: Create devt DB user
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname = '{{ pg_devt_user }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE USER \"{{ pg_devt_user }}\" WITH PASSWORD '{{ pg_devt_password }}';"
+      no_log: true
+      changed_when: false
+
+    - name: Grant devt user full access to devt database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - postgres
+          - -c
+          - "GRANT ALL PRIVILEGES ON DATABASE \"{{ devt_database_name }}\" TO \"{{ pg_devt_user }}\";"
+      changed_when: false
+
+    - name: Create prod DB user
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname = '{{ pg_prod_user }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE USER \"{{ pg_prod_user }}\" WITH PASSWORD '{{ pg_prod_password }}';"
+      no_log: true
+      changed_when: false
+
+    - name: Grant prod user full access to prod database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - postgres
+          - -c
+          - "GRANT ALL PRIVILEGES ON DATABASE \"{{ prod_database_name }}\" TO \"{{ pg_prod_user }}\";"
+      changed_when: false
