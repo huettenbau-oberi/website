@@ -5,6 +5,7 @@
 
   vars_files:
     - group_vars/prod.yml
+    - files/cloudflare.vault
 
   handlers:
     - name: Restart SSH
@@ -156,6 +157,14 @@
         owner: root
         group: root
         mode: "0700"
+
+    - name: Copy .env file to server
+      ansible.builtin.template:
+        src: "templates/traefik/traefik.env.j2"
+        dest: "{{ traefik_dir }}/.env"
+        owner: root
+        group: root
+        mode: "0600"
 
     - name: Create acme.json for Let's Encrypt certificates
       ansible.builtin.copy:

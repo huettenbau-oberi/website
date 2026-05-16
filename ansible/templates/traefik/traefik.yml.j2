@@ -17,12 +17,17 @@ entryPoints:
     address: ":443"
 
 certificatesResolvers:
-  letsencrypt:
+  cloudflare:
     acme:
-      email: {{ letsencrypt_email }}
-      storage: /letsencrypt/acme.json
-      httpChallenge:
-        entryPoint: web
+      email: contact@geeler.net
+      storage: acme.json
+      dnsChallenge:
+        provider: cloudflare
+        delayBeforeCheck: 10
+        disablePropagationCheck: true
+        resolvers:
+          - 1.1.1.1:53
+          - 8.8.8.8:53
 
 providers:
   docker:
