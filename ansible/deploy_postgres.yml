@@ -13,7 +13,7 @@
 #   ansible-playbook -i inventory.ini deploy.yml -e "app_image_tag=sha-abc1234"
 
 - name: Deploy PostgreSQL
-  hosts: vps
+  hosts: hetzner
   become: true
 
   vars_files:
