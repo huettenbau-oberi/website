@@ -1,0 +1,191 @@
+---
+# Deploy the application with minimal downtime:
+#   1. Push docker-compose + .env to the server
+#   2. Pull the new image while the old container is still serving traffic
+#   3. Replace containers — Docker Compose restarts only changed services
+#
+# Prerequisites:
+#   - ansible/files/env.production  (copy from .env.example, fill in secrets, keep out of git)
+#   - The image must already be published: ghcr.io/nevah5/huettenbau-oberi:<tag>
+#
+# Usage:
+#   ansible-playbook -i inventory.ini deploy.yml
+#   ansible-playbook -i inventory.ini deploy.yml -e "app_image_tag=sha-abc1234"
+
+- name: Deploy PostgreSQL
+  hosts: vps
+  become: true
+
+  vars_files:
+    - files/postgres_users.vault
+    - group_vars/prod.yml # always use prod for the database
+
+  tasks:
+    - name: Create PostgreSQL directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir_postgres }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Copy production docker-compose to server
+      ansible.builtin.template:
+        src: templates/database/docker-compose.yml.j2
+        dest: "{{ deploy_dir_postgres }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy .env file to server
+      ansible.builtin.template:
+        src: templates/database/postgres.env.j2
+        dest: "{{ deploy_dir_postgres }}/.env"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Create shared postgres network for app
+      community.docker.docker_network:
+        name: "postgres"
+        state: present
+
+    # Pull happens while the old container is still running
+    - name: Pull latest image (old container keeps serving)
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_postgres }}"
+        pull: always
+        state: present
+
+    # Replace containers that changed — brief restart only for the app container
+    - name: Recreate changed containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_postgres }}"
+        state: present
+        recreate: auto
+
+    - name: Verify app container is running
+      community.docker.docker_container_info:
+        name: "{{ project_name }}_postgres"
+      register: container_info
+      failed_when: not container_info.container.State.Running
+
+    - name: Wait for PostgreSQL to be healthy
+      community.docker.docker_container_info:
+        name: "{{ project_name }}_postgres"
+      register: pg_info
+      until: pg_info.container.State.Health.Status == 'healthy'
+      retries: 10
+      delay: 6
+
+    # ── Databases ────────────────────────────────────────────────────────────
+    - name: Create devt database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '{{ devt_database_name }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE DATABASE \"{{ devt_database_name }}\";"
+      changed_when: false
+
+    # ── Users ────────────────────────────────────────────────────────────────
+    - name: Create devt DB user
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname = '{{ pg_devt_user }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE USER \"{{ pg_devt_user }}\" WITH PASSWORD '{{ pg_devt_password }}';"
+      no_log: true
+      changed_when: false
+
+    - name: Grant devt user full access to devt database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - postgres
+          - -c
+          - "GRANT ALL PRIVILEGES ON DATABASE \"{{ devt_database_name }}\" TO \"{{ pg_devt_user }}\";"
+      changed_when: false
+
+    - name: Grant devt user full access to devt public schema
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ devt_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_devt_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_devt_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_devt_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_devt_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_devt_user }}";
+      changed_when: false
+
+    - name: Create prod DB user
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname = '{{ pg_prod_user }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE USER \"{{ pg_prod_user }}\" WITH PASSWORD '{{ pg_prod_password }}';"
+      no_log: true
+      changed_when: false
+
+    - name: Grant prod user full access to prod database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - postgres
+          - -c
+          - "GRANT ALL PRIVILEGES ON DATABASE \"{{ prod_database_name }}\" TO \"{{ pg_prod_user }}\";"
+      changed_when: false
+
+    - name: Grant prod user full access to prod public schema
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ prod_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_prod_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_prod_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_prod_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_prod_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_prod_user }}";
+      changed_when: false

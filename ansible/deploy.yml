@@ -16,18 +16,35 @@
   hosts: vps
   become: true
 
+  vars_files:
+    - files/postgres_users.vault
+
   tasks:
+    - name: Create Deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Create Media directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}/media"
+        state: directory
+        owner: "1001"
+        group: root
+        mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
-        src: templates/app/docker-compose.prod.yml.j2
+        src: templates/app/docker-compose.yml.j2
         dest: "{{ deploy_dir }}/docker-compose.yml"
         owner: root
         group: root
         mode: "0644"
 
     - name: Copy .env file to server
-      ansible.builtin.copy:
-        src: files/env.production
+      ansible.builtin.template:
+        src: "{{ env_file }}"
         dest: "{{ deploy_dir }}/.env"
         owner: root
         group: root

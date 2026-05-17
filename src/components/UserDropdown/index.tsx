@@ -31,7 +31,7 @@ type User = {
 }
 
 export const UserDropdown: React.FC<{ isPreview: boolean }> = ({ isPreview }) => {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null | undefined>(undefined)
   const router = useRouter()
 
   useEffect(() => {
@@ -67,13 +67,15 @@ export const UserDropdown: React.FC<{ isPreview: boolean }> = ({ isPreview }) =>
     })
   }
 
+  if (user === null) return null
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
             'flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
-            !user && 'invisible pointer-events-none',
+            user === undefined && 'invisible pointer-events-none',
           )}
         >
           <Avatar className="h-7 w-7">

@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - ./media:/app/public/media
     networks:
       - proxy
       - internal
@@ -14,7 +16,7 @@ services:
       - "traefik.docker.network=proxy"
       - "traefik.http.routers.{{ project_name }}.rule=Host(`{{ domain }}`)"
       - "traefik.http.routers.{{ project_name }}.entrypoints=websecure"
-      - "traefik.http.routers.{{ project_name }}.tls=letsencrypt"
+      - "traefik.http.routers.{{ project_name }}.tls.certresolver=cloudflare"
       - "traefik.http.services.{{ project_name }}.loadbalancer.server.port=3000"
 
 networks:

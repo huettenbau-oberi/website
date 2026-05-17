@@ -62,7 +62,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
 
   return (
     <>
-      <nav className="flex items-center gap-4">
+      <nav className="flex items-center gap-2 sm:gap-4">
         {/* Language switch */}
         <div className="flex items-center gap-1 text-xs font-bold tracking-widest">
           {locales.map((l, i) => {

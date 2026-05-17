@@ -12,6 +12,8 @@ services:
       - ./letsencrypt:/letsencrypt
     networks:
       - proxy
+    env_file:
+      - {{ traefik_dir }}/.env
 {% if traefik_dashboard_auth %}
     labels:
       - "traefik.enable=true"

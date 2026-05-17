@@ -30,14 +30,14 @@ export const Logo = (props: Props) => {
           {...sharedProps}
           alt="Hüttenbau Logo"
           src="/images/logo_dark.svg"
-          className={clsx('max-w-[14rem] w-full h-[34px]', className)}
+          className={clsx('max-w-[9rem] sm:max-w-[14rem] w-full h-[34px]', className)}
         />
       ) : theme === 'light' ? (
         <img
           {...sharedProps}
           alt="Hüttenbau Logo"
           src="/images/logo_light.svg"
-          className={clsx('max-w-[14rem] w-full h-[34px]', className)}
+          className={clsx('max-w-[9rem] sm:max-w-[14rem] w-full h-[34px]', className)}
         />
       ) : (
         <>
@@ -46,7 +46,7 @@ export const Logo = (props: Props) => {
             alt="Hüttenbau Logo"
             src="/images/logo_dark.svg"
             className={clsx(
-              "max-w-[14rem] w-full h-[34px] [[data-theme='dark']_&]:hidden",
+              "max-w-[9rem] sm:max-w-[14rem] w-full h-[34px] [[data-theme='dark']_&]:hidden",
               className,
             )}
           />
@@ -55,7 +55,7 @@ export const Logo = (props: Props) => {
             alt="Hüttenbau Logo"
             src="/images/logo_light.svg"
             className={clsx(
-              "max-w-[14rem] w-full h-[34px] hidden [[data-theme='dark']_&]:block",
+              "max-w-[9rem] sm:max-w-[14rem] w-full h-[34px] hidden [[data-theme='dark']_&]:block",
               className,
             )}
           />
