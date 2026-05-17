@@ -17,3 +17,6 @@
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Implement Gallery
+- [ ] Implement Version in Footer
+- [ ] Search Functionality
+- [ ] Implement Analytics
