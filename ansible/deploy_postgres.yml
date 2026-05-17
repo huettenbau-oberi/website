@@ -121,6 +121,26 @@
           - "GRANT ALL PRIVILEGES ON DATABASE \"{{ devt_database_name }}\" TO \"{{ pg_devt_user }}\";"
       changed_when: false
 
+    - name: Grant devt user full access to devt public schema
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ devt_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_devt_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_devt_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_devt_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_devt_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_devt_user }}";
+      changed_when: false
+
     - name: Create prod DB user
       community.docker.docker_container_exec:
         container: "{{ project_name }}_postgres"
@@ -148,4 +168,24 @@
           - postgres
           - -c
           - "GRANT ALL PRIVILEGES ON DATABASE \"{{ prod_database_name }}\" TO \"{{ pg_prod_user }}\";"
+      changed_when: false
+
+    - name: Grant prod user full access to prod public schema
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ prod_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_prod_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_prod_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_prod_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_prod_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_prod_user }}";
       changed_when: false
