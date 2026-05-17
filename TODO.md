@@ -1,9 +1,19 @@
 # TODO List
 
-- [ ] Text slide Animations
-- [ ] Deployment
+- [x] Text slide Animations
+- [x] Deployment
 - [ ] Email Provider
-- [ ] Main Page
+- [ ] Backups / Storage
+- [x] Main Page
 - [x] Remove or adjust `BeforeLogin` component
 - [x] Adjust `BeforeDashboard` component
 - [ ] 404 Page
+- [ ] slug dual language support
+- [ ] Iframe block
+- [ ] Bullet point support for text blocks
+- [ ] Customize Admin Panel
+- [ ] CSRF Protection, CORS
+- [ ] Captcha for login
+- [ ] User Roles and Permissions
+- [ ] Profile Picture Upload
+- [ ] Implement Gallery
