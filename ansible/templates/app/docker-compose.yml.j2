@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    volumes:
+      - ./media:/app/public/media
     networks:
       - proxy
       - internal

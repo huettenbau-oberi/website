@@ -27,6 +27,13 @@
         owner: root
         group: root
         mode: "0755"
+    - name: Create Media directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}/media"
+        state: directory
+        owner: "1001"
+        group: root
+        mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
         src: templates/app/docker-compose.yml.j2
