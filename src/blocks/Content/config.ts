@@ -1,13 +1,19 @@
 import type { Block, Field } from 'payload'
 
 import {
+  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
   InlineToolbarFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { HtmlBlock } from '../HtmlBlock/config'
+import { IframeBlock } from '../IframeBlock/config'
+import { MediaBlock } from '../MediaBlock/config'
 
 const columnFields: Field[] = [
   {
@@ -42,7 +48,12 @@ const columnFields: Field[] = [
           ...rootFeatures,
           HeadingFeature({ enabledHeadingSizes: ['h2', 'h3', 'h4'] }),
           FixedToolbarFeature(),
+          UnorderedListFeature(),
+          OrderedListFeature(),
           InlineToolbarFeature(),
+          BlocksFeature({
+            blocks: [HtmlBlock, IframeBlock, MediaBlock],
+          }),
         ]
       },
     }),

@@ -23,6 +23,8 @@ import {
 import { CampMain } from '@/blocks/camp/CampMain/config'
 import { CampFacts } from '@/blocks/camp/CampFacts/config'
 import { CampSponsors } from '@/blocks/camp/CampSponsors/config'
+import { HtmlBlock } from '@/blocks/HtmlBlock/config'
+import { IframeBlock } from '@/blocks/IframeBlock/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -83,6 +85,8 @@ export const Pages: CollectionConfig<'pages'> = {
                 CampMain,
                 CampSponsors,
                 Content,
+                HtmlBlock,
+                IframeBlock,
                 MediaBlock,
                 FormBlock,
               ],

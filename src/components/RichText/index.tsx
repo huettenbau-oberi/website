@@ -1,4 +1,6 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
+import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -11,10 +13,10 @@ import {
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
 
-import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
-
 import type {
   BannerBlock as BannerBlockProps,
+  HtmlBlock as HtmlBlockProps,
+  IframeBlock as IframeBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { BannerBlock } from '@/blocks/Banner/Component'
@@ -22,7 +24,7 @@ import { cn } from '@/utilities/ui'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<MediaBlockProps | BannerBlockProps | CodeBlockProps>
+  | SerializedBlockNode<MediaBlockProps | BannerBlockProps | IframeBlockProps | HtmlBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -41,14 +43,15 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
-        imgClassName="m-0"
+        imgClassName="m-0 border-0 rounded-none"
         {...node.fields}
         captionClassName="mx-auto max-w-[48rem]"
         enableGutter={false}
         disableInnerContainer={true}
       />
     ),
-    code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
+    htmlBlock: ({ node }) => <HtmlBlockComponent {...node.fields} />,
+    iframeBlock: ({ node }) => <IframeBlockComponent {...node.fields} />,
   },
 })
 

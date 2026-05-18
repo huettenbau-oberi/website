@@ -27,10 +27,18 @@ export const MediaBlock: React.FC<Props> = (props) => {
     media,
     staticImage,
     disableInnerContainer,
+    widthPercent,
+    maxWidth,
+    caption,
+    showMediaCaption,
   } = props
 
-  let caption
-  if (media && typeof media === 'object') caption = media.caption
+  const mediaCaption = showMediaCaption && typeof media === 'object' ? media?.caption : null
+
+  const sizeStyle: React.CSSProperties = {
+    ...(widthPercent != null && { width: `${widthPercent}%` }),
+    ...(maxWidth != null && { maxWidth: `${maxWidth}px` }),
+  }
 
   return (
     <div
@@ -43,24 +51,25 @@ export const MediaBlock: React.FC<Props> = (props) => {
       )}
     >
       {(media || staticImage) && (
-        <Media
-          imgClassName={cn('border border-border rounded-[0.8rem]', imgClassName)}
-          resource={media}
-          src={staticImage}
-        />
+        <div style={sizeStyle} className="mx-auto flex justify-center">
+          <Media
+            imgClassName={cn('border border-border rounded-[0.8rem] max-w-full h-auto', imgClassName)}
+            resource={media}
+            src={staticImage}
+          />
+        </div>
       )}
       {caption && (
-        <div
-          className={cn(
-            'mt-6',
-            {
-              container: !disableInnerContainer,
-            },
-            captionClassName,
-          )}
-        >
-          <RichText data={caption} enableGutter={false} />
+        <div className={cn('mt-3 text-center prose md:prose-md dark:prose-invert mx-auto', captionClassName)}>
+          <p className="!my-0">{caption}</p>
         </div>
+      )}
+      {mediaCaption && (
+        <RichText
+          data={mediaCaption}
+          enableGutter={false}
+          className={cn('mt-3 text-center', captionClassName)}
+        />
       )}
     </div>
   )

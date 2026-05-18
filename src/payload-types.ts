@@ -215,6 +215,8 @@ export interface Page {
     | CampMainBlock
     | CampSponsorsBlock
     | ContentBlock
+    | HtmlBlock
+    | IframeBlock
     | MediaBlock
     | FormBlock
   )[];
@@ -724,10 +726,43 @@ export interface ContentBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HtmlBlock".
+ */
+export interface HtmlBlock {
+  html: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'htmlBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IframeBlock".
+ */
+export interface IframeBlock {
+  url: string;
+  title?: string | null;
+  height?: number | null;
+  fullWidth?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'iframeBlock';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock".
  */
 export interface MediaBlock {
   media: number | Media;
+  /**
+   * Image width as a percentage of the container.
+   */
+  widthPercent?: number | null;
+  /**
+   * Maximum image width in pixels.
+   */
+  maxWidth?: number | null;
+  caption?: string | null;
+  showMediaCaption?: boolean | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -1243,6 +1278,8 @@ export interface PagesSelect<T extends boolean = true> {
         campMain?: T | CampMainBlockSelect<T>;
         campSponsors?: T | CampSponsorsBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        htmlBlock?: T | HtmlBlockSelect<T>;
+        iframeBlock?: T | IframeBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
@@ -1396,10 +1433,35 @@ export interface ContentBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HtmlBlock_select".
+ */
+export interface HtmlBlockSelect<T extends boolean = true> {
+  html?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IframeBlock_select".
+ */
+export interface IframeBlockSelect<T extends boolean = true> {
+  url?: T;
+  title?: T;
+  height?: T;
+  fullWidth?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MediaBlock_select".
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  widthPercent?: T;
+  maxWidth?: T;
+  caption?: T;
+  showMediaCaption?: T;
   id?: T;
   blockName?: T;
 }

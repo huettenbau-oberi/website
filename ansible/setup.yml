@@ -1,6 +1,6 @@
 ---
 - name: Initial VPS Setup
-  hosts: vps
+  hosts: hetzner
   become: true
 
   vars_files:

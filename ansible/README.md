@@ -16,24 +16,68 @@ ansible-galaxy collection install -r requirements.yml
 
 ### 1. Inventory
 
-Copy the example and fill in your server's IP:
-
-```bash
-cp inventory.ini.example inventory.ini
-```
+Create an inventory file `inventory.ini` based on the example, filling in your VPS details:
 
 ```ini
-[vps]
-vps ansible_host=YOUR_VPS_IP ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_ed25519
+[hetzner]
+webserver ansible_host=YOUR_VPS_IP ansible_user=root ansible_port=YOUR_VPS_PORT ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[hetzner:vars]
+ansible_python_interpreter=/usr/bin/python3
 ```
 
 ### 2. Environment file
 
-The deploy playbook expects a real env file at `files/env.production`. Copy the example and fill in all secrets — this file must not be committed to git:
+
+`cloudflare.vault`
+
+```ini
+account_email=example@huettenbau-oberi.ch
+api_token=EXAMPLE_HERE
+```
+
+`devt.env.vault`
+
+```ini
+DATABASE_URL=postgres://{{ pg_devt_user }}:{{ pg_devt_password }}@huettenbau-oberi-prod_postgres:5432/{{ devt_database_name }}
+
+PAYLOAD_SECRET=CHANGE_ME
+NEXT_PUBLIC_SERVER_URL=https://dev.huettenbau-oberi.ch
+
+CRON_SECRET=CHANGE_ME
+PREVIEW_SECRET=CHANGE_ME
+```
+
+`prod.env.vault`
+
+```ini
+DATABASE_URL=postgres://{{ pg_prod_user }}:{{ pg_prod_password }}@huettenbau-oberi-prod_postgres:5432/{{ prod_database_name }}
+
+PAYLOAD_SECRET=CHANGE_ME
+NEXT_PUBLIC_SERVER_URL=https://huettenbau-oberi.ch
+
+CRON_SECRET=CHANGE_ME
+PREVIEW_SECRET=CHANGE_ME
+```
+
+`postgres_users.vault`
+
+```ini
+pg_admin_user: admin
+pg_admin_password: CHANGE_ME
+pg_devt_user: devt_user
+pg_devt_password: CHANGE_ME
+pg_prod_user: prod_user
+pg_prod_password: CHANGE_ME
+```
+
+Encrypt these files with ansible vault to keep the secrets safe:
 
 ```bash
-cp files/env.prod.example files/env.production
-# edit files/env.production and set PAYLOAD_SECRET, CRON_SECRET, PREVIEW_SECRET, etc.
+ansible-vault encrypt files/cloudflare.vault
+ansible-vault encrypt files/devt.env.vault
+ansible-vault encrypt files/prod.env.vault
+ansible-vault encrypt files/postgres_users.vault
 ```
 
 ## Playbooks

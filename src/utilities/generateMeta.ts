@@ -26,9 +26,7 @@ export const generateMeta = async (args: {
 
   const ogImage = getImageURL(doc?.meta?.image)
 
-  const title = doc?.meta?.title
-    ? doc?.meta?.title + ' - Hüttenbau Oberi - Abenteuer Hüttenbau'
-    : 'Hüttenbau Oberi - Abenteuer Hüttenbau'
+  const title = doc?.meta?.title ? doc?.meta?.title : 'Hüttenbau Oberi - Abenteuer Hüttenbau'
 
   return {
     description: doc?.meta?.description,
