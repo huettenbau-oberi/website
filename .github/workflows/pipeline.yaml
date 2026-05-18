@@ -93,7 +93,14 @@ jobs:
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
 
-          cp inventory.ini.example inventory.ini
+          cat <<'EOF' > inventory.ini
+          [hetzner]
+          webserver ansible_host=YOUR_VPS_IP ansible_user=root ansible_port=YOUR_VPS_PORT ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+          [hetzner:vars]
+          ansible_python_interpreter=/usr/bin/python3
+          EOF
+
           sed -i 's/YOUR_VPS_IP/${{ secrets.ANSIBLE_HOST }}/g' inventory.ini
           sed -i 's/YOUR_VPS_PORT/${{ secrets.ANSIBLE_PORT }}/g' inventory.ini
           sed -i 's/root/${{ secrets.ANSIBLE_USER }}/g' inventory.ini
