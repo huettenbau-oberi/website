@@ -26,9 +26,8 @@ export default buildConfig({
   localization,
   admin: {
     components: {
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      beforeLogin: ['@/components/BeforeLogin'],
       graphics: {
         Logo: '@/graphics/Logo/index.tsx#Logos',
         Icon: '@/graphics/Icon/index.tsx#Icons',

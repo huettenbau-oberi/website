@@ -1,4 +1,5 @@
 # --- Project ---
+# ! turnstile site key is embedded in dockerfile
 project_name: huettenbau-oberi-devt
 deploy_dir: /opt/huettenbau-oberi/devt
 # Image built and pushed by CI (e.g. GitHub Actions → GHCR)

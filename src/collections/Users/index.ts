@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
+import { validateTurnstile } from './hooks/validateTurnstile'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -16,6 +17,9 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
   },
   auth: true,
+  hooks: {
+    beforeOperation: [validateTurnstile],
+  },
   fields: [
     {
       name: 'name',

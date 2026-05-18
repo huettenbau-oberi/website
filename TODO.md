@@ -17,7 +17,7 @@
 - [x] Bullet point support for text blocks
 - [ ] Customize Admin Panel
 - [x] CSRF Protection, CORS
-- [ ] Captcha for login
+- [x] Captcha for login
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Implement Gallery
