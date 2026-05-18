@@ -2,7 +2,9 @@
 
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)
+- [ ] Implement Version in Footer
 - [ ] Ansible vault for secrets
+- [ ] Replace placeholder loading image
 - [x] Text slide Animations
 - [x] Deployment
 - [ ] Email Provider
@@ -10,7 +12,6 @@
 - [x] Main Page
 - [x] Remove or adjust `BeforeLogin` component
 - [x] Adjust `BeforeDashboard` component
-- [ ] 404 Page
 - [ ] slug dual language support
 - [ ] Iframe block
 - [ ] Bullet point support for text blocks
@@ -20,6 +21,6 @@
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Implement Gallery
-- [ ] Implement Version in Footer
 - [ ] Search Functionality
 - [ ] Implement Analytics
+- [ ] 404 Page

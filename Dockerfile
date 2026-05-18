@@ -30,6 +30,10 @@ COPY . .
 # a live database. PAYLOAD_SECRET is a placeholder; the real value is injected at runtime.
 ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ARG COMMIT_HASH=unknown
+ENV COMMIT_HASH=$COMMIT_HASH
+ARG VERSION=unknown
+ENV VERSION=$VERSION
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN PAYLOAD_SECRET=build-time-placeholder pnpm run build

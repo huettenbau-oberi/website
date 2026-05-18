@@ -1,7 +1,20 @@
+import { execSync } from 'child_process'
 import { withPayload } from '@payloadcms/next/withPayload'
 import createNextIntlPlugin from 'next-intl/plugin'
 
 import redirects from './redirects.js'
+
+let commitHash = process.env.COMMIT_HASH || 'unknown'
+try {
+  commitHash = execSync('git rev-parse --short HEAD').toString().trim()
+} catch {}
+
+let tagVersion = process.env.VERSION || ''
+try {
+  tagVersion = execSync('git describe --tags --abbrev=0').toString().trim()
+} catch {}
+
+const buildVersion = `${tagVersion || 'develop'} - ${commitHash}`
 
 const withNextIntl = createNextIntlPlugin()
 
@@ -35,6 +48,9 @@ const nextConfig = {
     }
 
     return webpackConfig
+  },
+  env: {
+    NEXT_PUBLIC_BUILD_VERSION: buildVersion,
   },
   output: 'standalone',
   reactStrictMode: true,

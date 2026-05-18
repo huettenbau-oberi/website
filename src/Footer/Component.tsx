@@ -61,6 +61,9 @@ export async function Footer() {
 
       <div className="text-center py-4 text-sm text-white/50">
         &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
+        {process.env.NEXT_PUBLIC_BUILD_VERSION && (
+          <span className="ml-4 text-white/30">{process.env.NEXT_PUBLIC_BUILD_VERSION}</span>
+        )}
       </div>
     </footer>
   )
