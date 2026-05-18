@@ -10,18 +10,34 @@ This template is right for you if you are working on:
 
 Core features:
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
-- [Layout Builder](#layout-builder)
-- [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
-- [On-demand Revalidation](#on-demand-revalidation)
-- [SEO](#seo)
-- [Search](#search)
-- [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
-- [Website](#website)
+- [Payload Website Template](#payload-website-template)
+  - [Quick Start](#quick-start)
+    - [Clone](#clone)
+    - [Development](#development)
+  - [How it works](#how-it-works)
+    - [Collections](#collections)
+    - [Globals](#globals)
+  - [Access control](#access-control)
+  - [Layout Builder](#layout-builder)
+  - [Lexical editor](#lexical-editor)
+  - [Draft Preview](#draft-preview)
+  - [Live preview](#live-preview)
+  - [On-demand Revalidation](#on-demand-revalidation)
+  - [SEO](#seo)
+  - [Search](#search)
+  - [Redirects](#redirects)
+  - [Jobs and Scheduled Publish](#jobs-and-scheduled-publish)
+  - [Website](#website)
+    - [Cache](#cache)
+  - [Development](#development-1)
+    - [Working with Postgres](#working-with-postgres)
+      - [Local development](#local-development)
+      - [Migrations](#migrations)
+    - [Docker](#docker)
+  - [Production](#production)
+    - [Deploying to Vercel](#deploying-to-vercel)
+    - [Self-hosting](#self-hosting)
+  - [Questions](#questions)
 
 ## Quick Start
 
@@ -221,18 +237,6 @@ Alternatively, you can use [Docker](https://www.docker.com) to spin up this temp
 1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
 
 That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-### Seed
-
-To seed the database with a few pages, posts, and projects you can click the 'seed database' link from the admin panel.
-
-The seed script will also create a demo user for demonstration purposes only:
-
-- Demo Author
-  - Email: `demo-author@payloadcms.com`
-  - Password: `password`
-
-> NOTICE: seeding the database is destructive because it drops your current database to populate a fresh one from the seed template. Only run this command if you are starting a new project or can afford to lose your current data.
 
 ## Production
 

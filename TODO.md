@@ -1,5 +1,8 @@
 # TODO List
 
+- [x] Remove seed endpoint
+- [x] Rendering issue after deployment (no page available)
+- [ ] Ansible vault for secrets
 - [x] Text slide Animations
 - [x] Deployment
 - [ ] Email Provider
