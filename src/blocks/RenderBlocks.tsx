@@ -10,6 +10,7 @@ import { CampMainBlock } from '@/blocks/camp/CampMain/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 
 const blockComponents = {
   campFacts: CampFactsBlock,
@@ -20,6 +21,7 @@ const blockComponents = {
   content: ContentBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  iframeBlock: IframeBlockComponent,
 }
 
 export const RenderBlocks: React.FC<{

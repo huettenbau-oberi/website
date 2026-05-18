@@ -1,6 +1,7 @@
 import type { Block, Field } from 'payload'
 
 import {
+  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
   InlineToolbarFeature,
@@ -10,6 +11,8 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { IframeBlock } from '../IframeBlock/config'
+import { MediaBlock } from '../MediaBlock/config'
 
 const columnFields: Field[] = [
   {
@@ -47,6 +50,9 @@ const columnFields: Field[] = [
           UnorderedListFeature(),
           OrderedListFeature(),
           InlineToolbarFeature(),
+          BlocksFeature({
+            blocks: [IframeBlock, MediaBlock],
+          }),
         ]
       },
     }),

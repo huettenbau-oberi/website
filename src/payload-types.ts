@@ -215,6 +215,7 @@ export interface Page {
     | CampMainBlock
     | CampSponsorsBlock
     | ContentBlock
+    | IframeBlock
     | MediaBlock
     | FormBlock
   )[];
@@ -721,6 +722,19 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IframeBlock".
+ */
+export interface IframeBlock {
+  url: string;
+  title?: string | null;
+  height?: number | null;
+  fullWidth?: boolean | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'iframeBlock';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1243,6 +1257,7 @@ export interface PagesSelect<T extends boolean = true> {
         campMain?: T | CampMainBlockSelect<T>;
         campSponsors?: T | CampSponsorsBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        iframeBlock?: T | IframeBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
       };
@@ -1391,6 +1406,18 @@ export interface ContentBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IframeBlock_select".
+ */
+export interface IframeBlockSelect<T extends boolean = true> {
+  url?: T;
+  title?: T;
+  height?: T;
+  fullWidth?: T;
   id?: T;
   blockName?: T;
 }
