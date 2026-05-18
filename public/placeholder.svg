@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#E8DDCB"/>
+      <stop offset="50%"  stop-color="#F6F0E5"/>
+      <stop offset="100%" stop-color="#E8DDCB"/>
+    </linearGradient>
+  </defs>
+  <rect width="1" height="1" fill="url(#g)">
+    <animate attributeName="opacity" values="1;0.55;1" dur="1.6s" repeatCount="indefinite"/>
+  </rect>
+</svg>

@@ -13,10 +13,6 @@ import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 const { breakpoints } = cssVariables
 
-// A base64 encoded image to use as a placeholder while the image is loading
-const placeholderBlur =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAx0lEQVR42rXNRxKDMBAF0bn/1XDOiWQBVkLggNfWjHyFX9Xr1/Qd22loJDUF9Ql3ro/V75ivpDL2crGCs/kzZW7SddSxS2p4nKXT0HEE1UN3JKgeWh4A9dAeCKrzAKr3zZ6gugyQehoA9b7ZEVT3Kg6QuldbguppANT9fUNQnQdQ3ckAqLt6TVBdBkjd1SuC6rZKA5guA6RuqyVB9TQA6rZcEFQ3MgDqppwTVDeFDHA6D6C6LmYE1XXOA6Cu84yg+n+A03We/QDygLC6vc9jywAAAABJRU5ErkJggg=='
-
 /**
  * ImageMedia
  *
@@ -90,15 +86,18 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   return (
     <picture
       className={cn(pictureClassName)}
-      style={fill ? { position: 'absolute', inset: 0 } : undefined}
+      style={{
+        backgroundImage: "url('/placeholder.svg')",
+        backgroundSize: '100% 100%',
+        ...(fill ? { position: 'absolute', inset: 0 } : undefined),
+      }}
     >
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}
         fill={fill}
         height={!fill ? height : undefined}
-        placeholder="blur"
-        blurDataURL={placeholderBlur}
+        placeholder="empty"
         priority={priority}
         quality={100}
         loading={loading}
