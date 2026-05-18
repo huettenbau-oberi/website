@@ -4,17 +4,21 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 import redirects from './redirects.js'
 
-let commitHash = process.env.COMMIT_HASH || 'unknown'
-try {
-  commitHash = execSync('git rev-parse --short HEAD').toString().trim()
-} catch {}
+let commitHash = process.env.COMMIT_HASH || ''
+if (!commitHash) {
+  try {
+    commitHash = execSync('git rev-parse --short HEAD').toString().trim()
+  } catch {}
+}
 
 let tagVersion = process.env.VERSION || ''
-try {
-  tagVersion = execSync('git describe --tags --abbrev=0').toString().trim()
-} catch {}
+if (!tagVersion) {
+  try {
+    tagVersion = execSync('git describe --tags --abbrev=0').toString().trim()
+  } catch {}
+}
 
-const buildVersion = `${tagVersion || 'develop'} - ${commitHash}`
+const buildVersion = `${tagVersion || 'develop'} - ${commitHash || 'unknown'}`
 
 const withNextIntl = createNextIntlPlugin()
 
