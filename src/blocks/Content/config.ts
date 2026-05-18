@@ -11,6 +11,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { HtmlBlock } from '../HtmlBlock/config'
 import { IframeBlock } from '../IframeBlock/config'
 import { MediaBlock } from '../MediaBlock/config'
 
@@ -51,7 +52,7 @@ const columnFields: Field[] = [
           OrderedListFeature(),
           InlineToolbarFeature(),
           BlocksFeature({
-            blocks: [IframeBlock, MediaBlock],
+            blocks: [HtmlBlock, IframeBlock, MediaBlock],
           }),
         ]
       },

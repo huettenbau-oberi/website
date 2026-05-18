@@ -10,6 +10,7 @@ import { CampMainBlock } from '@/blocks/camp/CampMain/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 
 const blockComponents = {
@@ -21,6 +22,7 @@ const blockComponents = {
   content: ContentBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  htmlBlock: HtmlBlockComponent,
   iframeBlock: IframeBlockComponent,
 }
 

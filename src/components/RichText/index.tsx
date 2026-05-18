@@ -1,4 +1,5 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 import {
   DefaultNodeTypes,
@@ -14,13 +15,16 @@ import {
 
 import type {
   BannerBlock as BannerBlockProps,
+  HtmlBlock as HtmlBlockProps,
   IframeBlock as IframeBlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { cn } from '@/utilities/ui'
 
-type NodeTypes = DefaultNodeTypes | SerializedBlockNode<MediaBlockProps | BannerBlockProps | IframeBlockProps>
+type NodeTypes =
+  | DefaultNodeTypes
+  | SerializedBlockNode<MediaBlockProps | BannerBlockProps | IframeBlockProps | HtmlBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -46,6 +50,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
         disableInnerContainer={true}
       />
     ),
+    htmlBlock: ({ node }) => <HtmlBlockComponent {...node.fields} />,
     iframeBlock: ({ node }) => <IframeBlockComponent {...node.fields} />,
   },
 })
