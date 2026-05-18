@@ -91,6 +91,7 @@ export default buildConfig({
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
+  csrf: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, Settings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,

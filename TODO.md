@@ -4,7 +4,7 @@
 - [x] Rendering issue after deployment (no page available)
 - [x] Implement Version in Footer
 - [x] Ansible vault for secrets
-- [ ] Replace placeholder loading image
+- [x] Replace placeholder loading image
 - [x] Text slide Animations
 - [x] Deployment
 - [ ] Email Provider
@@ -13,10 +13,10 @@
 - [x] Remove or adjust `BeforeLogin` component
 - [x] Adjust `BeforeDashboard` component
 - [ ] slug dual language support
-- [ ] Iframe block
+- [x] Iframe block
 - [x] Bullet point support for text blocks
 - [ ] Customize Admin Panel
-- [ ] CSRF Protection, CORS
+- [x] CSRF Protection, CORS
 - [ ] Captcha for login
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
@@ -25,3 +25,4 @@
 - [ ] Implement Analytics
 - [ ] 404 Page
 - [ ] Documentation
+- [ ] pages sitemap not working (check robots.txt)
