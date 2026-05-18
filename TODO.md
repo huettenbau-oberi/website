@@ -3,7 +3,7 @@
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)
 - [x] Implement Version in Footer
-- [ ] Ansible vault for secrets
+- [x] Ansible vault for secrets
 - [ ] Replace placeholder loading image
 - [x] Text slide Animations
 - [x] Deployment

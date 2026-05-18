@@ -86,21 +86,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: ansible
       - name: Prepare Ansible
+        working-directory: ansible
         run: |
           echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
           chmod 600 .vault_pass
 
           cp inventory.ini.example inventory.ini
-          sed s/YOUR_VPS_IP/${{ secrets.ANSIBLE_HOST }}:${{ secrets.ANSIBLE_PORT }}/g -i inventory.ini
-          sed s/root/${{ secrets.ANSIBLE_USER }}/g -i inventory.ini
-          sed s/ansible_ssh_private_key_file=~\/.ssh\/id_ed25519/ansible_ssh_private_key_file=files\/ansible.key/g -i inventory.ini
+          sed -i 's/YOUR_VPS_IP/${{ secrets.ANSIBLE_HOST }}/g' inventory.ini
+          sed -i 's/YOUR_VPS_PORT/${{ secrets.ANSIBLE_PORT }}/g' inventory.ini
+          sed -i 's/root/${{ secrets.ANSIBLE_USER }}/g' inventory.ini
+          mkdir -p ~/.ssh
           ansible-vault decrypt files/ansible.key
-          chmod 600 files/ansible.key
+          mv files/ansible.key ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan -p ${{ secrets.ANSIBLE_PORT }} -H ${{ secrets.ANSIBLE_HOST }} >> ~/.ssh/known_hosts
 
           ansible-galaxy collection install -r requirements.yml
       - name: Deploy with Ansible
+        working-directory: ansible
         run: |
           ansible-playbook -i inventory.ini deploy.yml -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml
