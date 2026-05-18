@@ -14,7 +14,7 @@
 - [x] Adjust `BeforeDashboard` component
 - [ ] slug dual language support
 - [ ] Iframe block
-- [ ] Bullet point support for text blocks
+- [x] Bullet point support for text blocks
 - [ ] Customize Admin Panel
 - [ ] CSRF Protection, CORS
 - [ ] Captcha for login
