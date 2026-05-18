@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 const intlMiddleware = createMiddleware(routing)
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   if (request.nextUrl.pathname === '/') {
     const url = request.nextUrl.clone()
     url.pathname = `/${routing.defaultLocale}/home`
