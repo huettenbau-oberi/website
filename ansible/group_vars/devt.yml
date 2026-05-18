@@ -4,7 +4,7 @@ deploy_dir: /opt/huettenbau-oberi/devt
 # Image built and pushed by CI (e.g. GitHub Actions → GHCR)
 app_image: ghcr.io/huettenbau-oberi/website
 app_image_tag: develop
-env_file: files/devt.env
+env_file: files/devt.env.vault
 
 # --- PostgreSQL ---
 devt_database_name: huettenbau-payload-devt

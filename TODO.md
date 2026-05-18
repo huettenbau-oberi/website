@@ -2,7 +2,7 @@
 
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)
-- [ ] Implement Version in Footer
+- [x] Implement Version in Footer
 - [ ] Ansible vault for secrets
 - [ ] Replace placeholder loading image
 - [x] Text slide Animations
@@ -24,3 +24,4 @@
 - [ ] Search Functionality
 - [ ] Implement Analytics
 - [ ] 404 Page
+- [ ] Documentation
