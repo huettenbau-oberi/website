@@ -1,5 +1,6 @@
 # TODO List
 
+- [ ] Node modules in build still needed?
 - [ ] Redirects for english slugs with SEO support
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
