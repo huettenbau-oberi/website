@@ -260,6 +260,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  blurDataURL?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -1514,6 +1515,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  blurDataURL?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;
