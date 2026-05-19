@@ -14,10 +14,10 @@
     margin-bottom: 2%;
   }
 
-  // The tagline element is now <h1> (semantic page heading). The global `h1` rule in
-  // globals.css applies Playfair Display, but the visual design here calls for the same
-  // Inter the original h3.tagline inherited — so pin the family/weight explicitly so
-  // the design survives the heading-level change.
+  // The tagline element is a <p>. The global `p` rule already uses Inter (good), but
+  // the explicit `font-family` here insulates the visual treatment from any future
+  // change to the element tag — the design intent is "always Inter, bold, large,
+  // right-aligned" regardless of which element carries the .tagline class.
   .tagline {
     font-family: var(--font-inter), sans-serif;
     font-size: clamp(2rem, 2.5vw, 1.5rem);

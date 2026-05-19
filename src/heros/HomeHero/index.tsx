@@ -49,15 +49,13 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.6, ease: 'easeOut' }}
       >
-        {tagline ? (
-          // The tagline is the visible page headline on the home hero. Promoting it to
-          // <h1> gives the page a single, meaningful top-level heading instead of
-          // starting the hierarchy at h3.
-          <h1 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h1>
-        ) : (
-          // Fallback when no tagline is configured: the brand mark is conveyed visually
-          // via the Logo but carries no heading semantics — provide one for screen readers.
-          <h1 className="sr-only">Hüttenbau Oberi</h1>
+        {tagline && (
+          // The tagline is decorative subtitle copy — not the page heading. The page's
+          // content blocks (rendered after the hero) supply the <h1>, same as for the
+          // other hero variants. Earlier work treated this as the page heading and
+          // promoted it to <h1>, which risked emitting two <h1>s when the content
+          // already contained one.
+          <p className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</p>
         )}
         <div className="logo-container">
           <Logo loading="eager" priority="high" />
