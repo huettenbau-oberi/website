@@ -179,3 +179,18 @@ button.primary {
 button.primary:hover {
   background-color: hsl(var(--primary) / 0.9);
 }
+
+/* Respect the OS-level "Reduce motion" setting.
+   We collapse durations to ~0 rather than removing animations outright so that
+   :hover / focus state changes remain functional and any code that listens for
+   `transitionend` / `animationend` events still fires. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
