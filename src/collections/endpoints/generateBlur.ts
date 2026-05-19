@@ -8,6 +8,10 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export const generateBlur: PayloadHandler = async (req) => {
+  if (!req.user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const id = req.routeParams?.id as string
 
   const doc = await req.payload.findByID({ collection: 'media', id, req })
