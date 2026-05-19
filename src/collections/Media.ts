@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import { generateBlurDataURL } from './hooks/generateBlurDataURL'
+import { generateBlur } from './endpoints/generateBlur'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -24,6 +25,13 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
+  endpoints: [
+    {
+      method: 'post',
+      path: '/:id/generate-blur',
+      handler: generateBlur,
+    },
+  ],
   hooks: {
     beforeChange: [generateBlurDataURL],
   },

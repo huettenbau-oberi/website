@@ -1,10 +1,28 @@
 'use client'
 
-import { useField } from '@payloadcms/ui'
-import React from 'react'
+import { useDocumentInfo, useField, useFormFields } from '@payloadcms/ui'
+import React, { useState } from 'react'
 
 export const BlurDataURLPreview: React.FC<{ path: string }> = ({ path }) => {
-  const { value } = useField<string>({ path })
+  const { value, setValue } = useField<string>({ path })
+  const { id } = useDocumentInfo()
+  const mimeType = useFormFields(([fields]) => fields.mimeType?.value as string)
+  const [loading, setLoading] = useState(false)
+
+  const isSupported = mimeType?.startsWith('image/') && mimeType !== 'image/svg+xml'
+  if (!isSupported) return null
+
+  const handleGenerate = async () => {
+    if (!id) return
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/media/${id}/generate-blur`, { method: 'POST' })
+      const data = await res.json()
+      if (data.blurDataUrl) setValue(data.blurDataUrl)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <div style={{ marginTop: '0.5rem' }}>
@@ -34,7 +52,23 @@ export const BlurDataURLPreview: React.FC<{ path: string }> = ({ path }) => {
           }}
         />
       ) : (
-        <p style={{ color: 'var(--theme-elevation-400)', fontSize: '0.875rem', margin: 0 }}>—</p>
+        <button
+          type="button"
+          onClick={handleGenerate}
+          disabled={loading}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--theme-text)',
+            cursor: loading ? 'default' : 'pointer',
+            fontSize: '0.875rem',
+            opacity: loading ? 0.5 : 1,
+            padding: 0,
+            textDecoration: 'underline',
+          }}
+        >
+          {loading ? 'Generating…' : 'Generate blur'}
+        </button>
       )}
     </div>
   )
