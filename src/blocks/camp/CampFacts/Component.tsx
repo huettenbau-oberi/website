@@ -1,18 +1,23 @@
 'use client'
 import React, { useEffect } from 'react'
-import { animate, motion, useInView, useMotionValue, useTransform } from 'framer-motion'
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'framer-motion'
 import type { CampFactsBlock as CampFactsBlockProps } from '@/payload-types'
 import { useRef } from 'react'
 
 function CountUp({ to, inView }: { to: number; inView: boolean }) {
   const count = useMotionValue(0)
   const rounded = useTransform(count, Math.round)
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     if (!inView) return
+    if (prefersReducedMotion) {
+      count.set(to)
+      return
+    }
     const ctrl = animate(count, to, { duration: 1.4, ease: 'easeOut' })
     return () => ctrl.stop()
-  }, [count, to, inView])
+  }, [count, to, inView, prefersReducedMotion])
 
   return <motion.span>{rounded}</motion.span>
 }
