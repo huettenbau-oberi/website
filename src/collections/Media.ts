@@ -39,7 +39,30 @@ export const Media: CollectionConfig = {
     {
       name: 'alt',
       type: 'text',
-      //required: true,
+      // Conditionally required: alt text MUST be provided for meaningful images so
+      // screen-reader users get an equivalent of the image's content. The escape hatch
+      // is `isDecorative` below — when checked, the image is treated as presentation-
+      // only (alt=""), and this validate function passes regardless of value.
+      validate: ((value: unknown, options: { siblingData?: { isDecorative?: boolean } }) => {
+        if (options?.siblingData?.isDecorative) return true
+        if (typeof value === 'string' && value.trim().length > 0) return true
+        return 'Alt-Text ist erforderlich. Wenn das Bild rein dekorativ ist, aktiviere stattdessen die "Dekoratives Bild"-Option.'
+      }) as never,
+      admin: {
+        description:
+          'Beschreibt den Inhalt des Bildes für Screenreader und SEO. Für rein dekorative Bilder unten den Schalter aktivieren.',
+        condition: (_, siblingData) => !(siblingData as { isDecorative?: boolean })?.isDecorative,
+      },
+    },
+    {
+      name: 'isDecorative',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Dekoratives Bild (kein Alt-Text)',
+      admin: {
+        description:
+          'Aktivieren, wenn das Bild rein dekorativ ist und für das Verständnis der Seite keine Bedeutung hat. Screenreader überspringen das Bild dann.',
+      },
     },
     {
       name: 'caption',

@@ -65,7 +65,17 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
 
     width = fullWidth!
     height = fullHeight!
-    alt = altFromResource || ''
+    // Resolve alt with this priority:
+    //   1. `altFromProps` if the parent passed it (even an empty string is intentional —
+    //      e.g. CampSponsors wants the sponsor's name to be the alt regardless of how
+    //      the underlying media was tagged).
+    //   2. If the media is marked `isDecorative`, force alt="" — WCAG-sanctioned signal
+    //      that assistive tech may skip the image entirely. Any stored alt is ignored
+    //      because the editor explicitly opted into "this image has no meaning".
+    //   3. Otherwise fall back to the resource's own alt, or "" as a last resort.
+    if (altFromProps === undefined) {
+      alt = resource.isDecorative === true ? '' : altFromResource || ''
+    }
     blurDataURL = resource.blurDataUrl || undefined
 
     const cacheTag = resource.updatedAt
@@ -97,7 +107,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
       style={fill ? { position: 'absolute', inset: 0 } : undefined}
     >
       <NextImage
-        alt={alt || ''}
+        alt={alt ?? ''}
         className={cn(imgClassName)}
         fill={fill}
         height={!fill ? height : undefined}

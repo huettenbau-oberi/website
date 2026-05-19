@@ -73,8 +73,9 @@ export const UserDropdown: React.FC<{ isPreview: boolean }> = ({ isPreview }) =>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
+          aria-label="Open user menu"
           className={cn(
-            'flex items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
+            'flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
             user === undefined && 'invisible pointer-events-none',
           )}
         >
