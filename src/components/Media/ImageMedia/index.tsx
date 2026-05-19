@@ -86,11 +86,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   return (
     <picture
       className={cn(pictureClassName)}
-      style={{
-        backgroundImage: "url('/placeholder.svg')",
-        backgroundSize: '100% 100%',
-        ...(fill ? { position: 'absolute', inset: 0 } : undefined),
-      }}
+      style={fill ? { position: 'absolute', inset: 0 } : undefined}
     >
       <NextImage
         alt={alt || ''}
