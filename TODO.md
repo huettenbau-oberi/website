@@ -17,6 +17,7 @@
 - [ ] pages sitemap not working (check robots.txt)
 - [ ] Footer on mobile
 - [ ] Image compression and optimization
+- [ ] Create ansible playbook for system maintenance (update, upgrade)
 
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)

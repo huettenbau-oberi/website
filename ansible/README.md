@@ -71,6 +71,12 @@ pg_prod_user: prod_user
 pg_prod_password: CHANGE_ME
 ```
 
+`setup.env.vault`
+
+```ini
+ssh_port: 22
+```
+
 Encrypt these files with ansible vault to keep the secrets safe:
 
 ```bash
