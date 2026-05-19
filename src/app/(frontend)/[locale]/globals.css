@@ -163,6 +163,11 @@ button {
   color: var(--primary-foreground);
 }
 
+button:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
 button.primary {
   padding: 1rem 1.4rem;
   font-weight: bold;

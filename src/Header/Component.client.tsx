@@ -2,6 +2,7 @@
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import React, { useEffect, useState } from 'react'
 
 import type { Header } from '@/payload-types'
@@ -20,6 +21,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
   const [scrolled, setScrolled] = useState(false)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
+  const t = useTranslations()
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -45,6 +47,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
       ].join(' ')}
       {...(theme ? { 'data-theme': theme } : {})}
     >
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-4 focus:py-2 focus:text-background focus:shadow-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        {t('skip-to-content')}
+      </a>
       <div
         className={`container flex justify-between transition-[padding] duration-300 ${scrolled ? 'py-4' : 'py-8'}`}
       >

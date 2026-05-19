@@ -27,7 +27,11 @@ export async function Footer() {
             <div className="flex items-center flex-wrap gap-x-2 mt-2 text-sm">
               {legalItems.map(({ link }, i) => (
                 <span key={i} className="flex items-center gap-x-2">
-                  {i > 0 && <span className="text-white/40">|</span>}
+                  {i > 0 && (
+                    <span aria-hidden="true" className="text-white/60">
+                      |
+                    </span>
+                  )}
                   <CMSLink className="text-white/70 hover:text-white transition-colors" {...link} />
                 </span>
               ))}
@@ -62,7 +66,7 @@ export async function Footer() {
       <div className="text-center py-4 text-sm text-white/50">
         &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
         {process.env.NEXT_PUBLIC_BUILD_VERSION && (
-          <span className="ml-4 text-white/30">{process.env.NEXT_PUBLIC_BUILD_VERSION}</span>
+          <span className="ml-4 text-white/60">{process.env.NEXT_PUBLIC_BUILD_VERSION}</span>
         )}
       </div>
     </footer>

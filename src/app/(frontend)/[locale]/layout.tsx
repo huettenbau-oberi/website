@@ -71,7 +71,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={message}>
           <Providers>
             <Header />
-            {children}
+            <main id="main">{children}</main>
             <Footer />
           </Providers>
         </NextIntlClientProvider>
