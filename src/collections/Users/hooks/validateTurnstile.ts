@@ -3,12 +3,14 @@ import type { CollectionBeforeOperationHook } from 'payload'
 
 export const validateTurnstile: CollectionBeforeOperationHook = async ({ operation, req }) => {
   if (operation !== 'login') return
+  // Internal login triggered by first-register — no Turnstile widget is shown there
+  if (req.url?.includes('first-register')) return
 
   const cookieHeader = req.headers.get('cookie') ?? ''
   const token = cookieHeader.match(/cf-turnstile-token=([^;]+)/)?.[1]
 
   if (!token) {
-    throw new APIError('Please complete the CAPTCHA challenge before logging in.', 400)
+    throw new APIError('Please complete the CAPTCHA challenge before continuing.', 400)
   }
 
   const formData = new FormData()
