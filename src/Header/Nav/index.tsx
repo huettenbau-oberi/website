@@ -141,7 +141,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                 <button
                   onClick={() => switchLocale(code)}
                   className={cn(
-                    'uppercase transition-colors',
+                    'inline-flex min-h-[44px] min-w-[44px] items-center justify-center uppercase transition-colors',
                     isActive
                       ? 'text-foreground cursor-default'
                       : 'text-foreground/50 hover:text-foreground',
@@ -159,7 +159,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="relative h-8 w-8 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+          className="relative h-11 w-11 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
         >
           <Sun
             size={18}
@@ -180,7 +180,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           ref={triggerRef}
           onClick={() => setOpen(true)}
-          className="text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
+          className="inline-flex min-h-[44px] items-center px-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
           aria-expanded={open}
           aria-controls={MENU_DIALOG_ID}
           aria-haspopup="dialog"
@@ -220,7 +220,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
               ref={closeButtonRef}
               onClick={() => setOpen(false)}
               aria-label={locale === 'de' ? 'Menü schließen' : 'Close menu'}
-              className="text-white/70 transition-colors hover:text-white"
+              className="inline-flex h-11 w-11 items-center justify-center text-white/70 transition-colors hover:text-white"
             >
               <X size={28} />
             </button>
@@ -269,7 +269,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                   onClick={() => { switchLocale(code); setOpen(false) }}
                   disabled={isActive}
                   className={cn(
-                    'text-sm font-bold tracking-widest uppercase transition-colors',
+                    'inline-flex min-h-[44px] items-center justify-center px-3 text-sm font-bold tracking-widest uppercase transition-colors',
                     isActive ? 'text-white cursor-default' : 'text-white/40 hover:text-white/80',
                   )}
                 >
