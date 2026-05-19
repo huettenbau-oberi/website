@@ -47,7 +47,10 @@ export const Media: CollectionConfig = {
       type: 'text',
       admin: {
         readOnly: true,
-        hidden: true,
+        disableListColumn: true,
+        components: {
+          Field: '@/components/BlurDataURLPreview',
+        },
       },
     },
   ],
