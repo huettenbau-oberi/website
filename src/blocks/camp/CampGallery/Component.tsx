@@ -197,7 +197,14 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
                 <div
                   key={i}
                   className={`relative flex-none overflow-hidden bg-muted rounded-lg${!isTall ? ' mt-10' : ''}`}
-                  style={{ width: '280px', height: isTall ? '260px' : '200px' }}
+                  // `min(280px, 80vw)` keeps the original look on standard phones (375px+)
+                  // while shrinking on foldables / very small viewports so the next card
+                  // still peeks in. Aspect ratio preserves the original 280×260 / 280×200
+                  // proportions regardless of the resolved width.
+                  style={{
+                    width: 'min(280px, 80vw)',
+                    aspectRatio: isTall ? '14 / 13' : '7 / 5',
+                  }}
                 >
                   {item?.image && typeof item.image === 'object' && (
                     <Media resource={item.image} fill imgClassName="object-cover" />
