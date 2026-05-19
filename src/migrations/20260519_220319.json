@@ -7789,8 +7789,8 @@
           "primaryKey": false,
           "notNull": false
         },
-        "blur_data_u_r_l": {
-          "name": "blur_data_u_r_l",
+        "blur_data_url": {
+          "name": "blur_data_url",
           "type": "varchar",
           "primaryKey": false,
           "notNull": false
@@ -14794,6 +14794,6 @@
     "tables": {},
     "columns": {}
   },
-  "id": "173233ac-1be2-4460-8737-05f3fa2b07d1",
+  "id": "eec26ce8-11ee-4a16-996c-adfea686db1f",
   "prevId": "00000000-0000-0000-0000-000000000000"
 }

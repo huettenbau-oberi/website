@@ -43,7 +43,7 @@ export const Media: CollectionConfig = {
       }),
     },
     {
-      name: 'blurDataURL',
+      name: 'blurDataUrl',
       type: 'text',
       admin: {
         readOnly: true,

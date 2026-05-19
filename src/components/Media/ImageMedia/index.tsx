@@ -66,7 +66,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     width = fullWidth!
     height = fullHeight!
     alt = altFromResource || ''
-    blurDataURL = resource.blurDataURL || undefined
+    blurDataURL = resource.blurDataUrl || undefined
 
     const cacheTag = resource.updatedAt
 

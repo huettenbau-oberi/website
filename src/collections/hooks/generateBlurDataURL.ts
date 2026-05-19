@@ -22,7 +22,7 @@ export const generateBlurDataURL: CollectionBeforeChangeHook = async ({ data, re
 
     return {
       ...data,
-      blurDataURL: `data:image/webp;base64,${buffer.toString('base64')}`,
+      blurDataUrl: `data:image/webp;base64,${buffer.toString('base64')}`,
     }
   } catch {
     return data
