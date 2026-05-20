@@ -43,7 +43,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
         req,
       })
 
-      const foundIds = new Set(docs.map((d) => d.id))
+      const foundIds = new Set<string | number>(docs.map((d) => d.id))
       for (const missingId of idsToFetch.filter((cid) => !foundIds.has(cid))) {
         console.error(
           `Failed. Category not found when syncing collection '${collection}' with id: '${id}' to search (category id: '${missingId}').`,
