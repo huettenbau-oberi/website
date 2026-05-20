@@ -17,7 +17,7 @@ export async function Footer() {
   const legalItems = footerData?.legalItems || []
 
   return (
-    <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
+    <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white overflow-x-hidden">
       <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
         <div>
           <Link
@@ -53,7 +53,7 @@ export async function Footer() {
           </button>
         </div>
 
-        <div className="flex flex-col items-start md:flex-row gap-8">
+        <div className="flex flex-col items-start md:flex-row gap-8 min-w-0">
           {navItems.map(({ title, links }, i) => {
             const headingId = `footer-nav-${i}`
             return (
@@ -82,10 +82,12 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="text-center py-4 text-sm text-white/60">
-        &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
+      <div className="w-full px-6 pb-4 flex justify-center items-center bg-black/50 flex-wrap gap-1">
+        <span className="text-center text-sm text-white/60">
+          &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
+        </span>
         {process.env.NEXT_PUBLIC_BUILD_VERSION && (
-          <span aria-hidden="true" className="ml-4 text-white/60">
+          <span aria-hidden="true" className="ml-4 text-sm text-white/30">
             {process.env.NEXT_PUBLIC_BUILD_VERSION}
           </span>
         )}
