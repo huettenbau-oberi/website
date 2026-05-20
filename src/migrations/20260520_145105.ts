@@ -24,7 +24,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "pages_locales" ADD COLUMN "hero_category_id" integer;
   ALTER TABLE "_pages_v_locales" ADD COLUMN "version_hero_subtitle" varchar;
   ALTER TABLE "_pages_v_locales" ADD COLUMN "version_hero_category_id" integer;
-  ALTER TABLE "media" ADD COLUMN "is_decorative" boolean DEFAULT false;
+  ALTER TABLE "media" ADD COLUMN IF NOT EXISTS "is_decorative" boolean DEFAULT false;
   ALTER TABLE "pages_locales" ADD CONSTRAINT "pages_locales_hero_category_id_categories_id_fk" FOREIGN KEY ("hero_category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;
   ALTER TABLE "_pages_v_locales" ADD CONSTRAINT "_pages_v_locales_version_hero_category_id_categories_id_fk" FOREIGN KEY ("version_hero_category_id") REFERENCES "public"."categories"("id") ON DELETE set null ON UPDATE no action;
   CREATE INDEX "pages_hero_hero_category_idx" ON "pages_locales" USING btree ("hero_category_id");

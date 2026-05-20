@@ -1,10 +1,11 @@
 # TODO List
 
+- [ ] Footer color fix in dark mode
+- [ ] Cooler Sponsor Section
 - [ ] Node modules in build still needed?
 - [ ] Redirects for english slugs with SEO support
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
-- [ ] Implement Gallery
 - [ ] Contact button in footer
 - [ ] Email Provider
 - [ ] Localized slugs
@@ -15,10 +16,11 @@
 - [ ] 404 Page
 - [ ] Documentation
 - [ ] pages sitemap not working (check robots.txt)
-- [ ] Footer on mobile
 - [ ] Image compression and optimization
 - [ ] Create ansible playbook for system maintenance (update, upgrade)
 
+- [x] Footer on mobile
+- [x] Implement Gallery
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)
 - [x] Implement Version in Footer
