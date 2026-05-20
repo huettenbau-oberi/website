@@ -24,9 +24,9 @@ export async function Footer() {
             <Logo />
           </Link>
           {legalItems.length > 0 && (
-            <div className="flex items-center flex-wrap gap-x-2 mt-2 text-sm">
+            <div className="flex items-center flex-wrap gap-x-1 mt-2 text-sm">
               {legalItems.map(({ link }, i) => (
-                <span key={i} className="flex items-center gap-x-2">
+                <span key={i} className="flex items-center gap-x-1">
                   {i > 0 && (
                     <span aria-hidden="true" className="text-white/60">
                       |
@@ -48,11 +48,11 @@ export async function Footer() {
 
         <div className="flex flex-col items-start md:flex-row gap-8">
           {navItems.map(({ title, links }, i) => (
-            <div key={i} className="flex flex-col gap-2">
+            <div key={i} className="flex flex-col gap-1">
               <span className="font-semibold text-white text-sm uppercase tracking-wide">
                 {title}
               </span>
-              <nav className="flex flex-col gap-1">
+              <nav className="flex flex-col">
                 {(links || []).map(({ link }, j) => (
                   <CMSLink
                     className="text-white/70 hover:text-white transition-colors text-sm"
