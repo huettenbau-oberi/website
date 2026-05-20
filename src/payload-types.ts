@@ -161,12 +161,20 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'galleryHero';
     /**
      * Small text displayed above the logo (e.g. "Welcome to")
      */
     tagline?: string | null;
     backgroundMedia?: (number | null) | Media;
+    /**
+     * Italic subtitle displayed below the "Galerie" heading
+     */
+    subtitle?: string | null;
+    /**
+     * Posts from this category are used to derive the archive date range
+     */
+    category?: (number | null) | Category;
     richText?: {
       root: {
         type: string;
@@ -367,6 +375,30 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -414,30 +446,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1259,6 +1267,8 @@ export interface PagesSelect<T extends boolean = true> {
         type?: T;
         tagline?: T;
         backgroundMedia?: T;
+        subtitle?: T;
+        category?: T;
         richText?: T;
         links?:
           | T

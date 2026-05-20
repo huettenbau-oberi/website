@@ -40,6 +40,10 @@ export const hero: Field = {
           label: 'Low Impact',
           value: 'lowImpact',
         },
+        {
+          label: 'Gallery Hero',
+          value: 'galleryHero',
+        },
       ],
       required: true,
     },
@@ -62,6 +66,26 @@ export const hero: Field = {
         condition: (_, { type } = {}) => type === 'homeHero',
       },
     },
+    // ── Gallery Hero fields ───────────────────────────────────────
+    {
+      name: 'subtitle',
+      type: 'text',
+      label: 'Subtitle',
+      admin: {
+        condition: (_, { type } = {}) => type === 'galleryHero',
+        description: 'Italic subtitle displayed below the "Galerie" heading',
+      },
+    },
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'categories',
+      label: 'Category',
+      admin: {
+        condition: (_, { type } = {}) => type === 'galleryHero',
+        description: 'Posts from this category are used to derive the archive date range',
+      },
+    },
     // ── Other hero type fields ────────────────────────────────────
     {
       name: 'richText',
@@ -78,7 +102,7 @@ export const hero: Field = {
       }),
       label: false,
       admin: {
-        condition: (_, { type } = {}) => type !== 'homeHero',
+        condition: (_, { type } = {}) => !['homeHero', 'galleryHero'].includes(type),
       },
     },
     linkGroup({

@@ -8,7 +8,8 @@ import React from 'react'
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
-  weight: ['900'],
+  weight: ['400', '900'],
+  style: ['normal', 'italic'],
   variable: '--font-playfair',
 })
 
