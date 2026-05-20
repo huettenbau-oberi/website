@@ -52,7 +52,12 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cn(GeistSans.variable, GeistMono.variable, playfairDisplay.variable, inter.variable)}
+      className={cn(
+        GeistSans.variable,
+        GeistMono.variable,
+        playfairDisplay.variable,
+        inter.variable,
+      )}
       lang={locale}
       suppressHydrationWarning
     >

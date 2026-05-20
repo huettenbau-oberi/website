@@ -161,12 +161,20 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'homeHero' | 'lowImpact' | 'galleryHero';
     /**
      * Small text displayed above the logo (e.g. "Welcome to")
      */
     tagline?: string | null;
     backgroundMedia?: (number | null) | Media;
+    /**
+     * Italic subtitle displayed below the "Galerie" heading
+     */
+    subtitle?: string | null;
+    /**
+     * Posts from this category are used to derive the archive date range
+     */
+    category?: (number | null) | Category;
     richText?: {
       root: {
         type: string;
@@ -206,7 +214,6 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
-    media?: (number | null) | Media;
   };
   layout: (
     | CampFactsBlock
@@ -219,6 +226,7 @@ export interface Page {
     | IframeBlock
     | MediaBlock
     | FormBlock
+    | GalleryTimelineBlock
   )[];
   meta?: {
     title?: string | null;
@@ -367,6 +375,30 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts".
  */
 export interface Post {
@@ -414,30 +446,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -977,6 +985,19 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock".
+ */
+export interface GalleryTimelineBlock {
+  /**
+   * Posts from this category are displayed newest-first along the timeline
+   */
+  category: number | Category;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'galleryTimeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1259,6 +1280,8 @@ export interface PagesSelect<T extends boolean = true> {
         type?: T;
         tagline?: T;
         backgroundMedia?: T;
+        subtitle?: T;
+        category?: T;
         richText?: T;
         links?:
           | T
@@ -1275,7 +1298,6 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
-        media?: T;
       };
   layout?:
     | T
@@ -1290,6 +1312,7 @@ export interface PagesSelect<T extends boolean = true> {
         iframeBlock?: T | IframeBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
       };
   meta?:
     | T
@@ -1481,6 +1504,15 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock_select".
+ */
+export interface GalleryTimelineBlockSelect<T extends boolean = true> {
+  category?: T;
   id?: T;
   blockName?: T;
 }
