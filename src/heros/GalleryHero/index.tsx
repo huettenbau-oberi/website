@@ -63,36 +63,38 @@ export const GalleryHero: React.FC<GalleryHeroProps> = async ({ subtitle, catego
     : null
 
   return (
-    <section className="container pt-10 pb-12 md:pt-14 md:pb-16">
-      {/* Label row */}
-      <div className="flex items-center gap-2 mb-3">
-        <span className="inline-block w-8 h-px bg-primary shrink-0" aria-hidden />
-        <p className="text-[0.65rem] tracking-[0.2em] uppercase font-sans font-semibold text-foreground/70 flex items-center gap-1.5">
-          <span>Archiv</span>
-          {yearDisplay && (
-            <>
-              <span aria-hidden className="text-foreground/40">
-                ·
-              </span>
-              <span>{yearDisplay}</span>
-            </>
-          )}
-        </p>
-      </div>
+    <div className="border-b border-foreground/10">
+      <section className="container pt-10 pb-12 md:pt-14 md:pb-16">
+        {/* Label row */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="inline-block w-8 h-px bg-primary shrink-0" aria-hidden />
+          <p className="text-[0.65rem] tracking-[0.2em] uppercase font-sans font-semibold text-foreground/70 flex items-center gap-1.5">
+            <span>Archiv</span>
+            {yearDisplay && (
+              <>
+                <span aria-hidden className="text-foreground/40">
+                  ·
+                </span>
+                <span>{yearDisplay}</span>
+              </>
+            )}
+          </p>
+        </div>
 
-      <h1 className="mt-0 mb-5">Galerie</h1>
+        <h1 className="mt-0 mb-5">Galerie</h1>
 
-      {subtitle && (
-        <p
-          className="max-w-[38rem] text-foreground/70 leading-relaxed"
-          style={{
-            fontWeight: 400,
-            fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
-          }}
-        >
-          {subtitle}
-        </p>
-      )}
-    </section>
+        {subtitle && (
+          <p
+            className="max-w-[38rem] text-foreground/70 leading-relaxed"
+            style={{
+              fontWeight: 400,
+              fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
+            }}
+          >
+            {subtitle}
+          </p>
+        )}
+      </section>
+    </div>
   )
 }

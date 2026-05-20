@@ -161,7 +161,7 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'galleryHero';
+    type: 'none' | 'homeHero' | 'lowImpact' | 'galleryHero';
     /**
      * Small text displayed above the logo (e.g. "Welcome to")
      */
@@ -214,7 +214,6 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
-    media?: (number | null) | Media;
   };
   layout: (
     | CampFactsBlock
@@ -1285,7 +1284,6 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
-        media?: T;
       };
   layout?:
     | T

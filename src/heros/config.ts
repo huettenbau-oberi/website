@@ -25,23 +25,15 @@ export const hero: Field = {
           value: 'none',
         },
         {
-          label: 'Home Hero',
+          label: 'Home',
           value: 'homeHero',
         },
         {
-          label: 'High Impact',
-          value: 'highImpact',
-        },
-        {
-          label: 'Medium Impact',
-          value: 'mediumImpact',
-        },
-        {
-          label: 'Low Impact',
+          label: 'Title',
           value: 'lowImpact',
         },
         {
-          label: 'Gallery Hero',
+          label: 'Gallery',
           value: 'galleryHero',
         },
       ],
@@ -113,15 +105,6 @@ export const hero: Field = {
         },
       },
     }),
-    {
-      name: 'media',
-      type: 'upload',
-      admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
-      },
-      relationTo: 'media',
-      required: true,
-    },
   ],
   label: false,
 }

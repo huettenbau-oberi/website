@@ -9,9 +9,9 @@ import type { Page } from '@/payload-types'
 import { Logo } from '@/components/Logo/Logo'
 import { Media } from '@/components/Media'
 
-type HomeHeroProps = Page['hero'] & {
+type HomeHeroProps = {
   tagline?: string | null
-  backgroundMedia?: Page['hero']['media']
+  backgroundMedia?: Page['hero']['backgroundMedia']
 }
 
 export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) => {
