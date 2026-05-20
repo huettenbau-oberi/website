@@ -21,32 +21,36 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
 
   if (categories && Array.isArray(categories) && categories.length > 0) {
     const populatedCategories: { id: string | number; title: string }[] = []
-    for (const category of categories) {
-      if (!category) {
-        continue
-      }
+    const idsToFetch: (string | number)[] = []
 
+    for (const category of categories) {
+      if (!category) continue
       if (typeof category === 'object') {
         populatedCategories.push(category)
-        continue
+      } else {
+        idsToFetch.push(category)
       }
+    }
 
-      const doc = await req.payload.findByID({
+    if (idsToFetch.length > 0) {
+      const { docs } = await req.payload.find({
         collection: 'categories',
-        id: category,
-        disableErrors: true,
+        where: { id: { in: idsToFetch } },
         depth: 0,
+        limit: idsToFetch.length,
+        pagination: false,
         select: { title: true },
         req,
       })
 
-      if (doc !== null) {
-        populatedCategories.push(doc)
-      } else {
+      const foundIds = new Set<string | number>(docs.map((d) => d.id))
+      for (const missingId of idsToFetch.filter((cid) => !foundIds.has(cid))) {
         console.error(
-          `Failed. Category not found when syncing collection '${collection}' with id: '${id}' to search.`,
+          `Failed. Category not found when syncing collection '${collection}' with id: '${id}' to search (category id: '${missingId}').`,
         )
       }
+
+      populatedCategories.push(...docs)
     }
 
     modifiedDoc.categories = populatedCategories.map((each) => ({

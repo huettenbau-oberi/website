@@ -244,7 +244,14 @@ export interface Page {
  */
 export interface Media {
   id: number;
+  /**
+   * Beschreibt den Inhalt des Bildes für Screenreader und SEO. Für rein dekorative Bilder unten den Schalter aktivieren.
+   */
   alt?: string | null;
+  /**
+   * Aktivieren, wenn das Bild rein dekorativ ist und für das Verständnis der Seite keine Bedeutung hat. Screenreader überspringen das Bild dann.
+   */
+  isDecorative?: boolean | null;
   caption?: {
     root: {
       type: string;
@@ -260,6 +267,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  blurDataUrl?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -1513,7 +1521,9 @@ export interface PostsSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  isDecorative?: T;
   caption?: T;
+  blurDataUrl?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;

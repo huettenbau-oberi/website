@@ -50,7 +50,12 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) 
         transition={{ duration: 0.7, delay: 0.6, ease: 'easeOut' }}
       >
         {tagline && (
-          <h3 className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</h3>
+          // The tagline is decorative subtitle copy — not the page heading. The page's
+          // content blocks (rendered after the hero) supply the <h1>, same as for the
+          // other hero variants. Earlier work treated this as the page heading and
+          // promoted it to <h1>, which risked emitting two <h1>s when the content
+          // already contained one.
+          <p className="font-medium text-white drop-shadow md:text-base tagline">{tagline}</p>
         )}
         <div className="logo-container">
           <Logo loading="eager" priority="high" />

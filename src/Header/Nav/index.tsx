@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocale } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/routing'
 import { ChevronRight, Moon, Sun, X } from 'lucide-react'
@@ -25,6 +25,12 @@ function resolveHref(link: NavLink): string | null {
   return link.url ?? null
 }
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
+const MENU_DIALOG_ID = 'site-menu-dialog'
+const MENU_DIALOG_LABEL_ID = 'site-menu-dialog-label'
+
 export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   data,
   isPreview,
@@ -40,12 +46,73 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   const menuLabel = locale === 'de' ? 'Menü' : 'Menu'
   const isDark = mounted && theme === 'dark'
 
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  // Element that had focus before the dialog opened — focus returns here on close so the
+  // user lands back where they were in the tab order rather than at the top of the page.
+  const lastFocusedBeforeOpen = useRef<HTMLElement | null>(null)
+
+  const getFocusableElements = useCallback((): HTMLElement[] => {
+    if (!dialogRef.current) return []
+    return Array.from(
+      dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
+    ).filter((el) => !el.hasAttribute('inert') && el.getAttribute('aria-hidden') !== 'true')
+  }, [])
+
+  // Focus management when the dialog opens.
   useEffect(() => {
     if (!open) return
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    lastFocusedBeforeOpen.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null
+    // requestAnimationFrame so the dialog DOM is committed before we hand off focus.
+    const raf = requestAnimationFrame(() => {
+      closeButtonRef.current?.focus()
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [open])
+
+  // Restore focus to the trigger when the dialog closes. Skip the initial render
+  // (no prior focus to restore).
+  useEffect(() => {
+    if (open) return
+    const previous = lastFocusedBeforeOpen.current
+    if (!previous) return
+    lastFocusedBeforeOpen.current = null
+    // The trigger may have been re-rendered; prefer the live ref over the stale node
+    // we captured on open. Falls back to the captured node if the ref isn't connected.
+    const target = triggerRef.current ?? (previous.isConnected ? previous : null)
+    target?.focus()
+  }, [open])
+
+  // ESC closes, Tab / Shift+Tab cycle within the dialog (focus trap).
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false)
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusables = getFocusableElements()
+      if (focusables.length === 0) {
+        e.preventDefault()
+        return
+      }
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      const active = document.activeElement as HTMLElement | null
+      if (e.shiftKey && (active === first || !dialogRef.current?.contains(active))) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && (active === last || !dialogRef.current?.contains(active))) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [open])
+  }, [open, getFocusableElements])
 
   useEffect(() => {
     setOpen(false)
@@ -70,14 +137,21 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             const isActive = locale === code
             return (
               <React.Fragment key={code}>
-                {i > 0 && <span className="text-foreground/30">|</span>}
+                {i > 0 && (
+                  <span aria-hidden="true" className="text-foreground/60">
+                    |
+                  </span>
+                )}
                 <button
                   onClick={() => switchLocale(code)}
                   className={cn(
-                    'uppercase transition-colors',
+                    // px-2 py-2 gives ~30 px vertical / ~40 px horizontal hit area —
+                    // above the WCAG 2.5.8 (AA, 24×24) minimum without dominating the
+                    // header visually the way `min-h/min-w-[44px]` did.
+                    'inline-flex items-center justify-center px-2 py-2 uppercase transition-colors',
                     isActive
                       ? 'text-foreground cursor-default'
-                      : 'text-foreground/50 hover:text-foreground',
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   disabled={isActive}
                   aria-label={`Switch to ${code.toUpperCase()}`}
@@ -92,7 +166,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="relative h-8 w-8 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+          className="relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
         >
           <Sun
             size={18}
@@ -111,9 +185,12 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         </button>
 
         <button
+          ref={triggerRef}
           onClick={() => setOpen(true)}
-          className="text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
-          aria-label={menuLabel}
+          className="inline-flex items-center px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
+          aria-expanded={open}
+          aria-controls={MENU_DIALOG_ID}
+          aria-haspopup="dialog"
         >
           {menuLabel.toUpperCase()}
         </button>
@@ -123,14 +200,20 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
       {/* Overlay */}
       {open && (
         <div
+          ref={dialogRef}
+          id={MENU_DIALOG_ID}
           className="fixed inset-0 z-50 flex flex-col"
           style={{ backgroundColor: '#3d2b24' }}
           role="dialog"
           aria-modal="true"
+          aria-labelledby={MENU_DIALOG_LABEL_ID}
         >
           {/* Top bar */}
           <div className="container flex items-center justify-between py-6">
-            <span className="text-sm font-bold tracking-widest text-white/50 uppercase">
+            <span
+              id={MENU_DIALOG_LABEL_ID}
+              className="text-sm font-bold tracking-widest text-white/50 uppercase"
+            >
               {menuLabel}
             </span>
             <Link
@@ -141,9 +224,10 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
               <Logo theme="light" loading="eager" priority="high" />
             </Link>
             <button
+              ref={closeButtonRef}
               onClick={() => setOpen(false)}
-              aria-label="Close menu"
-              className="text-white/70 transition-colors hover:text-white"
+              aria-label={locale === 'de' ? 'Menü schließen' : 'Close menu'}
+              className="inline-flex h-11 w-11 items-center justify-center text-white/70 transition-colors hover:text-white"
             >
               <X size={28} />
             </button>
@@ -192,8 +276,8 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                   onClick={() => { switchLocale(code); setOpen(false) }}
                   disabled={isActive}
                   className={cn(
-                    'text-sm font-bold tracking-widest uppercase transition-colors',
-                    isActive ? 'text-white cursor-default' : 'text-white/40 hover:text-white/80',
+                    'inline-flex items-center justify-center px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors',
+                    isActive ? 'text-white cursor-default' : 'text-white/60 hover:text-white',
                   )}
                 >
                   {label}

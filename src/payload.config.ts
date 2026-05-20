@@ -1,6 +1,10 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import sharp from 'sharp'
 import path from 'path'
+
+// Cap Sharp's libuv worker fan-out so concurrent image uploads / blur-placeholder
+// generation can't saturate the VPS — by default Sharp spawns one thread per core.
+sharp.concurrency(2)
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 

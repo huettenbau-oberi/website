@@ -6,6 +6,7 @@
   vars_files:
     - group_vars/prod.yml
     - files/cloudflare.vault
+    - files/setup.env.vault
 
   handlers:
     - name: Restart SSH
@@ -63,6 +64,14 @@
         path: /etc/ssh/sshd_config
         regexp: "^#?UsePAM"
         line: "UsePAM no"
+        state: present
+      notify: Restart SSH
+
+    - name: Change SSH port
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^#?Port"
+        line: "Port {{ ssh_port }}"
         state: present
       notify: Restart SSH
 
@@ -198,11 +207,3 @@
         project_src: "{{ traefik_dir }}"
         state: present
 
-    # ── Deployment directory ─────────────────────────────────────────────────
-    - name: Create project deployment directory
-      ansible.builtin.file:
-        path: "{{ deploy_dir }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
