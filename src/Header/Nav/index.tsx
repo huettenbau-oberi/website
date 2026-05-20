@@ -145,7 +145,10 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                 <button
                   onClick={() => switchLocale(code)}
                   className={cn(
-                    'inline-flex min-h-[44px] min-w-[44px] items-center justify-center uppercase transition-colors',
+                    // px-2 py-2 gives ~30 px vertical / ~40 px horizontal hit area —
+                    // above the WCAG 2.5.8 (AA, 24×24) minimum without dominating the
+                    // header visually the way `min-h/min-w-[44px]` did.
+                    'inline-flex items-center justify-center px-2 py-2 uppercase transition-colors',
                     isActive
                       ? 'text-foreground cursor-default'
                       : 'text-muted-foreground hover:text-foreground',
@@ -163,7 +166,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="relative h-11 w-11 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+          className="relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
         >
           <Sun
             size={18}
@@ -184,7 +187,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           ref={triggerRef}
           onClick={() => setOpen(true)}
-          className="inline-flex min-h-[44px] items-center px-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
+          className="inline-flex items-center px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
           aria-expanded={open}
           aria-controls={MENU_DIALOG_ID}
           aria-haspopup="dialog"
@@ -273,7 +276,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                   onClick={() => { switchLocale(code); setOpen(false) }}
                   disabled={isActive}
                   className={cn(
-                    'inline-flex min-h-[44px] items-center justify-center px-3 text-sm font-bold tracking-widest uppercase transition-colors',
+                    'inline-flex items-center justify-center px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors',
                     isActive ? 'text-white cursor-default' : 'text-white/60 hover:text-white',
                   )}
                 >

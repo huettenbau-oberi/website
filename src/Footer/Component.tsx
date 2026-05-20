@@ -33,7 +33,7 @@ export async function Footer() {
                     </span>
                   )}
                   <CMSLink
-                    className="inline-flex min-h-[44px] items-center text-white/70 hover:text-white transition-colors"
+                    className="text-white/70 hover:text-white transition-colors"
                     {...link}
                   />
                 </span>
@@ -55,7 +55,7 @@ export async function Footer() {
               <nav className="flex flex-col gap-2">
                 {(links || []).map(({ link }, j) => (
                   <CMSLink
-                    className="inline-flex min-h-[44px] items-center text-white/70 hover:text-white transition-colors text-sm"
+                    className="text-white/70 hover:text-white transition-colors text-sm"
                     key={j}
                     {...link}
                   />
