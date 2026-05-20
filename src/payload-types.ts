@@ -226,6 +226,7 @@ export interface Page {
     | IframeBlock
     | MediaBlock
     | FormBlock
+    | GalleryTimelineBlock
   )[];
   meta?: {
     title?: string | null;
@@ -984,6 +985,19 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock".
+ */
+export interface GalleryTimelineBlock {
+  /**
+   * Posts from this category are displayed newest-first along the timeline
+   */
+  category: number | Category;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'galleryTimeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1298,6 +1312,7 @@ export interface PagesSelect<T extends boolean = true> {
         iframeBlock?: T | IframeBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
       };
   meta?:
     | T
@@ -1489,6 +1504,15 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock_select".
+ */
+export interface GalleryTimelineBlockSelect<T extends boolean = true> {
+  category?: T;
   id?: T;
   blockName?: T;
 }
