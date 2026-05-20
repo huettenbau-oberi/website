@@ -8,8 +8,7 @@ import React from 'react'
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400', '900'],
-  style: ['normal', 'italic'],
+  weight: ['900'],
   variable: '--font-playfair',
 })
 
@@ -53,7 +52,12 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cn(GeistSans.variable, GeistMono.variable, playfairDisplay.variable, inter.variable)}
+      className={cn(
+        GeistSans.variable,
+        GeistMono.variable,
+        playfairDisplay.variable,
+        inter.variable,
+      )}
       lang={locale}
       suppressHydrationWarning
     >
