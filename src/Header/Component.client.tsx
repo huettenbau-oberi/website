@@ -43,7 +43,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
     <header
       className={[
         'sticky top-0 z-20 transition-colors duration-300',
-        scrolled ? 'bg-secondary shadow-sm' : 'bg-transparent',
+        // `bg-background` (instead of `bg-transparent`) so the page body's colour
+        // never bleeds through the header strip. The token is `data-theme`-aware:
+        // on a hero that calls `setHeaderTheme('dark')` the header automatically
+        // turns dark to match, on a regular page it stays light. Scroll just adds
+        // the shadow + the slightly tinted `bg-secondary` for contrast.
+        scrolled ? 'bg-secondary shadow-sm' : 'bg-background',
       ].join(' ')}
       {...(theme ? { 'data-theme': theme } : {})}
     >

@@ -41,18 +41,18 @@ export async function Footer() {
             </div>
           )}
 
-          <button className="primary flex items-center mt-8">
+          <button className="primary flex items-center mt-6">
             Kontakt <SendIcon className="size-4 ml-1 stroke-2" />
           </button>
         </div>
 
         <div className="flex flex-col items-start md:flex-row gap-8">
           {navItems.map(({ title, links }, i) => (
-            <div key={i} className="flex flex-col gap-3">
+            <div key={i} className="flex flex-col gap-2">
               <span className="font-semibold text-white text-sm uppercase tracking-wide">
                 {title}
               </span>
-              <nav className="flex flex-col gap-2">
+              <nav className="flex flex-col gap-1">
                 {(links || []).map(({ link }, j) => (
                   <CMSLink
                     className="text-white/70 hover:text-white transition-colors text-sm"
