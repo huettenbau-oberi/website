@@ -137,14 +137,18 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             const isActive = locale === code
             return (
               <React.Fragment key={code}>
-                {i > 0 && <span className="text-foreground/30">|</span>}
+                {i > 0 && (
+                  <span aria-hidden="true" className="text-foreground/60">
+                    |
+                  </span>
+                )}
                 <button
                   onClick={() => switchLocale(code)}
                   className={cn(
                     'inline-flex min-h-[44px] min-w-[44px] items-center justify-center uppercase transition-colors',
                     isActive
                       ? 'text-foreground cursor-default'
-                      : 'text-foreground/50 hover:text-foreground',
+                      : 'text-muted-foreground hover:text-foreground',
                   )}
                   disabled={isActive}
                   aria-label={`Switch to ${code.toUpperCase()}`}
@@ -270,7 +274,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                   disabled={isActive}
                   className={cn(
                     'inline-flex min-h-[44px] items-center justify-center px-3 text-sm font-bold tracking-widest uppercase transition-colors',
-                    isActive ? 'text-white cursor-default' : 'text-white/40 hover:text-white/80',
+                    isActive ? 'text-white cursor-default' : 'text-white/60 hover:text-white',
                   )}
                 >
                   {label}
