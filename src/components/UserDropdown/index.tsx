@@ -75,7 +75,12 @@ export const UserDropdown: React.FC<{ isPreview: boolean }> = ({ isPreview }) =>
         <button
           aria-label="Open user menu"
           className={cn(
-            'flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
+            // h-9 w-9 (36×36) matches the theme-toggle and keeps the navbar row at a
+            // consistent height whether the dropdown is rendered or not. The inner
+            // avatar (h-7 w-7 = 28×28) stays the visible target; the surrounding 4 px
+            // padding keeps the 24×24 WCAG AA minimum click area without dominating
+            // the header.
+            'flex h-9 w-9 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background',
             user === undefined && 'invisible pointer-events-none',
           )}
         >

@@ -43,6 +43,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
     <header
       className={[
         'sticky top-0 z-20 transition-colors duration-300',
+        // Transparent over hero pages — those use `-mt-[10.4rem]` to extend their
+        // background up under the header. On non-hero pages this falls through to
+        // the page body bg, which is intentional. The scrolled state adds a
+        // distinct tinted bg + shadow once the user has scrolled past the hero.
         scrolled ? 'bg-secondary shadow-sm' : 'bg-transparent',
       ].join(' ')}
       {...(theme ? { 'data-theme': theme } : {})}
@@ -54,9 +58,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
         {t('skip-to-content')}
       </a>
       <div
-        className={`container flex justify-between transition-[padding] duration-300 ${scrolled ? 'py-4' : 'py-8'}`}
+        className={`container flex items-center justify-between transition-[padding] duration-300 ${scrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}
       >
-        <Link href="/">
+        {/* `shrink-0` keeps the logo at its natural max-width when the right-hand
+            nav grows on mobile — without it the link flex-shrinks below the logo's
+            intended size as soon as the nav side gets wider. */}
+        <Link className="shrink-0" href="/">
           <Logo loading="eager" priority="high" />
         </Link>
         <HeaderNav data={data} isPreview={isPreview} />
