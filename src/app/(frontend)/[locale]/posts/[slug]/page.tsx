@@ -8,8 +8,9 @@ import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
-import type { Post } from '@/payload-types'
+import type { Page, Post } from '@/payload-types'
 
+import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
@@ -65,6 +66,15 @@ export default async function Post({ params: paramsPromise }: Args) {
       <div className="flex flex-col items-center gap-4 pt-8">
         <div className="container">
           <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
+        </div>
+      </div>
+
+      {post.layout && post.layout.length > 0 && (
+        <RenderBlocks blocks={post.layout as Page['layout']} />
+      )}
+
+      <div className="flex flex-col items-center gap-4 pt-8">
+        <div className="container">
           {post.relatedPosts && post.relatedPosts.length > 0 && (
             <RelatedPosts
               className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"

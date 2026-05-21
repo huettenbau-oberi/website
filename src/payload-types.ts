@@ -404,8 +404,8 @@ export interface Category {
 export interface Post {
   id: number;
   title: string;
-  heroImage?: (number | null) | Media;
-  content: {
+  heroImage: number | Media;
+  content?: {
     root: {
       type: string;
       children: {
@@ -419,9 +419,21 @@ export interface Post {
       version: number;
     };
     [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
+  } | null;
+  showAuthor?: boolean | null;
+  layout: (
+    | CampFactsBlock
+    | CampGalleryBlock
+    | CampHeroBlock
+    | CampMainBlock
+    | CampSponsorsBlock
+    | ContentBlock
+    | HtmlBlock
+    | IframeBlock
+    | MediaBlock
+    | FormBlock
+    | GalleryTimelineBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -430,6 +442,8 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
+  relatedPosts?: (number | Post)[] | null;
+  categories?: (number | Category)[] | null;
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
   populatedAuthors?:
@@ -446,32 +460,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -995,6 +983,32 @@ export interface GalleryTimelineBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'galleryTimeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1524,8 +1538,22 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
   content?: T;
-  relatedPosts?: T;
-  categories?: T;
+  showAuthor?: T;
+  layout?:
+    | T
+    | {
+        campFacts?: T | CampFactsBlockSelect<T>;
+        campGallery?: T | CampGalleryBlockSelect<T>;
+        campHero?: T | CampHeroBlockSelect<T>;
+        campMain?: T | CampMainBlockSelect<T>;
+        campSponsors?: T | CampSponsorsBlockSelect<T>;
+        content?: T | ContentBlockSelect<T>;
+        htmlBlock?: T | HtmlBlockSelect<T>;
+        iframeBlock?: T | IframeBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
+      };
   meta?:
     | T
     | {
@@ -1533,6 +1561,8 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
+  relatedPosts?: T;
+  categories?: T;
   publishedAt?: T;
   authors?: T;
   populatedAuthors?:
@@ -2168,42 +2198,6 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

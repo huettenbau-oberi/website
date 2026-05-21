@@ -1,19 +1,25 @@
 import type { CollectionConfig } from 'payload'
 
 import {
-  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
-  HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Banner } from '../../blocks/Banner/config'
-import { Code } from '../../blocks/Code/config'
+import { CampGallery } from '../../blocks/camp/CampGallery/config'
+import { CampHero } from '../../blocks/camp/CampHero/config'
+import { Content } from '../../blocks/Content/config'
+import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { CampMain } from '../../blocks/camp/CampMain/config'
+import { CampFacts } from '../../blocks/camp/CampFacts/config'
+import { CampSponsors } from '../../blocks/camp/CampSponsors/config'
+import { HtmlBlock } from '../../blocks/HtmlBlock/config'
+import { IframeBlock } from '../../blocks/IframeBlock/config'
+import { GalleryTimeline } from '../../blocks/GalleryTimeline/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
@@ -80,6 +86,7 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'heroImage',
               type: 'upload',
               relationTo: 'media',
+              required: true,
             },
             {
               name: 'content',
@@ -88,49 +95,48 @@ export const Posts: CollectionConfig<'posts'> = {
                 features: ({ rootFeatures }) => {
                   return [
                     ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
+                    HeadingFeature({ enabledHeadingSizes: ['h1'] }),
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
                   ]
                 },
               }),
-              label: false,
-              required: true,
+              label: 'Intro',
+            },
+            {
+              name: 'showAuthor',
+              type: 'checkbox',
+              label: 'Show Author',
+              defaultValue: false,
             },
           ],
-          label: 'Content',
+          label: 'Hero',
         },
         {
           fields: [
             {
-              name: 'relatedPosts',
-              type: 'relationship',
+              name: 'layout',
+              type: 'blocks',
+              blocks: [
+                CampFacts,
+                CampGallery,
+                CampHero,
+                CampMain,
+                CampSponsors,
+                Content,
+                HtmlBlock,
+                IframeBlock,
+                MediaBlock,
+                FormBlock,
+                GalleryTimeline,
+              ],
+              required: true,
               admin: {
-                position: 'sidebar',
+                initCollapsed: true,
               },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts',
-            },
-            {
-              name: 'categories',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              hasMany: true,
-              relationTo: 'categories',
             },
           ],
-          label: 'Meta',
+          label: 'Content',
         },
         {
           name: 'meta',
@@ -150,16 +156,38 @@ export const Posts: CollectionConfig<'posts'> = {
 
             MetaDescriptionField({}),
             PreviewField({
-              // if the `generateUrl` function is configured
               hasGenerateFn: true,
-
-              // field paths to match the target field for data
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
           ],
         },
       ],
+    },
+    {
+      name: 'relatedPosts',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      filterOptions: ({ id }) => {
+        return {
+          id: {
+            not_in: [id],
+          },
+        }
+      },
+      hasMany: true,
+      relationTo: 'posts',
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+      relationTo: 'categories',
     },
     {
       name: 'publishedAt',
