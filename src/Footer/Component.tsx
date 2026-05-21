@@ -82,7 +82,7 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="w-full px-6 pb-4 flex justify-center items-center bg-black/50 flex-wrap gap-1">
+      <div className="w-full px-6 pb-4 flex justify-center items-center flex-wrap gap-1">
         <span className="text-center text-sm text-white/60">
           &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
         </span>
