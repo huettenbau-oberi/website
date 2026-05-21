@@ -2,7 +2,6 @@ import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/utilities/ui'
 import React from 'react'
-import RichText from '@/components/RichText'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
@@ -33,7 +32,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
     showMediaCaption,
   } = props
 
-  const mediaCaption = showMediaCaption && typeof media === 'object' ? media?.caption : null
+  const showCaptionOverlay = !!(showMediaCaption && typeof media === 'object' && media?.caption)
 
   const sizeStyle: React.CSSProperties = {
     ...(widthPercent != null && { width: `${widthPercent}%` }),
@@ -56,6 +55,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
             imgClassName={cn('border border-border rounded-[0.8rem] max-w-full h-auto', imgClassName)}
             resource={media}
             src={staticImage}
+            showCaption={showCaptionOverlay}
           />
         </div>
       )}
@@ -63,13 +63,6 @@ export const MediaBlock: React.FC<Props> = (props) => {
         <div className={cn('mt-3 text-center prose md:prose-md dark:prose-invert mx-auto', captionClassName)}>
           <p className="!my-0">{caption}</p>
         </div>
-      )}
-      {mediaCaption && (
-        <RichText
-          data={mediaCaption}
-          enableGutter={false}
-          className={cn('mt-3 text-center', captionClassName)}
-        />
       )}
     </div>
   )
