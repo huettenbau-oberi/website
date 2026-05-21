@@ -25,22 +25,6 @@ export const PostHeroClient: React.FC = () => {
         {t('share')}
       </p>
       <div className="flex items-center gap-3">
-        <a
-          href="https://www.instagram.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-background/60 hover:text-background transition-colors"
-          aria-label="Instagram"
-        >
-          <Instagram size={17} strokeWidth={1.5} />
-        </a>
-        <button
-          onClick={handleFacebookShare}
-          className="text-background/60 hover:text-background transition-colors bg-transparent p-0 cursor-pointer"
-          aria-label="Auf Facebook teilen"
-        >
-          <Facebook size={17} strokeWidth={1.5} />
-        </button>
         <button
           onClick={handleCopyLink}
           className="text-background/60 hover:text-background transition-colors bg-transparent p-0 cursor-pointer"

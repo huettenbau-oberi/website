@@ -2,6 +2,7 @@ import React from 'react'
 
 import type { Category, Post } from '@/payload-types'
 import { Media } from '@/components/Media'
+import RichText from '@/components/RichText'
 import { useTranslations } from 'next-intl'
 import { PostHeroClient } from './PostHeroClient'
 
@@ -16,7 +17,7 @@ function formatPostDate(timestamp: string): string {
 
 export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const t = useTranslations()
-  const { categories, heroImage, populatedAuthors, publishedAt, title, showAuthor } = post
+  const { categories, content, heroImage, populatedAuthors, publishedAt, title, showAuthor } = post
 
   const dashIdx = title?.indexOf(' - ') ?? -1
   const titleMain = dashIdx !== -1 ? title!.slice(0, dashIdx) : title
@@ -41,7 +42,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
         <div className="container pt-8 pb-8 md:pt-10 md:pb-10">
           {/* Breadcrumbs — category hierarchy + current post title */}
           {breadcrumbs && breadcrumbs.length > 0 && (
-            <div className="flex items-center gap-2 mb-3">
+            <div className="relative z-10 flex items-center gap-2 mb-3">
               {[...breadcrumbs, { label: titleMain }].map((crumb, i, arr) => {
                 const isLast = i === arr.length - 1
                 return (
@@ -62,8 +63,14 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             </div>
           )}
 
-          {/* Primary title */}
-          <h1 className="mb-0 leading-none" style={{ fontSize: 'clamp(2.5rem, 9vw, 7rem)' }}>
+          {/* Primary title — fluid size so the text fills ~70% of the viewport
+              regardless of how many characters the title contains.             */}
+          <h1
+            className="mb-0 leading-none"
+            style={{
+              fontSize: `clamp(1.75rem, ${(70 / ((titleMain?.length ?? 10) * 0.58)).toFixed(2)}vw, 9rem)`,
+            }}
+          >
             {titleMain}
           </h1>
 
@@ -115,7 +122,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
       {/* Mobile: edge-to-edge. lg+: small horizontal margin so it sits
           just inside the screen edges without going full-bleed.
           Margins are kept small so the bar still feels wide.            */}
-      <div className="lg:mx-6 xl:mx-12">
+      <div className="lg:mx-6 xl:container xl:px-0 xl:mx-auto">
         <div className="bg-foreground text-background">
           <div className="container flex flex-col gap-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-5 sm:py-5">
             {/* Author */}
@@ -142,6 +149,25 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
           </div>
         </div>
       </div>
+
+      {/* ── Intro / Vorwort ────────────────────────────────────────── */}
+      {content && (
+        <div className="container py-10 md:py-14">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-12">
+            {/* Label — dash on top, text below, whole column top-aligned */}
+            <div className="flex shrink-0 flex-col items-start gap-2">
+              <span className="inline-block h-px w-8 bg-primary" aria-hidden />
+              <p className="m-0 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-foreground/60">
+                {t('foreword')}
+              </p>
+            </div>
+            {/* Content — bold text rendered in primary red */}
+            <div className="flex-1 [&_strong]:text-primary [&_b]:text-primary">
+              <RichText data={content} enableGutter={false} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

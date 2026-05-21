@@ -6,7 +6,6 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
-import RichText from '@/components/RichText'
 
 import type { Page, Post } from '@/payload-types'
 
@@ -62,12 +61,6 @@ export default async function Post({ params: paramsPromise }: Args) {
       {draft && <LivePreviewListener />}
 
       <PostHero post={post} />
-
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-        </div>
-      </div>
 
       {post.layout && post.layout.length > 0 && (
         <RenderBlocks blocks={post.layout as Page['layout']} />
