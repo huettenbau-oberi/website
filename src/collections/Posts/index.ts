@@ -76,6 +76,7 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'title',
       type: 'text',
       required: true,
+      localized: true,
     },
     {
       type: 'tabs',
@@ -102,6 +103,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 },
               }),
               label: 'Intro',
+              localized: true,
             },
             {
               name: 'showAuthor',
@@ -130,7 +132,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 FormBlock,
                 GalleryTimeline,
               ],
-              required: true,
+              localized: true,
               admin: {
                 initCollapsed: true,
               },
@@ -238,6 +240,10 @@ export const Posts: CollectionConfig<'posts'> = {
         },
         {
           name: 'name',
+          type: 'text',
+        },
+        {
+          name: 'role',
           type: 'text',
         },
       ],

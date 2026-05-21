@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 import type { Category, Post } from '@/payload-types'
 import { Media } from '@/components/Media'
@@ -52,11 +53,20 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
                         /
                       </span>
                     )}
-                    <span
-                      className={`text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans ${isLast ? 'text-primary' : 'text-foreground/60'}`}
-                    >
-                      {crumb.label}
-                    </span>
+                    {!isLast && crumb.url ? (
+                      <Link
+                        href={crumb.url}
+                        className="text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans text-foreground/60 hover:text-foreground/90 transition-colors"
+                      >
+                        {crumb.label}
+                      </Link>
+                    ) : (
+                      <span
+                        className={`text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans ${isLast ? 'text-primary' : 'text-foreground/60'}`}
+                      >
+                        {crumb.label}
+                      </span>
+                    )}
                   </React.Fragment>
                 )
               })}
@@ -140,6 +150,11 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
                   <p className="m-0 font-sans text-sm font-semibold text-background">
                     {firstAuthor.name}
                   </p>
+                  {firstAuthor.role && (
+                    <p className="m-0 mt-0.5 font-sans text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-background/40">
+                      {firstAuthor.role}
+                    </p>
+                  )}
                 </div>
               </div>
             )}

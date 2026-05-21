@@ -421,19 +421,21 @@ export interface Post {
     [k: string]: unknown;
   } | null;
   showAuthor?: boolean | null;
-  layout: (
-    | CampFactsBlock
-    | CampGalleryBlock
-    | CampHeroBlock
-    | CampMainBlock
-    | CampSponsorsBlock
-    | ContentBlock
-    | HtmlBlock
-    | IframeBlock
-    | MediaBlock
-    | FormBlock
-    | GalleryTimelineBlock
-  )[];
+  layout?:
+    | (
+        | CampFactsBlock
+        | CampGalleryBlock
+        | CampHeroBlock
+        | CampMainBlock
+        | CampSponsorsBlock
+        | ContentBlock
+        | HtmlBlock
+        | IframeBlock
+        | MediaBlock
+        | FormBlock
+        | GalleryTimelineBlock
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     /**
@@ -450,6 +452,7 @@ export interface Post {
     | {
         id?: string | null;
         name?: string | null;
+        role?: string | null;
       }[]
     | null;
   /**
@@ -991,6 +994,10 @@ export interface GalleryTimelineBlock {
 export interface User {
   id: number;
   name?: string | null;
+  /**
+   * Role shown below the author name in post headers (e.g. "Vorstand", "Webseite")
+   */
+  role?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1570,6 +1577,7 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         id?: T;
         name?: T;
+        role?: T;
       };
   generateSlug?: T;
   slug?: T;
@@ -1699,6 +1707,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
