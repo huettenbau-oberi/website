@@ -25,6 +25,14 @@ export const Users: CollectionConfig = {
       name: 'name',
       type: 'text',
     },
+    {
+      name: 'role',
+      type: 'text',
+      admin: {
+        description:
+          'Role shown below the author name in post headers (e.g. "Vorstand", "Webseite")',
+      },
+    },
   ],
   timestamps: true,
 }

@@ -63,8 +63,8 @@ export const GalleryHero: React.FC<GalleryHeroProps> = async ({ subtitle, catego
     : null
 
   return (
-    <div className="border-b border-foreground/10">
-      <section className="container pt-10 pb-12 md:pt-14 md:pb-16">
+    <div className="-mt-[10.4rem] bg-muted">
+      <section className="container pt-[11.4rem] pb-12 md:pt-[12.4rem] md:pb-16">
         {/* Label row */}
         <div className="flex items-center gap-2 mb-3">
           <span className="inline-block w-8 h-px bg-primary shrink-0" aria-hidden />
