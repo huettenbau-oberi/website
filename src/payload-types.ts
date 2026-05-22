@@ -1029,9 +1029,6 @@ export interface CampSponsorsBlock {
   sponsors?:
     | {
         image: number | Media;
-        /**
-         * Used as alt text for accessibility
-         */
         name?: string | null;
         id?: string | null;
       }[]

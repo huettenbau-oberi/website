@@ -1,7 +1,5 @@
 # TODO List
 
-
-- [ ] Cooler Sponsor Section
 - [ ] Node modules in build still needed?
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
@@ -17,6 +15,7 @@
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+- [x] Cooler Sponsor Section
 - [x] URL of a gallery post!
 - [x] Redirects for english slugs with SEO support
 - [x] Image compression and optimization

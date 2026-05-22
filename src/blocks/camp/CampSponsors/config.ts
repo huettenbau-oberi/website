@@ -49,7 +49,6 @@ export const CampSponsors: Block = {
           name: 'name',
           type: 'text',
           label: 'Sponsor Name',
-          admin: { description: 'Used as alt text for accessibility' },
         },
       ],
     },
