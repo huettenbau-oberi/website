@@ -1,24 +1,26 @@
 # TODO List
 
-- [ ] Footer color fix in dark mode
-- [ ] Cooler Sponsor Section
 - [ ] Node modules in build still needed?
-- [ ] Redirects for english slugs with SEO support
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Contact button in footer
 - [ ] Email Provider
-- [ ] Localized slugs
 - [ ] Customize Admin Panel
-- [ ] Backups / Storage
 - [ ] Search Functionality
 - [ ] Implement Analytics
 - [ ] 404 Page
 - [ ] Documentation
 - [ ] pages sitemap not working (check robots.txt)
-- [ ] Image compression and optimization
-- [ ] Create ansible playbook for system maintenance (update, upgrade)
+- [ ] Ansible
+  - [ ] Create ansible playbook for system maintenance (update, upgrade)
+  - [ ] Backups / Storage
 
+- [x] Cooler Sponsor Section
+- [x] URL of a gallery post!
+- [x] Redirects for english slugs with SEO support
+- [x] Image compression and optimization
+- [x] Localized slugs
+- [x] Footer color fix in dark mode
 - [x] Footer on mobile
 - [x] Implement Gallery
 - [x] Remove seed endpoint

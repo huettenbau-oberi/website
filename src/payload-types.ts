@@ -383,6 +383,10 @@ export interface Category {
   id: number;
   title: string;
   /**
+   * The URL path segment under which posts in this category live. Defaults to "posts". Example: set to "gallery" for posts to appear at /gallery/[slug].
+   */
+  urlPrefix?: string | null;
+  /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
@@ -434,7 +438,6 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
@@ -1026,9 +1029,6 @@ export interface CampSponsorsBlock {
   sponsors?:
     | {
         image: number | Media;
-        /**
-         * Used as alt text for accessibility
-         */
         name?: string | null;
         id?: string | null;
       }[]
@@ -1612,7 +1612,6 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
-  relatedPosts?: T;
   categories?: T;
   publishedAt?: T;
   authors?: T;
@@ -1764,6 +1763,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  urlPrefix?: T;
   generateSlug?: T;
   slug?: T;
   parent?: T;

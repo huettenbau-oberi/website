@@ -5,17 +5,16 @@ import { PostNavigation } from '@/components/PostNavigation'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import React, { cache } from 'react'
 
 import type { Page, Post } from '@/payload-types'
 
-import { getPostUrl } from '@/utilities/getPostUrl'
-
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
+import { getUrlPrefixFromCategories } from '@/utilities/getPostUrl'
+import PageClient from '../../posts/[slug]/page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
@@ -27,12 +26,23 @@ export async function generateStaticParams() {
       limit: 1000,
       overrideAccess: false,
       pagination: false,
+      depth: 1,
       select: {
         slug: true,
+        categories: true,
       },
     })
 
-    return posts.docs.map(({ slug }) => ({ slug }))
+    const params: { slug: string; postSlug: string }[] = []
+
+    for (const post of posts.docs) {
+      const prefix = getUrlPrefixFromCategories(post.categories as any)
+      if (prefix !== 'posts' && post.slug) {
+        params.push({ slug: prefix, postSlug: post.slug })
+      }
+    }
+
+    return params
   } catch {
     return []
   }
@@ -40,25 +50,26 @@ export async function generateStaticParams() {
 
 type Args = {
   params: Promise<{
-    slug?: string
+    slug?: string    // the URL prefix segment, e.g. "gallery"
+    postSlug?: string
     locale?: string
   }>
 }
 
-export default async function Post({ params: paramsPromise }: Args) {
+export default async function PostByPrefix({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = '', locale } = await paramsPromise
-  // Decode to support slugs with special characters
-  const decodedSlug = decodeURIComponent(slug)
-  const url = '/posts/' + decodedSlug
+  const { slug: urlPrefix = '', postSlug = '', locale } = await paramsPromise
+  const decodedSlug = decodeURIComponent(postSlug)
+  const url = `/${urlPrefix}/${decodedSlug}`
+
   const post = await queryPostBySlug({ slug: decodedSlug, locale })
 
   if (!post) return <PayloadRedirects url={url} />
 
-  // Redirect to canonical URL if the post lives under a different prefix
-  const canonicalUrl = getPostUrl(post)
-  if (canonicalUrl !== url) {
-    redirect(canonicalUrl)
+  // Verify this post actually belongs to a category with the given urlPrefix
+  const actualPrefix = getUrlPrefixFromCategories(post.categories as any)
+  if (actualPrefix !== urlPrefix) {
+    notFound()
   }
 
   const categoryIds = (post.categories ?? [])
@@ -76,7 +87,6 @@ export default async function Post({ params: paramsPromise }: Args) {
     <article className="pt-16 pb-16">
       <PageClient />
 
-      {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
@@ -93,9 +103,8 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '', locale } = await paramsPromise
-  // Decode to support slugs with special characters
-  const decodedSlug = decodeURIComponent(slug)
+  const { postSlug = '', locale } = await paramsPromise
+  const decodedSlug = decodeURIComponent(postSlug)
   const post = await queryPostBySlug({ slug: decodedSlug, locale })
 
   return generateMeta({ doc: post })

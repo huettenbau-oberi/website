@@ -21,6 +21,7 @@ import type {
   GalleryGridBlock as GalleryGridBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
+import { getPostUrl } from '@/utilities/getPostUrl'
 
 type NodeTypes =
   | DefaultNodeTypes
@@ -32,7 +33,7 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
     throw new Error('Expected value to be an object')
   }
   const slug = value.slug
-  return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
+  return relationTo === 'posts' ? getPostUrl(value as any) : `/${slug}`
 }
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
