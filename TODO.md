@@ -3,7 +3,6 @@
 - [ ] Node modules in build still needed?
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
-- [ ] Contact button in footer
 - [ ] Email Provider
 - [ ] Customize Admin Panel
 - [ ] Search Functionality
@@ -15,6 +14,7 @@
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+- [x] Contact button in footer
 - [x] Cooler Sponsor Section
 - [x] URL of a gallery post!
 - [x] Redirects for english slugs with SEO support
