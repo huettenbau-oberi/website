@@ -15,7 +15,6 @@ function formatPostDate(timestamp: string): string {
   return `${DD}.${MM}.${YYYY}`
 }
 
-
 export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const t = useTranslations()
   const { categories, content, heroImage, populatedAuthors, publishedAt, title, showAuthor } = post
@@ -25,13 +24,11 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
   const titleSub = dashIdx !== -1 ? title!.slice(dashIdx + 3) : null
 
   const breadcrumbSource = categories?.find(
-    (c): c is Category =>
-      typeof c === 'object' && c !== null && (c.breadcrumbs?.length ?? 0) > 0,
+    (c): c is Category => typeof c === 'object' && c !== null && (c.breadcrumbs?.length ?? 0) > 0,
   )
   const breadcrumbs = breadcrumbSource?.breadcrumbs ?? null
 
-  const hasCaption =
-    heroImage && typeof heroImage === 'object' ? !!heroImage.caption : false
+  const hasCaption = heroImage && typeof heroImage === 'object' ? !!heroImage.caption : false
 
   const hasAuthor = !!showAuthor && (populatedAuthors?.length ?? 0) > 0
   const firstAuthor = populatedAuthors?.[0]
@@ -118,12 +115,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
       {heroImage && typeof heroImage !== 'string' && (
         <div className={`lg:px-6 xl:px-12 ${hasCaption ? 'xl:mb-6' : 'xl:mb-2'}`}>
           <div className="mx-auto xl:max-w-5xl">
-            <Media
-              resource={heroImage}
-              priority
-              imgClassName="w-full h-auto block"
-              showCaption
-            />
+            <Media resource={heroImage} priority imgClassName="w-full h-auto block" showCaption />
           </div>
         </div>
       )}
@@ -132,7 +124,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
       {/* Mobile: edge-to-edge. lg+: small horizontal margin so it sits
           just inside the screen edges without going full-bleed.
           Margins are kept small so the bar still feels wide.            */}
-      <div className="lg:mx-6 xl:container xl:px-0 xl:mx-auto">
+      <div className="lg:mx-6 xl:container xl:mx-auto">
         <div className="bg-foreground text-background">
           <div className="container flex flex-col gap-4 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-5 sm:py-5">
             {/* Author */}

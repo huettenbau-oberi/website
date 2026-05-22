@@ -1,0 +1,33 @@
+<svg width="300" height="180" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="180" fill="#F6F0E5"/>
+
+  <!-- ── Left sidebar ───────────────────────────────────── -->
+  <!-- Eyebrow label -->
+  <rect x="12" y="16" width="24" height="3" rx="1" fill="#171716" opacity="0.35"/>
+  <!-- Large title / number -->
+  <rect x="12" y="23" width="50" height="40" rx="2" fill="#171716" opacity="0.78"/>
+  <!-- Subtitle (e.g. date) -->
+  <rect x="12" y="68" width="22" height="3" rx="1" fill="#171716" opacity="0.35"/>
+  <!-- Dash (primary accent) -->
+  <line x1="12" y1="78" x2="34" y2="78" stroke="#EA3936" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- ── Right content ───────────────────────────────────── -->
+  <!-- Heading -->
+  <rect x="76" y="12" width="148" height="13" rx="2" fill="#171716" opacity="0.75"/>
+  <!-- Lead text lines -->
+  <rect x="76" y="30" width="200" height="5" rx="1.5" fill="#171716" opacity="0.22"/>
+  <rect x="76" y="39" width="188" height="5" rx="1.5" fill="#171716" opacity="0.22"/>
+  <!-- Two images side by side -->
+  <rect x="76" y="52" width="96" height="60" rx="3" fill="#C4B7B1"/>
+  <rect x="180" y="52" width="96" height="60" rx="3" fill="#C4B7B1"/>
+  <!-- Faint image content suggestion -->
+  <path d="M88 100 l18 -16 l12 12 l10 -10 l18 16" stroke="#171716" stroke-width="1.2" fill="none" opacity="0.2"/>
+  <path d="M192 100 l16 -14 l14 14 l10 -12 l16 14" stroke="#171716" stroke-width="1.2" fill="none" opacity="0.2"/>
+  <!-- Captions -->
+  <rect x="76" y="116" width="52" height="3" rx="1" fill="#171716" opacity="0.2"/>
+  <rect x="180" y="116" width="48" height="3" rx="1" fill="#171716" opacity="0.2"/>
+  <!-- Body text lines -->
+  <rect x="76" y="128" width="200" height="5" rx="1.5" fill="#171716" opacity="0.22"/>
+  <rect x="76" y="137" width="184" height="5" rx="1.5" fill="#171716" opacity="0.22"/>
+  <rect x="76" y="146" width="196" height="5" rx="1.5" fill="#171716" opacity="0.22"/>
+</svg>

@@ -6,6 +6,7 @@ import type { Media as MediaType } from '@/payload-types'
 export interface Props {
   alt?: string
   className?: string
+  enableZoom?: boolean // opt-in: clicking the image opens it in a full-screen lightbox
   fill?: boolean // for NextImage only
   htmlElement?: ElementType | null
   pictureClassName?: string

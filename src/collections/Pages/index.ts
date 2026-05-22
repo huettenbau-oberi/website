@@ -92,7 +92,6 @@ export const Pages: CollectionConfig<'pages'> = {
                 FormBlock,
                 GalleryTimeline,
               ],
-              required: true,
               localized: true,
               admin: {
                 initCollapsed: true,

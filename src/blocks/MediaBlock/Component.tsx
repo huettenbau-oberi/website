@@ -39,6 +39,19 @@ export const MediaBlock: React.FC<Props> = (props) => {
     ...(maxWidth != null && { maxWidth: `${maxWidth}px` }),
   }
 
+  // Tell the browser how wide the image will actually render so Next.js can pick the
+  // smallest matching srcset variant. Without this hint, the default sizes assumes
+  // 100vw and Next serves the largest variant — easily 1MB+ for a half-width image.
+  const vw = widthPercent != null ? `${widthPercent}vw` : '100vw'
+  const mediaSize =
+    maxWidth != null
+      ? widthPercent != null
+        ? `min(${vw}, ${maxWidth}px)`
+        : `min(100vw, ${maxWidth}px)`
+      : widthPercent != null
+        ? vw
+        : undefined
+
   return (
     <div
       className={cn(
@@ -56,6 +69,8 @@ export const MediaBlock: React.FC<Props> = (props) => {
             resource={media}
             src={staticImage}
             showCaption={showCaptionOverlay}
+            size={mediaSize}
+            enableZoom
           />
         </div>
       )}
