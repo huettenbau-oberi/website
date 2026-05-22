@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { PostNavigation } from '@/components/PostNavigation'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
@@ -52,6 +53,12 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
+  const { previous, next } = await queryAdjacentPosts({
+    postId: post.id,
+    publishedAt: post.publishedAt,
+    locale,
+  })
+
   return (
     <article className="pt-16 pb-16">
       <PageClient />
@@ -77,6 +84,8 @@ export default async function Post({ params: paramsPromise }: Args) {
           )}
         </div>
       </div>
+
+      <PostNavigation previous={previous} next={next} />
     </article>
   )
 }
@@ -89,6 +98,59 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
   return generateMeta({ doc: post })
 }
+
+const queryAdjacentPosts = cache(
+  async ({
+    postId,
+    publishedAt,
+    locale,
+  }: {
+    postId: string | number
+    publishedAt: string | null | undefined
+    locale?: string
+  }) => {
+    if (!publishedAt) return { previous: null, next: null }
+
+    const payload = await getPayload({ config: configPromise })
+    const shared = {
+      collection: 'posts' as const,
+      limit: 1,
+      pagination: false,
+      overrideAccess: false,
+      locale: (locale as any) ?? 'de',
+    }
+
+    const [prevResult, nextResult] = await Promise.all([
+      payload.find({
+        ...shared,
+        sort: '-publishedAt',
+        where: {
+          and: [
+            { publishedAt: { less_than: publishedAt } },
+            { id: { not_equals: postId } },
+            { _status: { equals: 'published' } },
+          ],
+        },
+      }),
+      payload.find({
+        ...shared,
+        sort: 'publishedAt',
+        where: {
+          and: [
+            { publishedAt: { greater_than: publishedAt } },
+            { id: { not_equals: postId } },
+            { _status: { equals: 'published' } },
+          ],
+        },
+      }),
+    ])
+
+    return {
+      previous: prevResult.docs?.[0] ?? null,
+      next: nextResult.docs?.[0] ?? null,
+    }
+  },
+)
 
 const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale?: string }) => {
   const { isEnabled: draft } = await draftMode()
