@@ -19,6 +19,7 @@ export type TimelinePost = {
 
 type Props = {
   posts: TimelinePost[]
+  urlPrefix?: string
 }
 
 function formatDate(dateStr: string): string {
@@ -34,7 +35,7 @@ const fadeUp: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] } },
 }
 
-export const TimelineClient: React.FC<Props> = ({ posts }) => {
+export const TimelineClient: React.FC<Props> = ({ posts, urlPrefix = 'posts' }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const firstCircleRef = useRef<HTMLDivElement>(null)
   const lastCircleRef = useRef<HTMLDivElement>(null)
@@ -141,7 +142,7 @@ export const TimelineClient: React.FC<Props> = ({ posts }) => {
               ? (post.heroImage as MediaType)
               : null
           const description = post.meta?.description ?? null
-          const href = post.slug ? (`/posts/${post.slug}` as const) : null
+          const href = post.slug ? `/${urlPrefix}/${post.slug}` : null
 
           return (
             <div key={String(post.id)} className="relative pt-7">

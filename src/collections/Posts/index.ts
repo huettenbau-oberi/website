@@ -17,6 +17,7 @@ import { IframeBlock } from '../../blocks/IframeBlock/config'
 import { PostSection } from '../../blocks/PostSection/config'
 import { GalleryGrid } from '../../blocks/GalleryGrid/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
+import { getUrlPrefixFromCategories } from '../../utilities/getPostUrl'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
@@ -57,6 +58,7 @@ export const Posts: CollectionConfig<'posts'> = {
           slug: data?.slug,
           collection: 'posts',
           req,
+          urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
         }),
     },
     preview: (data, { req }) =>
@@ -64,6 +66,7 @@ export const Posts: CollectionConfig<'posts'> = {
         slug: data?.slug as string,
         collection: 'posts',
         req,
+        urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
       }),
     useAsTitle: 'title',
   },

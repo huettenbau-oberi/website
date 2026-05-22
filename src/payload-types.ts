@@ -383,6 +383,10 @@ export interface Category {
   id: number;
   title: string;
   /**
+   * The URL path segment under which posts in this category live. Defaults to "posts". Example: set to "gallery" for posts to appear at /gallery/[slug].
+   */
+  urlPrefix?: string | null;
+  /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
   generateSlug?: boolean | null;
@@ -1762,6 +1766,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  urlPrefix?: T;
   generateSlug?: T;
   slug?: T;
   parent?: T;

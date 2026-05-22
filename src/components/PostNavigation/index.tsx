@@ -7,8 +7,9 @@ import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import { cn } from '@/utilities/ui'
+import { getPostUrl } from '@/utilities/getPostUrl'
 
-export type AdjacentPost = Pick<Post, 'id' | 'slug' | 'title' | 'meta'>
+export type AdjacentPost = Pick<Post, 'id' | 'slug' | 'title' | 'meta' | 'categories'>
 
 type Props = {
   previous?: AdjacentPost | null
@@ -57,7 +58,7 @@ const NavCard: React.FC<{
 
   return (
     <Link
-      href={`/posts/${post.slug}`}
+      href={getPostUrl(post)}
       aria-label={`${label}: ${post.title}`}
       className={cn(
         'group relative block overflow-hidden bg-card shadow-sm outline-none',

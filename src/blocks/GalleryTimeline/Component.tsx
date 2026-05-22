@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import type { Category } from '@/payload-types'
 import { TimelineClient } from './TimelineClient'
+import { getUrlPrefixFromCategories } from '@/utilities/getPostUrl'
 
 type Props = {
   category?: number | Category | null
@@ -44,9 +45,13 @@ export const GalleryTimelineBlock: React.FC<Props> = async ({ category }) => {
 
   if (!posts.docs.length) return null
 
+  const urlPrefix = getUrlPrefixFromCategories(
+    typeof category === 'object' && category !== null ? [category] : [],
+  )
+
   return (
     <section className="container">
-      <TimelineClient posts={posts.docs as any} />
+      <TimelineClient posts={posts.docs as any} urlPrefix={urlPrefix} />
     </section>
   )
 }
