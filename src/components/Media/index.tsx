@@ -5,9 +5,14 @@ import type { Props } from './types'
 import RichText from '@/components/RichText'
 import { ImageMedia } from './ImageMedia'
 import { VideoMedia } from './VideoMedia'
+import { ZoomableMedia } from './ZoomableMedia'
 
 export const Media: React.FC<Props> = (props) => {
-  const { className, htmlElement = 'div', resource, showCaption } = props
+  const { className, enableZoom, htmlElement = 'div', resource, showCaption } = props
+
+  if (enableZoom) {
+    return <ZoomableMedia {...props} />
+  }
 
   const isVideo = typeof resource === 'object' && resource?.mimeType?.includes('video')
   const Tag = htmlElement || Fragment
