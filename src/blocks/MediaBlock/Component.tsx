@@ -5,7 +5,7 @@ import React from 'react'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
-import { ZoomableMedia } from './ZoomableMedia'
+import { Media } from '../../components/Media'
 
 type Props = MediaBlockProps & {
   breakout?: boolean
@@ -64,12 +64,13 @@ export const MediaBlock: React.FC<Props> = (props) => {
     >
       {(media || staticImage) && (
         <div style={sizeStyle} className="mx-auto flex justify-center">
-          <ZoomableMedia
+          <Media
             imgClassName={cn('border border-border rounded-[0.8rem] max-w-full h-auto', imgClassName)}
             resource={media}
-            staticImage={staticImage}
+            src={staticImage}
             showCaption={showCaptionOverlay}
             size={mediaSize}
+            enableZoom
           />
         </div>
       )}

@@ -1,31 +1,16 @@
 'use client'
 
-import type { StaticImageData } from 'next/image'
-
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import type { Media as MediaType } from '@/payload-types'
+import type { Props as MediaProps } from '../types'
 
-import { Media } from '@/components/Media'
+import { Media } from '..'
 import { cn } from '@/utilities/ui'
 
-type Props = {
-  resource?: MediaType | string | number | null
-  staticImage?: StaticImageData
-  imgClassName?: string
-  showCaption?: boolean
-  size?: string
-}
-
-export const ZoomableMedia: React.FC<Props> = ({
-  resource,
-  staticImage,
-  imgClassName,
-  showCaption,
-  size,
-}) => {
+export const ZoomableMedia: React.FC<MediaProps> = (props) => {
+  const { resource, imgClassName, fill } = props
   const [open, setOpen] = useState(false)
 
   const isVideo = typeof resource === 'object' && resource?.mimeType?.includes('video')
@@ -46,15 +31,10 @@ export const ZoomableMedia: React.FC<Props> = ({
     }
   }, [open, close])
 
+  // Videos opt out of the zoom wrapper — clicking a video should stay default behaviour.
+  // `enableZoom={false}` prevents Media from delegating back to ZoomableMedia.
   if (isVideo) {
-    return (
-      <Media
-        imgClassName={imgClassName}
-        resource={resource}
-        src={staticImage}
-        showCaption={showCaption}
-      />
-    )
+    return <Media {...props} enableZoom={false} />
   }
 
   return (
@@ -70,15 +50,12 @@ export const ZoomableMedia: React.FC<Props> = ({
             setOpen(true)
           }
         }}
+        // Mirror Media's `fill` mode on the wrapper so position:absolute children
+        // (the <picture>) still resolve against the intended ancestor.
+        style={fill ? { position: 'absolute', inset: 0 } : undefined}
         className="cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[0.8rem]"
       >
-        <Media
-          imgClassName={imgClassName}
-          resource={resource}
-          src={staticImage}
-          showCaption={showCaption}
-          size={size}
-        />
+        <Media {...props} enableZoom={false} />
       </div>
       <AnimatePresence>
         {open && (
@@ -110,10 +87,13 @@ export const ZoomableMedia: React.FC<Props> = ({
               className="relative flex max-h-full max-w-full items-center justify-center"
             >
               <Media
-                imgClassName={cn('max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg', imgClassName)}
-                resource={resource}
-                src={staticImage}
-                showCaption={showCaption}
+                {...props}
+                enableZoom={false}
+                fill={false}
+                imgClassName={cn(
+                  'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg',
+                  imgClassName,
+                )}
                 size="100vw"
                 priority
               />
