@@ -215,19 +215,21 @@ export interface Page {
         }[]
       | null;
   };
-  layout: (
-    | CampFactsBlock
-    | CampGalleryBlock
-    | CampHeroBlock
-    | CampMainBlock
-    | CampSponsorsBlock
-    | ContentBlock
-    | HtmlBlock
-    | IframeBlock
-    | MediaBlock
-    | FormBlock
-    | GalleryTimelineBlock
-  )[];
+  layout?:
+    | (
+        | CampFactsBlock
+        | CampGalleryBlock
+        | CampHeroBlock
+        | CampMainBlock
+        | CampSponsorsBlock
+        | ContentBlock
+        | HtmlBlock
+        | IframeBlock
+        | MediaBlock
+        | FormBlock
+        | GalleryTimelineBlock
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     /**
