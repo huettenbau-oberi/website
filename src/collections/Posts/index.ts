@@ -9,18 +9,13 @@ import {
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { CampGallery } from '../../blocks/camp/CampGallery/config'
-import { CampHero } from '../../blocks/camp/CampHero/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
-import { CampMain } from '../../blocks/camp/CampMain/config'
-import { CampFacts } from '../../blocks/camp/CampFacts/config'
-import { CampSponsors } from '../../blocks/camp/CampSponsors/config'
 import { HtmlBlock } from '../../blocks/HtmlBlock/config'
 import { IframeBlock } from '../../blocks/IframeBlock/config'
-import { GalleryTimeline } from '../../blocks/GalleryTimeline/config'
 import { PostSection } from '../../blocks/PostSection/config'
+import { GalleryGrid } from '../../blocks/GalleryGrid/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
@@ -55,7 +50,7 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'categories', 'slug', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
@@ -121,18 +116,13 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'layout',
               type: 'blocks',
               blocks: [
-                CampFacts,
-                CampGallery,
-                CampHero,
-                CampMain,
-                CampSponsors,
                 Content,
                 HtmlBlock,
                 IframeBlock,
                 MediaBlock,
                 FormBlock,
-                GalleryTimeline,
                 PostSection,
+                GalleryGrid,
               ],
               localized: true,
               admin: {

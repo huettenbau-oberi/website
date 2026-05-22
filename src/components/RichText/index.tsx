@@ -1,6 +1,7 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
+import { GalleryGridBlock } from '@/blocks/GalleryGrid/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -17,12 +18,13 @@ import type {
   HtmlBlock as HtmlBlockProps,
   IframeBlock as IframeBlockProps,
   MediaBlock as MediaBlockProps,
+  GalleryGridBlock as GalleryGridBlockProps,
 } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<MediaBlockProps | IframeBlockProps | HtmlBlockProps>
+  | SerializedBlockNode<MediaBlockProps | IframeBlockProps | HtmlBlockProps | GalleryGridBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -49,6 +51,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     ),
     htmlBlock: ({ node }) => <HtmlBlockComponent {...node.fields} />,
     iframeBlock: ({ node }) => <IframeBlockComponent {...node.fields} />,
+    galleryGrid: ({ node }) => <GalleryGridBlock {...node.fields} />,
   },
 })
 

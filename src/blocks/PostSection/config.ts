@@ -11,6 +11,7 @@ import {
 import { MediaBlock } from '../MediaBlock/config'
 import { HtmlBlock } from '../HtmlBlock/config'
 import { IframeBlock } from '../IframeBlock/config'
+import { GalleryGrid } from '../GalleryGrid/config'
 
 export const PostSection: Block = {
   slug: 'postSection',
@@ -68,7 +69,7 @@ export const PostSection: Block = {
           InlineToolbarFeature(),
           UnorderedListFeature(),
           OrderedListFeature(),
-          BlocksFeature({ blocks: [MediaBlock, HtmlBlock, IframeBlock] }),
+          BlocksFeature({ blocks: [MediaBlock, HtmlBlock, IframeBlock, GalleryGrid] }),
         ],
       }),
     },
