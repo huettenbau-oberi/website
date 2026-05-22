@@ -4,7 +4,7 @@ export const GalleryGrid: Block = {
   slug: 'galleryGrid',
   interfaceName: 'GalleryGridBlock',
   imageURL: '/blocks/gallery-grid.svg',
-  imageAltText: 'Mosaic gallery grid — beginning, middle, and end block variants',
+  imageAltText: 'Two-column gallery grid with zoomable images',
   admin: {
     group: 'Hüttenbau Custom',
   },
@@ -16,41 +16,38 @@ export const GalleryGrid: Block = {
     {
       name: 'layout',
       type: 'select',
-      label: 'Layout',
+      label: 'Column Alignment',
       required: true,
       defaultValue: 'middle',
       options: [
-        { label: 'Beginning Block', value: 'beginning' },
-        { label: 'Beginning Block w/ tall Image', value: 'beginningTall' },
-        { label: 'Middle Block', value: 'middle' },
-        { label: 'Middle Block w/ tall Image', value: 'middleTall' },
-        { label: 'End Block', value: 'end' },
-        { label: 'End Block w/ tall Image', value: 'endTall' },
+        { label: 'Top-aligned', value: 'beginning' },
+        { label: 'Space between', value: 'middle' },
+        { label: 'Bottom-aligned', value: 'end' },
       ],
       admin: {
         description:
-          'Chain Beginning → Middle(s) → End to build a flowing gallery section. Beginning/End blocks have a staggered column offset.',
+          'Controls how images are distributed vertically within each column. "Top-aligned" piles images at the top, "Space between" spreads them evenly, "Bottom-aligned" anchors them at the bottom.',
       },
     },
     {
-      name: 'flip',
-      type: 'checkbox',
-      label: 'Flip Columns',
-      defaultValue: false,
-      admin: {
-        description: 'Swap the left and right columns.',
-      },
-    },
-    {
-      name: 'images',
+      name: 'leftImages',
       type: 'array',
-      label: 'Images',
+      label: 'Left Column Images',
       minRows: 1,
-      maxRows: 5,
-      admin: {
-        description:
-          'Images are placed top-left to bottom-right. Most layouts use 5 images; End Block w/ tall Image uses 4.',
-      },
+      fields: [
+        {
+          name: 'image',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'rightImages',
+      type: 'array',
+      label: 'Right Column Images',
+      minRows: 1,
       fields: [
         {
           name: 'image',

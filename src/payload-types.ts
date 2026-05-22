@@ -786,17 +786,16 @@ export interface PostSectionBlock {
  */
 export interface GalleryGridBlock {
   /**
-   * Chain Beginning → Middle(s) → End to build a flowing gallery section. Beginning/End blocks have a staggered column offset.
+   * Controls how images are distributed vertically within each column. "Top-aligned" piles images at the top, "Space between" spreads them evenly, "Bottom-aligned" anchors them at the bottom.
    */
-  layout: 'beginning' | 'beginningTall' | 'middle' | 'middleTall' | 'end' | 'endTall';
-  /**
-   * Swap the left and right columns.
-   */
-  flip?: boolean | null;
-  /**
-   * Images are placed top-left to bottom-right. Most layouts use 5 images; End Block w/ tall Image uses 4.
-   */
-  images?:
+  layout: 'beginning' | 'middle' | 'end';
+  leftImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  rightImages?:
     | {
         image: number | Media;
         id?: string | null;
@@ -1648,8 +1647,13 @@ export interface PostSectionBlockSelect<T extends boolean = true> {
  */
 export interface GalleryGridBlockSelect<T extends boolean = true> {
   layout?: T;
-  flip?: T;
-  images?:
+  leftImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  rightImages?:
     | T
     | {
         image?: T;

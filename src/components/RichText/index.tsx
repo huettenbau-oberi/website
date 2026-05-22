@@ -51,7 +51,11 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     ),
     htmlBlock: ({ node }) => <HtmlBlockComponent {...node.fields} />,
     iframeBlock: ({ node }) => <IframeBlockComponent {...node.fields} />,
-    galleryGrid: ({ node }) => <GalleryGridBlock {...node.fields} />,
+    galleryGrid: ({ node }) => (
+      <div className="not-prose">
+        <GalleryGridBlock {...node.fields} />
+      </div>
+    ),
   },
 })
 
