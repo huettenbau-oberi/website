@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 
-import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import { PostNavigation } from '@/components/PostNavigation'
 import configPromise from '@payload-config'
@@ -53,9 +52,14 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   if (!post) return <PayloadRedirects url={url} />
 
+  const categoryIds = (post.categories ?? [])
+    .map((c) => (typeof c === 'object' ? c.id : c))
+    .filter(Boolean)
+
   const { previous, next } = await queryAdjacentPosts({
     postId: post.id,
     publishedAt: post.publishedAt,
+    categoryIds,
     locale,
   })
 
@@ -73,17 +77,6 @@ export default async function Post({ params: paramsPromise }: Args) {
       {post.layout && post.layout.length > 0 && (
         <RenderBlocks blocks={(post.layout ?? []) as NonNullable<Page['layout']>} />
       )}
-
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
-        </div>
-      </div>
 
       <PostNavigation previous={previous} next={next} />
     </article>
@@ -103,10 +96,12 @@ const queryAdjacentPosts = cache(
   async ({
     postId,
     publishedAt,
+    categoryIds,
     locale,
   }: {
     postId: string | number
     publishedAt: string | null | undefined
+    categoryIds: (string | number)[]
     locale?: string
   }) => {
     if (!publishedAt) return { previous: null, next: null }
@@ -120,6 +115,9 @@ const queryAdjacentPosts = cache(
       locale: (locale as any) ?? 'de',
     }
 
+    const categoryFilter =
+      categoryIds.length > 0 ? [{ 'categories.id': { in: categoryIds.join(',') } }] : []
+
     const [prevResult, nextResult] = await Promise.all([
       payload.find({
         ...shared,
@@ -129,6 +127,7 @@ const queryAdjacentPosts = cache(
             { publishedAt: { less_than: publishedAt } },
             { id: { not_equals: postId } },
             { _status: { equals: 'published' } },
+            ...categoryFilter,
           ],
         },
       }),
@@ -140,6 +139,7 @@ const queryAdjacentPosts = cache(
             { publishedAt: { greater_than: publishedAt } },
             { id: { not_equals: postId } },
             { _status: { equals: 'published' } },
+            ...categoryFilter,
           ],
         },
       }),

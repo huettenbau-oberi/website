@@ -159,22 +159,6 @@ export const Posts: CollectionConfig<'posts'> = {
       ],
     },
     {
-      name: 'relatedPosts',
-      type: 'relationship',
-      admin: {
-        position: 'sidebar',
-      },
-      filterOptions: ({ id }) => {
-        return {
-          id: {
-            not_in: [id],
-          },
-        }
-      },
-      hasMany: true,
-      relationTo: 'posts',
-    },
-    {
       name: 'categories',
       type: 'relationship',
       admin: {

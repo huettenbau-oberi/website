@@ -434,7 +434,6 @@ export interface Post {
     image?: (number | null) | Media;
     description?: string | null;
   };
-  relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
   publishedAt?: string | null;
   authors?: (number | User)[] | null;
@@ -1612,7 +1611,6 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
-  relatedPosts?: T;
   categories?: T;
   publishedAt?: T;
   authors?: T;
