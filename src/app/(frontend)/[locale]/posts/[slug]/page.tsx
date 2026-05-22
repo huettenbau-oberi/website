@@ -71,7 +71,7 @@ export default async function Post({ params: paramsPromise }: Args) {
       <PostHero post={post} />
 
       {post.layout && post.layout.length > 0 && (
-        <RenderBlocks blocks={post.layout as Page['layout']} />
+        <RenderBlocks blocks={(post.layout ?? []) as NonNullable<Page['layout']>} />
       )}
 
       <div className="flex flex-col items-center gap-4 pt-8">
