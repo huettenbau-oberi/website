@@ -13,6 +13,7 @@ import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 import { GalleryTimelineBlock } from '@/blocks/GalleryTimeline/Component'
+import { PostSectionBlock } from '@/blocks/PostSection/Component'
 
 const blockComponents = {
   campFacts: CampFactsBlock,
@@ -26,6 +27,7 @@ const blockComponents = {
   htmlBlock: HtmlBlockComponent,
   iframeBlock: IframeBlockComponent,
   galleryTimeline: GalleryTimelineBlock,
+  postSection: PostSectionBlock,
 }
 
 export const RenderBlocks: React.FC<{

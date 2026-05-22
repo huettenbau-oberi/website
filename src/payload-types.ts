@@ -228,6 +228,7 @@ export interface Page {
         | MediaBlock
         | FormBlock
         | GalleryTimelineBlock
+        | PostSectionBlock
       )[]
     | null;
   meta?: {
@@ -436,6 +437,7 @@ export interface Post {
         | MediaBlock
         | FormBlock
         | GalleryTimelineBlock
+        | PostSectionBlock
       )[]
     | null;
   meta?: {
@@ -991,6 +993,39 @@ export interface GalleryTimelineBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostSectionBlock".
+ */
+export interface PostSectionBlock {
+  /**
+   * Small label above the title (e.g. "Tag", "Kapitel")
+   */
+  eyebrow?: string | null;
+  title: string;
+  /**
+   * Smaller text below the title (e.g. a date "03.06")
+   */
+  subtitle?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'postSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -1336,6 +1371,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
+        postSection?: T | PostSectionBlockSelect<T>;
       };
   meta?:
     | T
@@ -1541,6 +1577,18 @@ export interface GalleryTimelineBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostSectionBlock_select".
+ */
+export interface PostSectionBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subtitle?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -1562,6 +1610,7 @@ export interface PostsSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
+        postSection?: T | PostSectionBlockSelect<T>;
       };
   meta?:
     | T

@@ -20,6 +20,7 @@ import { CampSponsors } from '../../blocks/camp/CampSponsors/config'
 import { HtmlBlock } from '../../blocks/HtmlBlock/config'
 import { IframeBlock } from '../../blocks/IframeBlock/config'
 import { GalleryTimeline } from '../../blocks/GalleryTimeline/config'
+import { PostSection } from '../../blocks/PostSection/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
@@ -131,6 +132,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 MediaBlock,
                 FormBlock,
                 GalleryTimeline,
+                PostSection,
               ],
               localized: true,
               admin: {
