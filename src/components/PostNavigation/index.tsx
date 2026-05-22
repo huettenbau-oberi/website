@@ -60,9 +60,9 @@ const NavCard: React.FC<{
       href={`/posts/${post.slug}`}
       aria-label={`${label}: ${post.title}`}
       className={cn(
-        'group relative block overflow-hidden rounded-lg border border-border bg-card',
-        'transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-sm',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'group relative block overflow-hidden bg-card shadow-sm outline-none',
+        'transition-shadow duration-300 hover:shadow-md',
+        'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
       )}
     >
       <div
@@ -71,7 +71,7 @@ const NavCard: React.FC<{
           isPrev ? 'flex-row' : 'flex-row-reverse',
         )}
       >
-        <div className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-muted sm:w-24 md:w-28">
+        <div className="relative aspect-square w-20 shrink-0 overflow-hidden bg-muted sm:w-24 md:w-28">
           {hasImage ? (
             <Media
               resource={image}
@@ -89,24 +89,14 @@ const NavCard: React.FC<{
           )}
         >
           <div className="flex items-center gap-1.5 text-primary">
-            {isPrev && (
-              <ArrowLeft
-                className="size-3.5 transition-transform duration-300 group-hover:-translate-x-1"
-                aria-hidden
-              />
-            )}
+            {isPrev && <ArrowLeft className="size-3.5" aria-hidden />}
             <span className="font-sans text-[0.6rem] font-semibold uppercase tracking-[0.2em]">
               {label}
             </span>
-            {!isPrev && (
-              <ArrowRight
-                className="size-3.5 transition-transform duration-300 group-hover:translate-x-1"
-                aria-hidden
-              />
-            )}
+            {!isPrev && <ArrowRight className="size-3.5" aria-hidden />}
           </div>
           <h3
-            className="m-0 line-clamp-2 font-serif text-base font-black leading-tight text-foreground transition-colors group-hover:text-primary md:text-lg"
+            className="m-0 line-clamp-2 font-serif text-base font-black leading-tight text-foreground md:text-lg"
           >
             {post.title}
           </h3>
