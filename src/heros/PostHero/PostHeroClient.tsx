@@ -1,6 +1,6 @@
 'use client'
 
-import { Check, Facebook, Instagram, Link } from 'lucide-react'
+import { Check, Link } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import React, { useState } from 'react'
 
@@ -12,11 +12,6 @@ export const PostHeroClient: React.FC = () => {
     await navigator.clipboard.writeText(window.location.href)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
-  }
-
-  const handleFacebookShare = () => {
-    const url = encodeURIComponent(window.location.href)
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'noopener')
   }
 
   return (
