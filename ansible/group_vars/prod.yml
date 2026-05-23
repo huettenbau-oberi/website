@@ -8,6 +8,7 @@ app_image_tag: latest
 env_file: ../files/prod.env.vault
 
 # --- PostgreSQL ---
+pg_app_user: "{{ pg_prod_user }}"
 deploy_dir_postgres: "/opt/postgres"
 backup_database_name: "{{ prod_database_name }}"
 app_image_tag_postgres: "postgres:15-alpine"

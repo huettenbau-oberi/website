@@ -8,6 +8,7 @@ app_image_tag: develop
 env_file: ../files/devt.env.vault
 
 # --- PostgreSQL ---
+pg_app_user: "{{ pg_devt_user }}"
 devt_database_name: huettenbau-payload-devt
 backup_database_name: "{{ devt_database_name }}"
 
