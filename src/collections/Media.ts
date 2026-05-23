@@ -46,11 +46,11 @@ export const Media: CollectionConfig = {
       validate: ((value: unknown, options: { siblingData?: { isDecorative?: boolean } }) => {
         if (options?.siblingData?.isDecorative) return true
         if (typeof value === 'string' && value.trim().length > 0) return true
-        return 'Alt-Text ist erforderlich. Wenn das Bild rein dekorativ ist, aktiviere stattdessen die "Dekoratives Bild"-Option.'
+        return 'Alt text is required. If the image is purely decorative, enable the "Decorative Image" option instead.'
       }) as never,
       admin: {
         description:
-          'Beschreibt den Inhalt des Bildes für Screenreader und SEO. Für rein dekorative Bilder unten den Schalter aktivieren.',
+          'Describes the image content for screen readers and SEO. For purely decorative images, enable the toggle below.',
         condition: (_, siblingData) => !(siblingData as { isDecorative?: boolean })?.isDecorative,
       },
     },
@@ -58,10 +58,10 @@ export const Media: CollectionConfig = {
       name: 'isDecorative',
       type: 'checkbox',
       defaultValue: false,
-      label: 'Dekoratives Bild (kein Alt-Text)',
+      label: 'Decorative Image (no alt text)',
       admin: {
         description:
-          'Aktivieren, wenn das Bild rein dekorativ ist und für das Verständnis der Seite keine Bedeutung hat. Screenreader überspringen das Bild dann.',
+          'Enable if the image is purely decorative and has no meaning for understanding the page. Screen readers will then skip the image.',
       },
     },
     {
