@@ -3,7 +3,6 @@
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Email Provider
-- [ ] Customize Admin Panel
 - [ ] Search Functionality
 - [ ] Implement Analytics
 - [ ] Documentation
@@ -12,6 +11,7 @@
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+- [x] Customize Admin Panel
 - [x] 404 Page
 - [x] Node modules in build still needed?
 - [x] Contact button in footer

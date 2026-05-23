@@ -24,7 +24,7 @@
   }
 
   html[data-theme='dark'] & {
-    background: linear-gradient(135deg, #1a2e1c 0%, var(--theme-elevation-50) 100%);
+    background: linear-gradient(135deg, var(--theme-elevation-100) 0%, var(--theme-elevation-50) 100%);
 
     &::before {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 180' preserveAspectRatio='none'%3E%3Cpath d='M0,180 L0,110 L80,55 L160,100 L280,20 L400,90 L500,35 L600,80 L700,30 L800,60 L800,180 Z' fill='%23fff' opacity='0.04'/%3E%3Cpath d='M0,180 L0,135 L120,90 L220,130 L340,70 L460,120 L560,75 L680,110 L800,85 L800,180 Z' fill='%23fff' opacity='0.03'/%3E%3C/svg%3E");
