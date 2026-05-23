@@ -23,6 +23,7 @@
   vars:
     env_name: "{{ deploy_dir | basename }}"
     postgres_container: "huettenbau-oberi-prod_postgres"
+    retention_days: 30 # fallback
 
   tasks:
     - name: Freeze backup timestamp
