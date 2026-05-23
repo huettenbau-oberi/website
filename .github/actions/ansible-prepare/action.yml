@@ -1,0 +1,53 @@
+name: Prepare Ansible
+description: Writes vault password, builds inventory, installs SSH key, and installs Ansible collections.
+
+inputs:
+  vault_password:
+    description: Ansible vault password
+    required: true
+  ansible_host:
+    description: VPS hostname or IP
+    required: true
+  ansible_port:
+    description: VPS SSH port
+    required: true
+  ansible_user:
+    description: VPS SSH user
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Write vault password
+      shell: bash
+      working-directory: ${{ github.workspace }}/ansible
+      run: |
+        echo "${{ inputs.vault_password }}" > .vault_pass
+        chmod 600 .vault_pass
+
+    - name: Build inventory
+      shell: bash
+      working-directory: ${{ github.workspace }}/ansible
+      run: |
+        cat > inventory.ini <<EOF
+        [hetzner]
+        webserver ansible_host=${{ inputs.ansible_host }} ansible_user=${{ inputs.ansible_user }} ansible_port=${{ inputs.ansible_port }} ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+        [hetzner:vars]
+        ansible_python_interpreter=/usr/bin/python3
+        EOF
+
+    - name: Install SSH key
+      shell: bash
+      working-directory: ${{ github.workspace }}/ansible
+      run: |
+        mkdir -p ~/.ssh
+        ansible-vault decrypt files/ansible.key
+        mv files/ansible.key ~/.ssh/id_ed25519
+        chmod 600 ~/.ssh/id_ed25519
+        ssh-keyscan -p ${{ inputs.ansible_port }} -H ${{ inputs.ansible_host }} >> ~/.ssh/known_hosts
+
+    - name: Install Ansible collections
+      shell: bash
+      working-directory: ${{ github.workspace }}/ansible
+      run: ansible-galaxy collection install -r requirements.yml
