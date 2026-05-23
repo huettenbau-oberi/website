@@ -17,8 +17,57 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  version:
+    name: Version 🏷️
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Compute and push version tag
+        id: tag
+        env:
+          MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
+        run: |
+          if [ -z "${MAJOR_VERSION}" ]; then
+            echo "::error::MAJOR_VERSION is not set — define it as a repository variable"
+            exit 1
+          fi
+
+          echo "::debug::MAJOR_VERSION=${MAJOR_VERSION}"
+          LATEST=$(git tag --list "v${MAJOR_VERSION}.*" --sort=-v:refname | head -n1)
+          echo "::debug::Latest tag found: '${LATEST}'"
+
+          if [[ "$LATEST" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
+            NEW_TAG="v${MAJOR_VERSION}.${MINOR}.$((PATCH + 1))"
+            echo "::notice::Bumping patch: ${LATEST} → ${NEW_TAG}"
+          else
+            NEW_TAG="v${MAJOR_VERSION}.0.0"
+            echo "::notice::No parseable tag found — starting at ${NEW_TAG}"
+          fi
+
+          if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "::notice::Pushing tag ${NEW_TAG} to origin"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$NEW_TAG"
+            git push origin "$NEW_TAG"
+            echo "tag=${NEW_TAG}" >> $GITHUB_OUTPUT
+          else
+            echo "::notice::Branch '${GITHUB_REF_NAME}' — skipping tag push, reporting next version: '${NEW_TAG}'"
+            echo "tag=${NEW_TAG}" >> $GITHUB_OUTPUT
+          fi
+
   build:
     name: Build 🏗️
+    needs: version
     runs-on: blacksmith-8vcpu-ubuntu-2404
     environment: ${{ github.ref_name == 'develop' && 'devt' || 'prod' }}
     permissions:
@@ -36,7 +85,6 @@ jobs:
         id: version
         run: |
           echo "sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-          echo "tag=$(git describe --tags --abbrev=0 2>/dev/null || echo '')" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: useblacksmith/setup-docker-builder@v1
@@ -57,6 +105,7 @@ jobs:
             type=sha,format=short,prefix=
             type=ref,event=branch
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+            type=raw,value=${{ needs.version.outputs.tag }},enable=${{ github.ref == 'refs/heads/main' && needs.version.outputs.tag != '' }}
 
       # Layer cache is stored in the GitHub Actions cache so warm builds are fast.
       - name: Build
@@ -73,7 +122,7 @@ jobs:
             NEXT_PUBLIC_UMAMI_SCRIPT_URL=${{ vars.UMAMI_SCRIPT_URL || '' }}
             NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.UMAMI_WEBSITE_ID || '' }}
             COMMIT_HASH=${{ steps.version.outputs.sha }}
-            VERSION=${{ steps.version.outputs.tag }}
+            VERSION=${{ needs.version.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
   deploy:

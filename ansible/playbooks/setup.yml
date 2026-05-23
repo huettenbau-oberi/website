@@ -40,6 +40,7 @@
           - ca-certificates
           - gnupg
           - ufw
+          - s3cmd
         state: present
 
     # ── SSH ─────────────────────────────────────────────────────────────────

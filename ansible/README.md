@@ -28,7 +28,6 @@ ansible_python_interpreter=/usr/bin/python3
 
 ### 2. Environment file
 
-
 `cloudflare.vault`
 
 ```ini
@@ -73,6 +72,12 @@ pg_analytics_user: analytics_user
 pg_analytics_password: CHANGE_ME
 ```
 
+`backup.vault`
+
+```ini
+backup_archive_password: CHANGE_ME
+```
+
 `analytics.vault`
 
 ```ini
@@ -92,6 +97,7 @@ ansible-vault encrypt files/cloudflare.vault
 ansible-vault encrypt files/devt.env.vault
 ansible-vault encrypt files/prod.env.vault
 ansible-vault encrypt files/postgres_users.vault
+ansible-vault encrypt files/backup.vault
 ```
 
 ## Playbooks
@@ -109,6 +115,25 @@ Run once on a fresh server. Sets up:
 
 ```bash
 ansible-playbook -i inventory.ini playbooks/setup.yml
+```
+
+### `backup.yml` — Environment backup
+
+Creates an AES-256 encrypted backup of a given environment. Dumps the Postgres database (custom format) and hard-copies the media directory into a staging folder under `/tmp`, then packages everything as a tarball and encrypts it with the password from `backup.vault`. The final archive is left at `/tmp/<name>.tar.enc` on the server.
+
+```bash
+# Backup production
+ansible-playbook -i inventory.ini playbooks/backup.yml -e @group_vars/prod.yml
+
+# Backup staging
+ansible-playbook -i inventory.ini playbooks/backup.yml -e @group_vars/devt.yml
+```
+
+To decrypt and extract locally:
+
+```bash
+openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:<password> \
+  -in prod-huettenbau-backup_20240523-143022.tar.gz.enc | tar -xzf -
 ```
 
 ### `deploy_postgres.yml` — Postgres deployment
