@@ -15,6 +15,7 @@ backup_database_name: "{{ devt_database_name }}"
 s3_bucket: huettenbau-oberi-backup
 s3_endpoint: fsn1.your-objectstorage.com
 path_prefix: devt
+retention_days: 7
 
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch

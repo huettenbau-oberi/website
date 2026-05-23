@@ -27,6 +27,7 @@ letsencrypt_email: webmaster@huettenbau-oberi.ch
 s3_bucket: huettenbau-oberi-backup
 s3_endpoint: fsn1.your-objectstorage.com
 path_prefix: prod
+retention_days: 30
 
 # --- Traefik ---
 traefik_dir: /opt/traefik
