@@ -4,6 +4,12 @@ import { Logo } from '@/components/Logo/Logo'
 import Link from 'next/link'
 import './index.scss'
 
+type CleanupState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'done'; deletedCount: number; freedBytes: number; errors: string[] }
+  | { status: 'error'; message: string }
+
 const quickLinks = [
   {
     label: 'Pages',
@@ -132,8 +138,27 @@ const quickLinks = [
   },
 ]
 
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(2)} MB`
+}
+
 const BeforeDashboard: React.FC = () => {
   const [date, setDate] = useState<string>('')
+  const [cleanup, setCleanup] = useState<CleanupState>({ status: 'idle' })
+
+  async function runCleanup() {
+    setCleanup({ status: 'loading' })
+    try {
+      const res = await fetch('/api/media/cleanup', { method: 'POST' })
+      if (!res.ok) throw new Error(`Server responded with ${res.status}`)
+      const data = await res.json()
+      setCleanup({ status: 'done', ...data })
+    } catch (err) {
+      setCleanup({ status: 'error', message: err instanceof Error ? err.message : 'Unknown error' })
+    }
+  }
 
   useEffect(() => {
     setDate(
@@ -192,6 +217,43 @@ const BeforeDashboard: React.FC = () => {
             <span className="before-dashboard__card-desc">{description}</span>
           </Link>
         ))}
+      </div>
+
+      <p className="before-dashboard__section-label" style={{ marginTop: '1.5rem' }}>
+        Maintenance
+      </p>
+
+      <div className="before-dashboard__maintenance">
+        <div className="before-dashboard__maintenance-item">
+          <div className="before-dashboard__maintenance-info">
+            <strong className="before-dashboard__maintenance-title">Media Cleanup</strong>
+            <span className="before-dashboard__maintenance-desc">
+              Delete files on disk that have no matching media record in the database.
+            </span>
+          </div>
+          <div className="before-dashboard__maintenance-action">
+            {cleanup.status === 'done' && (
+              <span className="before-dashboard__cleanup-result">
+                {cleanup.deletedCount === 0
+                  ? 'No orphaned files found'
+                  : `Deleted ${cleanup.deletedCount} file${cleanup.deletedCount !== 1 ? 's' : ''}, freed ${formatBytes(cleanup.freedBytes)}`}
+                {cleanup.errors.length > 0 && ` (${cleanup.errors.length} error${cleanup.errors.length !== 1 ? 's' : ''})`}
+              </span>
+            )}
+            {cleanup.status === 'error' && (
+              <span className="before-dashboard__cleanup-result before-dashboard__cleanup-result--error">
+                {cleanup.message}
+              </span>
+            )}
+            <button
+              className="before-dashboard__cleanup-btn"
+              onClick={runCleanup}
+              disabled={cleanup.status === 'loading'}
+            >
+              {cleanup.status === 'loading' ? 'Running…' : 'Run Cleanup'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -12,6 +12,7 @@ import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import { generateBlurDataURL } from './hooks/generateBlurDataURL'
 import { generateBlur } from './endpoints/generateBlur'
+import { cleanupMedia } from './endpoints/cleanupMedia'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -30,6 +31,11 @@ export const Media: CollectionConfig = {
       method: 'post',
       path: '/:id/generate-blur',
       handler: generateBlur,
+    },
+    {
+      method: 'post',
+      path: '/cleanup',
+      handler: cleanupMedia,
     },
   ],
   hooks: {

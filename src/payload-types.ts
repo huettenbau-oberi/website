@@ -255,11 +255,11 @@ export interface Page {
 export interface Media {
   id: number;
   /**
-   * Beschreibt den Inhalt des Bildes für Screenreader und SEO. Für rein dekorative Bilder unten den Schalter aktivieren.
+   * Describes the image content for screen readers and SEO. For purely decorative images, enable the toggle below.
    */
   alt?: string | null;
   /**
-   * Aktivieren, wenn das Bild rein dekorativ ist und für das Verständnis der Seite keine Bedeutung hat. Screenreader überspringen das Bild dann.
+   * Enable if the image is purely decorative and has no meaning for understanding the page. Screen readers will then skip the image.
    */
   isDecorative?: boolean | null;
   caption?: {
