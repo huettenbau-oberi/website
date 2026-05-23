@@ -1,13 +1,21 @@
 # TODO List
 
-- [ ] Search Functionality
-- [ ] Implement Analytics
+## Important before launch
+
+- Caption localized?
+- Search functionality?
+
+## Development
+
 - [ ] Documentation
 - [ ] pages sitemap not working (check robots.txt)
 - [ ] Ansible
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+## Done
+
+- [x] Implement Analytics
 - [x] User Roles and Permissions
 - [x] ~~Profile Picture Upload~~
 - [x] ~~Email Provider~~
