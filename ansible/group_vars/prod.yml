@@ -9,6 +9,7 @@ env_file: ../files/prod.env.vault
 
 # --- PostgreSQL ---
 deploy_dir_postgres: "/opt/postgres"
+backup_database_name: "{{ prod_database_name }}"
 app_image_tag_postgres: "postgres:15-alpine"
 devt_database_name: huettenbau-payload-devt
 prod_database_name: huettenbau-payload-prod

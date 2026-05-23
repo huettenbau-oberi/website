@@ -11,12 +11,13 @@
 
 - [ ] Tests and linting
 - [ ] Documentation
-- [ ] Ansible
-  - [x] Create ansible playbook for system maintenance (update, upgrade)
-  - [ ] Backups / Storage
+- [ ] Page Optimizations (google)
 
 ## Done
 
+- [x] Ansible
+  - [x] Create ansible playbook for system maintenance (update, upgrade)
+  - [x] Backups / Storage
 - [x] Fix 404
 - [x] pages sitemap not working (check robots.txt)
 - [x] Implement Analytics

@@ -9,6 +9,7 @@ env_file: ../files/devt.env.vault
 
 # --- PostgreSQL ---
 devt_database_name: huettenbau-payload-devt
+backup_database_name: "{{ devt_database_name }}"
 
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch
