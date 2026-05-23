@@ -23,6 +23,11 @@ app_image_analytics: ghcr.io/umami-software/umami:latest
 domain: huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
 
+# --- Backups ---
+s3_bucket: huettenbau-oberi-backup
+s3_endpoint: fsn1.your-objectstorage.com
+path_prefix: prod
+
 # --- Traefik ---
 traefik_dir: /opt/traefik
 traefik_version: latest

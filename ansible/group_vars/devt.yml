@@ -11,6 +11,11 @@ env_file: ../files/devt.env.vault
 devt_database_name: huettenbau-payload-devt
 backup_database_name: "{{ devt_database_name }}"
 
+# --- Backups ---
+s3_bucket: huettenbau-oberi-backup
+s3_endpoint: fsn1.your-objectstorage.com
+path_prefix: devt
+
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch

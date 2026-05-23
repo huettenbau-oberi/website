@@ -103,6 +103,30 @@
         path: "{{ backup_tmp_dir }}"
         state: absent
 
+    - name: Ensure s3cmd is installed
+      ansible.builtin.apt:
+        name: s3cmd
+        state: present
+
+    - name: Upload backup to Hetzner Object Storage
+      ansible.builtin.shell:
+        cmd: >
+          s3cmd put /tmp/{{ backup_name }}.tar.gz.enc
+          s3://{{ s3_bucket }}/{{ path_prefix }}/{{ backup_name }}.tar.gz.enc
+          --access_key={{ s3_access_key }}
+          --secret_key={{ s3_secret_key }}
+          --host={{ s3_endpoint }}
+          '--host-bucket=%(bucket)s.{{ s3_endpoint }}'
+          --region={{ s3_endpoint.split('.')[0] }}
+          --no-encrypt
+      no_log: true
+      changed_when: true
+
+    - name: Remove encrypted tarball from server
+      ansible.builtin.file:
+        path: "/tmp/{{ backup_name }}.tar.gz.enc"
+        state: absent
+
     - name: Report backup location
       ansible.builtin.debug:
-        msg: "Backup ready at /tmp/{{ backup_name }}.tar.gz.enc"
+        msg: "Backup uploaded to s3://{{ s3_bucket }}/{{ path_prefix }}/{{ backup_name }}.tar.gz.enc"
