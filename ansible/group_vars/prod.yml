@@ -12,6 +12,11 @@ deploy_dir_postgres: "/opt/postgres"
 app_image_tag_postgres: "postgres:15-alpine"
 devt_database_name: huettenbau-payload-devt
 prod_database_name: huettenbau-payload-prod
+analytics_database_name: huettenbau-analytics
+
+# --- Analytics ---
+deploy_dir_analytics: "/opt/analytics"
+app_image_analytics: ghcr.io/umami-software/umami:latest
 
 # --- Domain & TLS ---
 domain: huettenbau-oberi.ch

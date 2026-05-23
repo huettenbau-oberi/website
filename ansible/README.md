@@ -69,6 +69,14 @@ pg_devt_user: devt_user
 pg_devt_password: CHANGE_ME
 pg_prod_user: prod_user
 pg_prod_password: CHANGE_ME
+pg_analytics_user: analytics_user
+pg_analytics_password: CHANGE_ME
+```
+
+`analytics.vault`
+
+```ini
+analytics_app_secret: CHANGE_ME
 ```
 
 `setup.env.vault`
@@ -111,7 +119,13 @@ Deploys the postgresql instance as a docker container. Run this before `deploy.y
 ansible-playbook -i inventory.ini deploy_postgres.yml
 ```
 
-Needs to have prod.yml vars used.
+### `deploy_analytics.yml` — Analytics deployment
+
+Deploys the analytics instance as a docker container. Run this before `deploy.yml` to ensure the service is available.
+
+```bash
+ansible-playbook -i inventory.ini deploy_analytics.yml
+```
 
 ### `deploy.yml` — Application deployment
 

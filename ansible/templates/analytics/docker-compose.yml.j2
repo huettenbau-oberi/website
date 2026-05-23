@@ -1,0 +1,32 @@
+services:
+  analytics:
+    image: {{ app_image_analytics }}
+    container_name: "{{ project_name }}_analytics"
+    #ports:
+    #  - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://{{ pg_analytics_user }}:{{ pg_analytics_password }}@{{ project_name }}_postgres:5432/{{ analytics_database_name }}
+      APP_SECRET: {{ analytics_app_secret }}
+    init: true
+    restart: always
+    networks:
+      - postgres
+      - proxy
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:3000/api/heartbeat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.analytics.rule=Host(`analytics.{{ domain }}`)"
+      - "traefik.http.routers.analytics.entrypoints=websecure"
+      - "traefik.http.routers.analytics.tls.certresolver=cloudflare"
+      - "traefik.http.services.analytics.loadbalancer.server.port=3000"
+
+networks:
+  postgres:
+    external: true
+  proxy:
+    external: true
