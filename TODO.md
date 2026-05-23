@@ -1,8 +1,5 @@
 # TODO List
 
-- [ ] User Roles and Permissions
-- [ ] Profile Picture Upload
-- [ ] Email Provider
 - [ ] Search Functionality
 - [ ] Implement Analytics
 - [ ] Documentation
@@ -11,6 +8,9 @@
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+- [x] User Roles and Permissions
+- [x] ~~Profile Picture Upload~~
+- [x] ~~Email Provider~~
 - [x] Customize Admin Panel
 - [x] 404 Page
 - [x] Node modules in build still needed?

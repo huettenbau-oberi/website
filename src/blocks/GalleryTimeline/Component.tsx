@@ -28,12 +28,13 @@ export const GalleryTimelineBlock: React.FC<Props> = async ({ category }) => {
       and: [
         { categories: { in: [categoryId] } },
         { publishedAt: { exists: true } },
+        { _status: { equals: 'published' } },
       ],
     },
     sort: '-publishedAt',
     limit: 50,
     depth: 1,
-    overrideAccess: true,
+    overrideAccess: false,
     select: {
       title: true,
       slug: true,
