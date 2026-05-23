@@ -8,14 +8,15 @@
 
 ## Development
 
+- [ ] Fix 404
 - [ ] Documentation
-- [ ] pages sitemap not working (check robots.txt)
 - [ ] Ansible
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
 ## Done
 
+- [x] pages sitemap not working (check robots.txt)
 - [x] Implement Analytics
 - [x] User Roles and Permissions
 - [x] ~~Profile Picture Upload~~
