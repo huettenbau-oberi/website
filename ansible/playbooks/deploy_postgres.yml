@@ -17,8 +17,8 @@
   become: true
 
   vars_files:
-    - files/postgres_users.vault
-    - group_vars/prod.yml # always use prod for the database
+    - ../files/postgres_users.vault
+    - ../group_vars/prod.yml # always use prod for the database
 
   tasks:
     - name: Create PostgreSQL directory
@@ -89,6 +89,19 @@
           - |
             psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '{{ devt_database_name }}'" | grep -q 1 || \
             psql -U {{ pg_admin_user }} -d postgres -c "CREATE DATABASE \"{{ devt_database_name }}\";"
+      changed_when: false
+
+    - name: Create analytics database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = '{{ analytics_database_name }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE DATABASE \"{{ analytics_database_name }}\";"
       changed_when: false
 
     # ── Users ────────────────────────────────────────────────────────────────
@@ -188,4 +201,53 @@
             GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_prod_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_prod_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_prod_user }}";
+      changed_when: false
+
+    - name: Create analytics DB user
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - sh
+          - -c
+          - |
+            psql -U {{ pg_admin_user }} -d postgres -tc "SELECT 1 FROM pg_roles WHERE rolname = '{{ pg_analytics_user }}'" | grep -q 1 || \
+            psql -U {{ pg_admin_user }} -d postgres -c "CREATE USER \"{{ pg_analytics_user }}\" WITH PASSWORD '{{ pg_analytics_password }}';"
+      no_log: true
+      changed_when: false
+
+    - name: Grant analytics user full access to analytics database
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - postgres
+          - -c
+          - "GRANT ALL PRIVILEGES ON DATABASE \"{{ analytics_database_name }}\" TO \"{{ pg_analytics_user }}\";"
+      changed_when: false
+
+    - name: Grant analytics user full access to analytics public schema
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ analytics_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_analytics_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_analytics_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_analytics_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_analytics_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_analytics_user }}";
       changed_when: false

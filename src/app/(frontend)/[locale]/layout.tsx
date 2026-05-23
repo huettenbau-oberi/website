@@ -52,7 +52,12 @@ export default async function RootLayout({
 
   return (
     <html
-      className={cn(GeistSans.variable, GeistMono.variable, playfairDisplay.variable, inter.variable)}
+      className={cn(
+        GeistSans.variable,
+        GeistMono.variable,
+        playfairDisplay.variable,
+        inter.variable,
+      )}
       lang={locale}
       suppressHydrationWarning
     >
@@ -66,6 +71,13 @@ export default async function RootLayout({
           type="image/png"
           media="(prefers-color-scheme: dark)"
         />
+        {process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL && process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+          />
+        )}
       </head>
       <body>
         <NextIntlClientProvider messages={message}>

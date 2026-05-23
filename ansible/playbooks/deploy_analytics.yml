@@ -12,60 +12,47 @@
 #   ansible-playbook -i inventory.ini deploy.yml
 #   ansible-playbook -i inventory.ini deploy.yml -e "app_image_tag=sha-abc1234"
 
-- name: Deploy Application
+- name: Deploy Analytics
   hosts: hetzner
   become: true
 
   vars_files:
-    - files/postgres_users.vault
+    - ../files/analytics.vault
+    - ../files/postgres_users.vault
+    - ../group_vars/prod.yml
 
   tasks:
-    - name: Create Deployment directory
+    - name: Create Analytics directory
       ansible.builtin.file:
-        path: "{{ deploy_dir }}"
+        path: "{{ deploy_dir_analytics }}"
         state: directory
         owner: root
-        group: root
-        mode: "0755"
-    - name: Create Media directory
-      ansible.builtin.file:
-        path: "{{ deploy_dir }}/media"
-        state: directory
-        owner: "1001"
         group: root
         mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
-        src: templates/app/docker-compose.yml.j2
-        dest: "{{ deploy_dir }}/docker-compose.yml"
+        src: ../templates/analytics/docker-compose.yml.j2
+        dest: "{{ deploy_dir_analytics }}/docker-compose.yml"
         owner: root
         group: root
         mode: "0644"
 
-    - name: Copy .env file to server
-      ansible.builtin.template:
-        src: "{{ env_file }}"
-        dest: "{{ deploy_dir }}/.env"
-        owner: root
-        group: root
-        mode: "0600"
-
     # Pull happens while the old container is still running
     - name: Pull latest image (old container keeps serving)
       community.docker.docker_compose_v2:
-        project_src: "{{ deploy_dir }}"
+        project_src: "{{ deploy_dir_analytics }}"
         pull: always
         state: present
 
     # Replace containers that changed — brief restart only for the app container
     - name: Recreate changed containers
       community.docker.docker_compose_v2:
-        project_src: "{{ deploy_dir }}"
+        project_src: "{{ deploy_dir_analytics }}"
         state: present
         recreate: auto
 
     - name: Verify app container is running
       community.docker.docker_container_info:
-        name: "{{ project_name }}"
+        name: "{{ project_name }}_analytics"
       register: container_info
       failed_when: not container_info.container.State.Running

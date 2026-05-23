@@ -69,9 +69,17 @@ pg_devt_user: devt_user
 pg_devt_password: CHANGE_ME
 pg_prod_user: prod_user
 pg_prod_password: CHANGE_ME
+pg_analytics_user: analytics_user
+pg_analytics_password: CHANGE_ME
 ```
 
-`setup.env.vault`
+`analytics.vault`
+
+```ini
+analytics_app_secret: CHANGE_ME
+```
+
+`setup.vault`
 
 ```ini
 ssh_port: 22
@@ -100,7 +108,7 @@ Run once on a fresh server. Sets up:
 - The application deployment directory
 
 ```bash
-ansible-playbook -i inventory.ini setup.yml
+ansible-playbook -i inventory.ini playbooks/setup.yml
 ```
 
 ### `deploy_postgres.yml` — Postgres deployment
@@ -108,10 +116,16 @@ ansible-playbook -i inventory.ini setup.yml
 Deploys the postgresql instance as a docker container. Run this before `deploy.yml` to ensure the database is available.
 
 ```bash
-ansible-playbook -i inventory.ini deploy_postgres.yml
+ansible-playbook -i inventory.ini playbooks/deploy_postgres.yml
 ```
 
-Needs to have prod.yml vars used.
+### `deploy_analytics.yml` — Analytics deployment
+
+Deploys the analytics instance as a docker container. Run this before `deploy.yml` to ensure the service is available.
+
+```bash
+ansible-playbook -i inventory.ini playbooks/deploy_analytics.yml
+```
 
 ### `deploy.yml` — Application deployment
 
@@ -121,10 +135,10 @@ The image must already be published to GHCR before running this playbook (CI han
 
 ```bash
 # Deploy the latest image
-ansible-playbook -i inventory.ini deploy.yml -e @group_vars/prod.yml
+ansible-playbook -i inventory.ini playbooks/deploy.yml -e @group_vars/prod.yml
 
 # Deploy a specific image tag
-ansible-playbook -i inventory.ini deploy.yml -e @group_vars/prod.yml -e "app_image_tag=sha-abc1234"
+ansible-playbook -i inventory.ini playbooks/deploy.yml -e @group_vars/prod.yml -e "app_image_tag=sha-abc1234"
 ```
 
 ## Environments

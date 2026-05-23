@@ -19,12 +19,13 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
-  const { headerTheme, setHeaderTheme } = useHeaderTheme()
+  const { headerTheme, setHeaderTheme, forceSolid, setForceSolid } = useHeaderTheme()
   const pathname = usePathname()
   const t = useTranslations()
 
   useEffect(() => {
     setHeaderTheme(null)
+    setForceSolid(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
@@ -47,7 +48,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
         // background up under the header. On non-hero pages this falls through to
         // the page body bg, which is intentional. The scrolled state adds a
         // distinct tinted bg + shadow once the user has scrolled past the hero.
-        scrolled ? 'bg-secondary shadow-sm' : 'bg-transparent',
+        scrolled || forceSolid ? 'bg-secondary shadow-sm' : 'bg-transparent',
       ].join(' ')}
       {...(theme ? { 'data-theme': theme } : {})}
     >

@@ -1,0 +1,16 @@
+<svg width="300" height="180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="180" fill="#F6F0E5"/>
+
+  <!-- Middle Block schematic: 2 equal left images, 3 smaller right images -->
+  <!-- Both columns start and end at the same height (no stagger) -->
+
+  <!-- Left col: 2 equal images (each ~82px) -->
+  <rect x="8"   y="8"   width="138" height="82" rx="2" fill="#C4B7B1"/>
+  <rect x="8"   y="94"  width="138" height="78" rx="2" fill="#C4B7B1"/>
+
+  <!-- Right col: 3 equal images (each ~54px) -->
+  <rect x="154" y="8"   width="138" height="54" rx="2" fill="#C4B7B1"/>
+  <rect x="154" y="66"  width="138" height="54" rx="2" fill="#C4B7B1"/>
+  <rect x="154" y="124" width="138" height="48" rx="2" fill="#C4B7B1"/>
+</svg>

@@ -1,24 +1,39 @@
 # TODO List
 
-- [ ] Node modules in build still needed?
-- [ ] Redirects for english slugs with SEO support
-- [ ] User Roles and Permissions
-- [ ] Profile Picture Upload
-- [ ] Implement Gallery
-- [ ] Contact button in footer
-- [ ] Email Provider
-- [ ] Localized slugs
-- [ ] Customize Admin Panel
-- [ ] Backups / Storage
-- [ ] Search Functionality
-- [ ] Implement Analytics
-- [ ] 404 Page
-- [ ] Documentation
-- [ ] pages sitemap not working (check robots.txt)
-- [ ] Footer on mobile
-- [ ] Image compression and optimization
-- [ ] Create ansible playbook for system maintenance (update, upgrade)
+## Important before launch
 
+- Caption localized?
+- Search functionality?
+- Docker image exposed
+- Cookie banner, privacy policy
+
+## Development
+
+- [ ] Documentation
+- [ ] Ansible
+  - [ ] Create ansible playbook for system maintenance (update, upgrade)
+  - [ ] Backups / Storage
+
+## Done
+
+- [x] Fix 404
+- [x] pages sitemap not working (check robots.txt)
+- [x] Implement Analytics
+- [x] User Roles and Permissions
+- [x] ~~Profile Picture Upload~~
+- [x] ~~Email Provider~~
+- [x] Customize Admin Panel
+- [x] 404 Page
+- [x] Node modules in build still needed?
+- [x] Contact button in footer
+- [x] Cooler Sponsor Section
+- [x] URL of a gallery post!
+- [x] Redirects for english slugs with SEO support
+- [x] Image compression and optimization
+- [x] Localized slugs
+- [x] Footer color fix in dark mode
+- [x] Footer on mobile
+- [x] Implement Gallery
 - [x] Remove seed endpoint
 - [x] Rendering issue after deployment (no page available)
 - [x] Implement Version in Footer

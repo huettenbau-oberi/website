@@ -2,6 +2,9 @@ import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
+import { getPostUrl } from '@/utilities/getPostUrl'
+
+export const dynamic = 'force-dynamic'
 
 const getPostsSitemap = unstable_cache(
   async () => {
@@ -15,7 +18,7 @@ const getPostsSitemap = unstable_cache(
       collection: 'posts',
       overrideAccess: false,
       draft: false,
-      depth: 0,
+      depth: 1,
       limit: 1000,
       pagination: false,
       where: {
@@ -25,6 +28,7 @@ const getPostsSitemap = unstable_cache(
       },
       select: {
         slug: true,
+        categories: true,
         updatedAt: true,
       },
     })
@@ -35,7 +39,7 @@ const getPostsSitemap = unstable_cache(
       ? results.docs
           .filter((post) => Boolean(post?.slug))
           .map((post) => ({
-            loc: `${SITE_URL}/posts/${post?.slug}`,
+            loc: `${SITE_URL}${getPostUrl(post)}`,
             lastmod: post.updatedAt || dateFallback,
           }))
       : []

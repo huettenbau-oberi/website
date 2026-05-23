@@ -12,6 +12,9 @@ import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
+import { GalleryTimelineBlock } from '@/blocks/GalleryTimeline/Component'
+import { PostSectionBlock } from '@/blocks/PostSection/Component'
+import { GalleryGridBlock } from '@/blocks/GalleryGrid/Component'
 
 const blockComponents = {
   campFacts: CampFactsBlock,
@@ -24,10 +27,13 @@ const blockComponents = {
   mediaBlock: MediaBlock,
   htmlBlock: HtmlBlockComponent,
   iframeBlock: IframeBlockComponent,
+  galleryTimeline: GalleryTimelineBlock,
+  postSection: PostSectionBlock,
+  galleryGrid: GalleryGridBlock,
 }
 
 export const RenderBlocks: React.FC<{
-  blocks: Page['layout'][0][]
+  blocks: NonNullable<Page['layout']>[0][]
 }> = (props) => {
   const { blocks } = props
 

@@ -1,7 +1,85 @@
+/* ── Theme toggling for logo images ── */
 html[data-theme="dark"] .light-mode-image {
   display: none;
 }
 
 html[data-theme="light"] .dark-mode-image {
   display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Hüttenbau Oberi Admin — Brand Theme
+
+   Payload chains all surface colours through --color-base-* and all
+   interactive/focus colours through --color-success-*.
+   We override both palettes so the brand propagates throughout.
+
+   Light mode: warm cream (#FFFCF7) → earthy brown (#36231D) → near-black
+   Dark mode:  near-black warm (#1A0F09) → cream text (#EDE4D1)
+               (Payload automatically inverts the elevation scale for dark)
+
+   NOTE: --theme-text in dark mode resolves to --color-base-0, so we
+   pin it explicitly below so dark-mode text stays legible cream.
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Warm base scale — replaces Payload's neutral grays ─────────── */
+  /* Anchored on actual brand palette stops:                           */
+  /*   base-0    #FFFCF7  brand-100  warm cream (user-anchored)        */
+  /*   base-150  #E8DDCB  brand-200  visible warm border               */
+  /*   base-400  #C4B7B1  brand-300  warm taupe mid-tone               */
+  /*   base-600  #666160  brand-500  subdued text                      */
+  /*   base-800  #36231D  brand-600  deep warm brown (light-mode text) */
+  /*   base-900  #1A0F09  near-black warm (dark mode background)       */
+  /*   base-1000 #171716  brand-700  near-black (user-anchored)        */
+  --color-base-0:    #FFFCF7;
+  --color-base-50:   #FAF4EC;
+  --color-base-100:  #F0E7DA;
+  --color-base-150:  #E8DDCB;
+  --color-base-200:  #E1D5C6;
+  --color-base-250:  #DACEC1;
+  --color-base-300:  #D2C6BB;
+  --color-base-350:  #CBBFB6;
+  --color-base-400:  #C4B7B1;
+  --color-base-450:  #ACA29D;
+  --color-base-500:  #958C88;
+  --color-base-550:  #7D7674;
+  --color-base-600:  #666160;
+  --color-base-650:  #5A514F;
+  --color-base-700:  #4E423F;
+  --color-base-750:  #42332E;
+  --color-base-800:  #36231D;
+  --color-base-850:  #281913;
+  --color-base-900:  #1A0F09;
+  --color-base-950:  #191310;
+  --color-base-1000: #171716;
+
+  /* ── Brand red as the interactive / focus / active accent ────────── */
+  /* Replaces Payload's default blue accent (--color-success-*).       */
+  /* Focus rings, active nav items, and links use --theme-success-500. */
+  --color-success-50:  #FEF0EF;
+  --color-success-100: #FCDFE0;
+  --color-success-150: #FCCACC;
+  --color-success-200: #FAB3B5;
+  --color-success-250: #F79A9D;
+  --color-success-300: #F38082;
+  --color-success-350: #EE6668;
+  --color-success-400: #EA4E4C;
+  --color-success-450: #E83F3D;
+  --color-success-500: #EA3936;
+  --color-success-550: #D62826;
+  --color-success-600: #C02020;
+  --color-success-650: #A81A1A;
+  --color-success-700: #901515;
+  --color-success-750: #7A1111;
+  --color-success-800: #640E0E;
+  --color-success-850: #4D0B0B;
+  --color-success-900: #3B0909;
+  --color-success-950: #290707;
+}
+
+/* Pin dark-mode text to a warm cream so it stays crisply legible     */
+/* regardless of what --color-base-0 is set to.                       */
+html[data-theme='dark'] {
+  --theme-text: #EDE4D1;
 }

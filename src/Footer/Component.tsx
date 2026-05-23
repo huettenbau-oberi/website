@@ -6,15 +6,16 @@ import type { Footer } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 import { SendIcon } from 'lucide-react'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import type { TypedLocale } from 'payload'
 
 export async function Footer() {
-  const locale = (await getLocale()) as TypedLocale
-  const footerData = (await getCachedGlobal('footer', 1, locale)()) as Footer
+  const [locale, t] = await Promise.all([getLocale(), getTranslations()])
+  const footerData = (await getCachedGlobal('footer', 1, locale as TypedLocale)()) as Footer
 
   const navItems = footerData?.navItems || []
   const legalItems = footerData?.legalItems || []
+  const contactLink = footerData?.contactButton?.link
 
   return (
     <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white overflow-x-hidden">
@@ -48,9 +49,11 @@ export async function Footer() {
             </nav>
           )}
 
-          <button className="primary flex items-center mt-6">
-            Kontakt <SendIcon aria-hidden="true" className="size-4 ml-1 stroke-2" />
-          </button>
+          {contactLink?.url || contactLink?.reference ? (
+            <CMSLink className="mt-6" appearance="default" {...contactLink} label={t('contact')}>
+              <SendIcon aria-hidden="true" className="size-4 ml-1 stroke-2" />
+            </CMSLink>
+          ) : null}
         </div>
 
         <div className="flex flex-col items-start md:flex-row gap-8 min-w-0">
@@ -82,7 +85,7 @@ export async function Footer() {
         </div>
       </div>
 
-      <div className="w-full px-6 pb-4 flex justify-center items-center bg-black/50 flex-wrap gap-1">
+      <div className="w-full px-6 pb-4 flex justify-center items-center flex-wrap gap-1">
         <span className="text-center text-sm text-white/60">
           &copy; {new Date().getFullYear()} Hüttenbau Oberi. Alle Rechte vorbehalten.
         </span>

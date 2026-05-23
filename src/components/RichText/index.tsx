@@ -1,6 +1,7 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
+import { GalleryGridBlock } from '@/blocks/GalleryGrid/Component'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -14,17 +15,17 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import type {
-  BannerBlock as BannerBlockProps,
   HtmlBlock as HtmlBlockProps,
   IframeBlock as IframeBlockProps,
   MediaBlock as MediaBlockProps,
+  GalleryGridBlock as GalleryGridBlockProps,
 } from '@/payload-types'
-import { BannerBlock } from '@/blocks/Banner/Component'
 import { cn } from '@/utilities/ui'
+import { getPostUrl } from '@/utilities/getPostUrl'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<MediaBlockProps | BannerBlockProps | IframeBlockProps | HtmlBlockProps>
+  | SerializedBlockNode<MediaBlockProps | IframeBlockProps | HtmlBlockProps | GalleryGridBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -32,14 +33,13 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
     throw new Error('Expected value to be an object')
   }
   const slug = value.slug
-  return relationTo === 'posts' ? `/posts/${slug}` : `/${slug}`
+  return relationTo === 'posts' ? getPostUrl(value as any) : `/${slug}`
 }
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"
@@ -52,6 +52,11 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     ),
     htmlBlock: ({ node }) => <HtmlBlockComponent {...node.fields} />,
     iframeBlock: ({ node }) => <IframeBlockComponent {...node.fields} />,
+    galleryGrid: ({ node }) => (
+      <div className="not-prose">
+        <GalleryGridBlock {...node.fields} />
+      </div>
+    ),
   },
 })
 

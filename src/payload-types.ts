@@ -161,12 +161,20 @@ export interface Page {
   id: number;
   title: string;
   hero: {
-    type: 'none' | 'homeHero' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'homeHero' | 'lowImpact' | 'galleryHero';
     /**
      * Small text displayed above the logo (e.g. "Welcome to")
      */
     tagline?: string | null;
     backgroundMedia?: (number | null) | Media;
+    /**
+     * Italic subtitle displayed below the "Galerie" heading
+     */
+    subtitle?: string | null;
+    /**
+     * Posts from this category are used to derive the archive date range
+     */
+    category?: (number | null) | Category;
     richText?: {
       root: {
         type: string;
@@ -206,20 +214,22 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
-    media?: (number | null) | Media;
   };
-  layout: (
-    | CampFactsBlock
-    | CampGalleryBlock
-    | CampHeroBlock
-    | CampMainBlock
-    | CampSponsorsBlock
-    | ContentBlock
-    | HtmlBlock
-    | IframeBlock
-    | MediaBlock
-    | FormBlock
-  )[];
+  layout?:
+    | (
+        | CampFactsBlock
+        | CampGalleryBlock
+        | CampHeroBlock
+        | CampMainBlock
+        | CampSponsorsBlock
+        | ContentBlock
+        | HtmlBlock
+        | IframeBlock
+        | MediaBlock
+        | FormBlock
+        | GalleryTimelineBlock
+      )[]
+    | null;
   meta?: {
     title?: string | null;
     /**
@@ -367,61 +377,15 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "posts".
- */
-export interface Post {
-  id: number;
-  title: string;
-  heroImage?: (number | null) | Media;
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  relatedPosts?: (number | Post)[] | null;
-  categories?: (number | Category)[] | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (number | null) | Media;
-    description?: string | null;
-  };
-  publishedAt?: string | null;
-  authors?: (number | User)[] | null;
-  populatedAuthors?:
-    | {
-        id?: string | null;
-        name?: string | null;
-      }[]
-    | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
   id: number;
   title: string;
+  /**
+   * The URL path segment under which posts in this category live. Defaults to "posts". Example: set to "gallery" for posts to appear at /gallery/[slug].
+   */
+  urlPrefix?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -441,246 +405,57 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "posts".
  */
-export interface User {
+export interface Post {
   id: number;
-  name?: string | null;
+  title: string;
+  heroImage: number | Media;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  showAuthor?: boolean | null;
+  layout?:
+    | (ContentBlock | HtmlBlock | IframeBlock | MediaBlock | FormBlock | PostSectionBlock | GalleryGridBlock)[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  categories?: (number | Category)[] | null;
+  publishedAt?: string | null;
+  authors?: (number | User)[] | null;
+  populatedAuthors?:
+    | {
+        id?: string | null;
+        name?: string | null;
+        role?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
   updatedAt: string;
   createdAt: string;
-  email: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
-  sessions?:
-    | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
-      }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampFactsBlock".
- */
-export interface CampFactsBlock {
-  title?: string | null;
-  facts?:
-    | {
-        /**
-         * e.g. "Zusammen mit"
-         */
-        prefix?: string | null;
-        /**
-         * The large number or text, e.g. "64"
-         */
-        value: string;
-        /**
-         * e.g. "Kindern"
-         */
-        suffix?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campFacts';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampGalleryBlock".
- */
-export interface CampGalleryBlock {
-  title: string;
-  link: {
-    type?: ('reference' | 'custom') | null;
-    newTab?: boolean | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
-    url?: string | null;
-    label: string;
-  };
-  /**
-   * Up to 7 images. They fill the mosaic positions from left to right.
-   */
-  images?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Up to 12 icons scattered around the gallery perimeter.
-   */
-  icons?:
-    | {
-        icon: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campGallery';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampHeroBlock".
- */
-export interface CampHeroBlock {
-  title: string;
-  subtitle?: string | null;
-  countdownLabel?: string | null;
-  countdownDate: string;
-  countdownSuffix?: string | null;
-  /**
-   * e.g. "Registration opens on 12.12.2025 at 12:12."
-   */
-  registrationText?: string | null;
-  links?:
-    | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-          /**
-           * Choose how the link should be rendered.
-           */
-          appearance?: ('default' | 'outline') | null;
-        };
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Image displayed as the flyer preview
-   */
-  flyerImage: number | Media;
-  /**
-   * File opened when the flyer is clicked
-   */
-  flyerFile: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campHero';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampMainBlock".
- */
-export interface CampMainBlock {
-  richText1: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Image displayed right to the text
-   */
-  image1: number | Media;
-  richText2: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Image displayed right to the text
-   */
-  image2: number | Media;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campMain';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampSponsorsBlock".
- */
-export interface CampSponsorsBlock {
-  title: string;
-  introText?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  sponsors?:
-    | {
-        image: number | Media;
-        /**
-         * Used as alt text for accessibility
-         */
-        name?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  outroText?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campSponsors';
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -977,6 +752,321 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostSectionBlock".
+ */
+export interface PostSectionBlock {
+  /**
+   * Small label above the title (e.g. "Tag", "Kapitel")
+   */
+  eyebrow?: string | null;
+  title: string;
+  /**
+   * Smaller text below the title (e.g. a date "03.06")
+   */
+  subtitle?: string | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'postSection';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryGridBlock".
+ */
+export interface GalleryGridBlock {
+  /**
+   * Controls how images are distributed vertically within each column. "Top-aligned" piles images at the top, "Space between" spreads them evenly, "Bottom-aligned" anchors them at the bottom.
+   */
+  layout: 'beginning' | 'middle' | 'end';
+  leftImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  rightImages?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'galleryGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "users".
+ */
+export interface User {
+  id: number;
+  name?: string | null;
+  /**
+   * Role shown below the author name in post headers (e.g. "Vorstand", "Webseite")
+   */
+  role?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampFactsBlock".
+ */
+export interface CampFactsBlock {
+  title?: string | null;
+  facts?:
+    | {
+        /**
+         * e.g. "Zusammen mit"
+         */
+        prefix?: string | null;
+        /**
+         * The large number or text, e.g. "64"
+         */
+        value: string;
+        /**
+         * e.g. "Kindern"
+         */
+        suffix?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campFacts';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampGalleryBlock".
+ */
+export interface CampGalleryBlock {
+  title: string;
+  link: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
+  /**
+   * Up to 7 images. They fill the mosaic positions from left to right.
+   */
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Up to 12 icons scattered around the gallery perimeter.
+   */
+  icons?:
+    | {
+        icon: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campGallery';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampHeroBlock".
+ */
+export interface CampHeroBlock {
+  title: string;
+  subtitle?: string | null;
+  countdownLabel?: string | null;
+  countdownDate: string;
+  countdownSuffix?: string | null;
+  /**
+   * e.g. "Registration opens on 12.12.2025 at 12:12."
+   */
+  registrationText?: string | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Image displayed as the flyer preview
+   */
+  flyerImage: number | Media;
+  /**
+   * File opened when the flyer is clicked
+   */
+  flyerFile: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampMainBlock".
+ */
+export interface CampMainBlock {
+  richText1: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Image displayed right to the text
+   */
+  image1: number | Media;
+  richText2: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Image displayed right to the text
+   */
+  image2: number | Media;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campMain';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampSponsorsBlock".
+ */
+export interface CampSponsorsBlock {
+  title: string;
+  introText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  sponsors?:
+    | {
+        image: number | Media;
+        name?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  outroText?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campSponsors';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock".
+ */
+export interface GalleryTimelineBlock {
+  /**
+   * Posts from this category are displayed newest-first along the timeline
+   */
+  category: number | Category;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'galleryTimeline';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1259,6 +1349,8 @@ export interface PagesSelect<T extends boolean = true> {
         type?: T;
         tagline?: T;
         backgroundMedia?: T;
+        subtitle?: T;
+        category?: T;
         richText?: T;
         links?:
           | T
@@ -1275,7 +1367,6 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
-        media?: T;
       };
   layout?:
     | T
@@ -1290,6 +1381,7 @@ export interface PagesSelect<T extends boolean = true> {
         iframeBlock?: T | IframeBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
       };
   meta?:
     | T
@@ -1486,14 +1578,33 @@ export interface FormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryTimelineBlock_select".
+ */
+export interface GalleryTimelineBlockSelect<T extends boolean = true> {
+  category?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
   heroImage?: T;
   content?: T;
-  relatedPosts?: T;
-  categories?: T;
+  showAuthor?: T;
+  layout?:
+    | T
+    | {
+        content?: T | ContentBlockSelect<T>;
+        htmlBlock?: T | HtmlBlockSelect<T>;
+        iframeBlock?: T | IframeBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        formBlock?: T | FormBlockSelect<T>;
+        postSection?: T | PostSectionBlockSelect<T>;
+        galleryGrid?: T | GalleryGridBlockSelect<T>;
+      };
   meta?:
     | T
     | {
@@ -1501,6 +1612,7 @@ export interface PostsSelect<T extends boolean = true> {
         image?: T;
         description?: T;
       };
+  categories?: T;
   publishedAt?: T;
   authors?: T;
   populatedAuthors?:
@@ -1508,12 +1620,46 @@ export interface PostsSelect<T extends boolean = true> {
     | {
         id?: T;
         name?: T;
+        role?: T;
       };
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PostSectionBlock_select".
+ */
+export interface PostSectionBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  subtitle?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "GalleryGridBlock_select".
+ */
+export interface GalleryGridBlockSelect<T extends boolean = true> {
+  layout?: T;
+  leftImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  rightImages?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1617,6 +1763,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
+  urlPrefix?: T;
   generateSlug?: T;
   slug?: T;
   parent?: T;
@@ -1637,6 +1784,7 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1964,6 +2112,25 @@ export interface Header {
  */
 export interface Footer {
   id: number;
+  /**
+   * Configure the contact button shown in the footer.
+   */
+  contactButton?: {
+    link?: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: number | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: number | Post;
+          } | null);
+      url?: string | null;
+    };
+  };
   legalItems?:
     | {
         link: {
@@ -2054,6 +2221,18 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
+  contactButton?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+            };
+      };
   legalItems?:
     | T
     | {
@@ -2136,42 +2315,6 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CodeBlock".
- */
-export interface CodeBlock {
-  language?: ('typescript' | 'javascript' | 'css') | null;
-  code: string;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'code';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

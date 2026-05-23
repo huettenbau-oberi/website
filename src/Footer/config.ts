@@ -10,6 +10,18 @@ export const Footer: GlobalConfig = {
   },
   fields: [
     {
+      name: 'contactButton',
+      type: 'group',
+      label: 'Contact Button',
+      admin: {
+        hideGutter: true,
+        description: 'Configure the contact button shown in the footer.',
+      },
+      fields: [
+        link({ appearances: false, disableLabel: true }),
+      ],
+    },
+    {
       name: 'legalItems',
       label: 'Legal Links (Below Logo in Footer)',
       type: 'array',

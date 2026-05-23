@@ -2,7 +2,6 @@ import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/utilities/ui'
 import React from 'react'
-import RichText from '@/components/RichText'
 
 import type { MediaBlock as MediaBlockProps } from '@/payload-types'
 
@@ -33,12 +32,25 @@ export const MediaBlock: React.FC<Props> = (props) => {
     showMediaCaption,
   } = props
 
-  const mediaCaption = showMediaCaption && typeof media === 'object' ? media?.caption : null
+  const showCaptionOverlay = !!(showMediaCaption && typeof media === 'object' && media?.caption)
 
   const sizeStyle: React.CSSProperties = {
     ...(widthPercent != null && { width: `${widthPercent}%` }),
     ...(maxWidth != null && { maxWidth: `${maxWidth}px` }),
   }
+
+  // Tell the browser how wide the image will actually render so Next.js can pick the
+  // smallest matching srcset variant. Without this hint, the default sizes assumes
+  // 100vw and Next serves the largest variant — easily 1MB+ for a half-width image.
+  const vw = widthPercent != null ? `${widthPercent}vw` : '100vw'
+  const mediaSize =
+    maxWidth != null
+      ? widthPercent != null
+        ? `min(${vw}, ${maxWidth}px)`
+        : `min(100vw, ${maxWidth}px)`
+      : widthPercent != null
+        ? vw
+        : undefined
 
   return (
     <div
@@ -56,6 +68,9 @@ export const MediaBlock: React.FC<Props> = (props) => {
             imgClassName={cn('border border-border rounded-[0.8rem] max-w-full h-auto', imgClassName)}
             resource={media}
             src={staticImage}
+            showCaption={showCaptionOverlay}
+            size={mediaSize}
+            enableZoom
           />
         </div>
       )}
@@ -63,13 +78,6 @@ export const MediaBlock: React.FC<Props> = (props) => {
         <div className={cn('mt-3 text-center prose md:prose-md dark:prose-invert mx-auto', captionClassName)}>
           <p className="!my-0">{caption}</p>
         </div>
-      )}
-      {mediaCaption && (
-        <RichText
-          data={mediaCaption}
-          enableGutter={false}
-          className={cn('mt-3 text-center', captionClassName)}
-        />
       )}
     </div>
   )

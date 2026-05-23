@@ -1,15 +1,18 @@
 import type { Metadata } from 'next'
 
-import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { PostNavigation } from '@/components/PostNavigation'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
+import { redirect } from 'next/navigation'
 import React, { cache } from 'react'
-import RichText from '@/components/RichText'
 
-import type { Post } from '@/payload-types'
+import type { Page, Post } from '@/payload-types'
 
+import { getPostUrl } from '@/utilities/getPostUrl'
+
+import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
@@ -38,18 +41,36 @@ export async function generateStaticParams() {
 type Args = {
   params: Promise<{
     slug?: string
+    locale?: string
   }>
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = '' } = await paramsPromise
+  const { slug = '', locale } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/posts/' + decodedSlug
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale })
 
   if (!post) return <PayloadRedirects url={url} />
+
+  // Redirect to canonical URL if the post lives under a different prefix
+  const canonicalUrl = getPostUrl(post)
+  if (canonicalUrl !== url) {
+    redirect(canonicalUrl)
+  }
+
+  const categoryIds = (post.categories ?? [])
+    .map((c) => (typeof c === 'object' ? c.id : c))
+    .filter(Boolean)
+
+  const { previous, next } = await queryAdjacentPosts({
+    postId: post.id,
+    publishedAt: post.publishedAt,
+    categoryIds,
+    locale,
+  })
 
   return (
     <article className="pt-16 pb-16">
@@ -62,31 +83,85 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
-        </div>
-      </div>
+      {post.layout && post.layout.length > 0 && (
+        <RenderBlocks blocks={(post.layout ?? []) as NonNullable<Page['layout']>} />
+      )}
+
+      <PostNavigation previous={previous} next={next} />
     </article>
   )
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
+  const { slug = '', locale } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale })
 
   return generateMeta({ doc: post })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryAdjacentPosts = cache(
+  async ({
+    postId,
+    publishedAt,
+    categoryIds,
+    locale,
+  }: {
+    postId: string | number
+    publishedAt: string | null | undefined
+    categoryIds: (string | number)[]
+    locale?: string
+  }) => {
+    if (!publishedAt) return { previous: null, next: null }
+
+    const payload = await getPayload({ config: configPromise })
+    const shared = {
+      collection: 'posts' as const,
+      limit: 1,
+      pagination: false,
+      overrideAccess: false,
+      locale: (locale as any) ?? 'de',
+    }
+
+    const categoryFilter =
+      categoryIds.length > 0 ? [{ 'categories.id': { in: categoryIds.join(',') } }] : []
+
+    const [prevResult, nextResult] = await Promise.all([
+      payload.find({
+        ...shared,
+        sort: '-publishedAt',
+        where: {
+          and: [
+            { publishedAt: { less_than: publishedAt } },
+            { id: { not_equals: postId } },
+            { _status: { equals: 'published' } },
+            ...categoryFilter,
+          ],
+        },
+      }),
+      payload.find({
+        ...shared,
+        sort: 'publishedAt',
+        where: {
+          and: [
+            { publishedAt: { greater_than: publishedAt } },
+            { id: { not_equals: postId } },
+            { _status: { equals: 'published' } },
+            ...categoryFilter,
+          ],
+        },
+      }),
+    ])
+
+    return {
+      previous: prevResult.docs?.[0] ?? null,
+      next: nextResult.docs?.[0] ?? null,
+    }
+  },
+)
+
+const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale?: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -97,6 +172,7 @@ const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     overrideAccess: draft,
     pagination: false,
+    locale: (locale as any) ?? 'de',
     where: {
       slug: {
         equals: slug,

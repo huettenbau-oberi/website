@@ -1,20 +1,23 @@
 import type { CollectionConfig } from 'payload'
 
 import {
-  BlocksFeature,
   FixedToolbarFeature,
   HeadingFeature,
-  HorizontalRuleFeature,
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
 import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
-import { Banner } from '../../blocks/Banner/config'
-import { Code } from '../../blocks/Code/config'
+import { Content } from '../../blocks/Content/config'
+import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { HtmlBlock } from '../../blocks/HtmlBlock/config'
+import { IframeBlock } from '../../blocks/IframeBlock/config'
+import { PostSection } from '../../blocks/PostSection/config'
+import { GalleryGrid } from '../../blocks/GalleryGrid/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
+import { getUrlPrefixFromCategories } from '../../utilities/getPostUrl'
 import { populateAuthors } from './hooks/populateAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
@@ -48,13 +51,14 @@ export const Posts: CollectionConfig<'posts'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'slug', 'updatedAt'],
+    defaultColumns: ['title', 'categories', 'slug', 'updatedAt'],
     livePreview: {
       url: ({ data, req }) =>
         generatePreviewPath({
           slug: data?.slug,
           collection: 'posts',
           req,
+          urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
         }),
     },
     preview: (data, { req }) =>
@@ -62,6 +66,7 @@ export const Posts: CollectionConfig<'posts'> = {
         slug: data?.slug as string,
         collection: 'posts',
         req,
+        urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
       }),
     useAsTitle: 'title',
   },
@@ -70,6 +75,7 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'title',
       type: 'text',
       required: true,
+      localized: true,
     },
     {
       type: 'tabs',
@@ -80,6 +86,7 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'heroImage',
               type: 'upload',
               relationTo: 'media',
+              required: true,
             },
             {
               name: 'content',
@@ -88,49 +95,45 @@ export const Posts: CollectionConfig<'posts'> = {
                 features: ({ rootFeatures }) => {
                   return [
                     ...rootFeatures,
-                    HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4'] }),
-                    BlocksFeature({ blocks: [Banner, Code, MediaBlock] }),
+                    HeadingFeature({ enabledHeadingSizes: ['h1'] }),
                     FixedToolbarFeature(),
                     InlineToolbarFeature(),
-                    HorizontalRuleFeature(),
                   ]
                 },
               }),
-              label: false,
-              required: true,
+              label: 'Intro',
+              localized: true,
+            },
+            {
+              name: 'showAuthor',
+              type: 'checkbox',
+              label: 'Show Author',
+              defaultValue: false,
             },
           ],
-          label: 'Content',
+          label: 'Hero',
         },
         {
           fields: [
             {
-              name: 'relatedPosts',
-              type: 'relationship',
+              name: 'layout',
+              type: 'blocks',
+              blocks: [
+                Content,
+                HtmlBlock,
+                IframeBlock,
+                MediaBlock,
+                FormBlock,
+                PostSection,
+                GalleryGrid,
+              ],
+              localized: true,
               admin: {
-                position: 'sidebar',
+                initCollapsed: true,
               },
-              filterOptions: ({ id }) => {
-                return {
-                  id: {
-                    not_in: [id],
-                  },
-                }
-              },
-              hasMany: true,
-              relationTo: 'posts',
-            },
-            {
-              name: 'categories',
-              type: 'relationship',
-              admin: {
-                position: 'sidebar',
-              },
-              hasMany: true,
-              relationTo: 'categories',
             },
           ],
-          label: 'Meta',
+          label: 'Content',
         },
         {
           name: 'meta',
@@ -150,16 +153,22 @@ export const Posts: CollectionConfig<'posts'> = {
 
             MetaDescriptionField({}),
             PreviewField({
-              // if the `generateUrl` function is configured
               hasGenerateFn: true,
-
-              // field paths to match the target field for data
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
             }),
           ],
         },
       ],
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      admin: {
+        position: 'sidebar',
+      },
+      hasMany: true,
+      relationTo: 'categories',
     },
     {
       name: 'publishedAt',
@@ -210,6 +219,10 @@ export const Posts: CollectionConfig<'posts'> = {
         },
         {
           name: 'name',
+          type: 'text',
+        },
+        {
+          name: 'role',
           type: 'text',
         },
       ],

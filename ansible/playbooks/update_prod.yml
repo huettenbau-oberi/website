@@ -1,0 +1,103 @@
+---
+- name: Update System and Services
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../group_vars/prod.yml
+
+  tasks:
+    - name: Update apt cache and upgrade all packages
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: dist
+        cache_valid_time: 0
+
+    - name: Remove unused dependencies
+      ansible.builtin.apt:
+        autoremove: true
+
+    - name: Clean apt cache
+      ansible.builtin.apt:
+        autoclean: true
+
+    # ── Reboot if required ───────────────────────────────────────────────────
+
+    - name: Check if reboot is required
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required
+
+    # ── Docker services ──────────────────────────────────────────────────────
+    - name: Check compose files exist
+      ansible.builtin.stat:
+        path: "{{ item }}/docker-compose.yml"
+      loop:
+        - "{{ deploy_dir }}"
+        - "{{ deploy_dir_postgres }}"
+        - "{{ deploy_dir_analytics }}"
+        - "{{ traefik_dir }}"
+      register: compose_files
+
+    - name: Compose down app
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir }}"
+        state: absent
+      when: reboot_required.stat.exists and compose_files.results[0].stat.exists
+
+    - name: Compose down PostgreSQL
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_postgres }}"
+        state: absent
+      when: reboot_required.stat.exists and compose_files.results[1].stat.exists
+
+    - name: Compose down analytics
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_analytics }}"
+        state: absent
+      when: reboot_required.stat.exists and compose_files.results[2].stat.exists
+
+    - name: Compose down Traefik
+      community.docker.docker_compose_v2:
+        project_src: "{{ traefik_dir }}"
+        state: absent
+      when: reboot_required.stat.exists and compose_files.results[3].stat.exists
+
+    - name: Reboot if required
+      ansible.builtin.reboot:
+        reboot_timeout: 300
+      when: reboot_required.stat.exists
+
+    # ── Update and start services again ─────────────────────────────────────────────────
+
+    - name: Pull and restart Traefik
+      community.docker.docker_compose_v2:
+        project_src: "{{ traefik_dir }}"
+        pull: always
+        state: present
+        recreate: always
+      when: compose_files.results[3].stat.exists
+
+    - name: Pull and restart PostgreSQL
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_postgres }}"
+        pull: always
+        state: present
+        recreate: always
+      when: compose_files.results[1].stat.exists
+
+    - name: Pull and restart analytics
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_analytics }}"
+        pull: always
+        state: present
+        recreate: always
+      when: compose_files.results[2].stat.exists
+
+    - name: Pull and restart app
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir }}"
+        pull: always
+        state: present
+        recreate: always
+      when: compose_files.results[0].stat.exists

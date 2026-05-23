@@ -25,6 +25,7 @@ import { CampFacts } from '@/blocks/camp/CampFacts/config'
 import { CampSponsors } from '@/blocks/camp/CampSponsors/config'
 import { HtmlBlock } from '@/blocks/HtmlBlock/config'
 import { IframeBlock } from '@/blocks/IframeBlock/config'
+import { GalleryTimeline } from '@/blocks/GalleryTimeline/config'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
@@ -89,8 +90,8 @@ export const Pages: CollectionConfig<'pages'> = {
                 IframeBlock,
                 MediaBlock,
                 FormBlock,
+                GalleryTimeline,
               ],
-              required: true,
               localized: true,
               admin: {
                 initCollapsed: true,

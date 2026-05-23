@@ -1,0 +1,71 @@
+---
+# Deploy the application with minimal downtime:
+#   1. Push docker-compose + .env to the server
+#   2. Pull the new image while the old container is still serving traffic
+#   3. Replace containers — Docker Compose restarts only changed services
+#
+# Prerequisites:
+#   - ansible/files/env.production  (copy from .env.example, fill in secrets, keep out of git)
+#   - The image must already be published: ghcr.io/nevah5/huettenbau-oberi:<tag>
+#
+# Usage:
+#   ansible-playbook -i inventory.ini deploy.yml
+#   ansible-playbook -i inventory.ini deploy.yml -e "app_image_tag=sha-abc1234"
+
+- name: Deploy Application
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../files/postgres_users.vault
+
+  tasks:
+    - name: Create Deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+    - name: Create Media directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}/media"
+        state: directory
+        owner: "1001"
+        group: root
+        mode: "0755"
+    - name: Copy production docker-compose to server
+      ansible.builtin.template:
+        src: ../templates/app/docker-compose.yml.j2
+        dest: "{{ deploy_dir }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy .env file to server
+      ansible.builtin.template:
+        src: "{{ env_file }}"
+        dest: "{{ deploy_dir }}/.env"
+        owner: root
+        group: root
+        mode: "0600"
+
+    # Pull happens while the old container is still running
+    - name: Pull latest image (old container keeps serving)
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir }}"
+        pull: always
+        state: present
+
+    # Replace containers that changed — brief restart only for the app container
+    - name: Recreate changed containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir }}"
+        state: present
+        recreate: auto
+
+    - name: Verify app container is running
+      community.docker.docker_container_info:
+        name: "{{ project_name }}"
+      register: container_info
+      failed_when: not container_info.container.State.Running
