@@ -127,6 +127,29 @@
         path: "/tmp/{{ backup_name }}.tar.gz.enc"
         state: absent
 
+    - name: Delete backups older than {{ retention_days }} days
+      ansible.builtin.shell:
+        cmd: |
+          set -e
+          CUTOFF=$(date -u -d "{{ retention_days }} days ago" '+%Y-%m-%d %H:%M')
+          OLD=$(s3cmd ls 's3://{{ s3_bucket }}/{{ path_prefix }}/' \
+            --access_key={{ s3_access_key }} \
+            --secret_key={{ s3_secret_key }} \
+            --host={{ s3_endpoint }} \
+            '--host-bucket=%(bucket)s.{{ s3_endpoint }}' \
+            --region={{ s3_endpoint.split('.')[0] }} | \
+            awk -v cutoff="$CUTOFF" '($1 " " $2) < cutoff {print $4}')
+          if [ -n "$OLD" ]; then
+            echo "$OLD" | xargs s3cmd del \
+              --access_key={{ s3_access_key }} \
+              --secret_key={{ s3_secret_key }} \
+              --host={{ s3_endpoint }} \
+              '--host-bucket=%(bucket)s.{{ s3_endpoint }}' \
+              --region={{ s3_endpoint.split('.')[0] }}
+          fi
+      no_log: true
+      changed_when: false
+
     - name: Report backup location
       ansible.builtin.debug:
         msg: "Backup uploaded to s3://{{ s3_bucket }}/{{ path_prefix }}/{{ backup_name }}.tar.gz.enc"
