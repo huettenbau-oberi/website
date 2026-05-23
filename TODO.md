@@ -4,6 +4,7 @@
 
 - Caption localized?
 - Search functionality?
+- Docker image exposed
 
 ## Development
 
