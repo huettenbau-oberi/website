@@ -1,19 +1,19 @@
 # TODO List
 
-- [ ] Node modules in build still needed?
 - [ ] User Roles and Permissions
 - [ ] Profile Picture Upload
 - [ ] Email Provider
 - [ ] Customize Admin Panel
 - [ ] Search Functionality
 - [ ] Implement Analytics
-- [ ] 404 Page
 - [ ] Documentation
 - [ ] pages sitemap not working (check robots.txt)
 - [ ] Ansible
   - [ ] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
+- [x] 404 Page
+- [x] Node modules in build still needed?
 - [x] Contact button in footer
 - [x] Cooler Sponsor Section
 - [x] URL of a gallery post!
