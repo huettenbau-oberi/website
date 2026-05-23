@@ -5,6 +5,7 @@
 - Caption localized?
 - Search functionality?
 - Docker image exposed
+- Cookie banner, privacy policy
 
 ## Development
 

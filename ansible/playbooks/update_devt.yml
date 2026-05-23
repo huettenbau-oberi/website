@@ -1,0 +1,16 @@
+---
+- name: Update Devt Environment
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../group_vars/devt.yml
+
+  tasks:
+    - name: Pull and restart app
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir }}"
+        pull: always
+        state: present
+        recreate: always
+      when: compose_files.results[0].stat.exists
