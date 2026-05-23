@@ -2,56 +2,73 @@ name: Backup 📦
 
 on:
   workflow_dispatch:
+    inputs:
+      retention_days:
+        description: "Retention days"
+        required: true
+        default: 30
+        type: number
   schedule:
     - cron: "0 3 * * */3"
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
-  backup:
-    name: Backup 📁
-    if: github.ref_name != 'main' && github.ref_name != 'devt'
+  auto-backup:
+    name: "Scheduled Backup 📌"
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    permissions:
+      contents: read
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - environment: devt
-            retention_days: 7
-          - environment: prod
-            retention_days: 30
+        environment: [devt, prod]
     environment: ${{ matrix.environment }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Prepare Ansible
-        working-directory: ansible
-        run: |
-          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
-          chmod 600 .vault_pass
+        uses: ./.github/actions/ansible-prepare
+        with:
+          vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          ansible_host: ${{ secrets.ANSIBLE_HOST }}
+          ansible_port: ${{ secrets.ANSIBLE_PORT }}
+          ansible_user: ${{ secrets.ANSIBLE_USER }}
 
-          cat <<'EOF' > inventory.ini
-          [hetzner]
-          webserver ansible_host=YOUR_VPS_IP ansible_user=root ansible_port=YOUR_VPS_PORT ansible_ssh_private_key_file=~/.ssh/id_ed25519
-
-          [hetzner:vars]
-          ansible_python_interpreter=/usr/bin/python3
-          EOF
-
-          sed -i 's/YOUR_VPS_IP/${{ secrets.ANSIBLE_HOST }}/g' inventory.ini
-          sed -i 's/YOUR_VPS_PORT/${{ secrets.ANSIBLE_PORT }}/g' inventory.ini
-          sed -i 's/root/${{ secrets.ANSIBLE_USER }}/g' inventory.ini
-          mkdir -p ~/.ssh
-          ansible-vault decrypt files/ansible.key
-          mv files/ansible.key ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan -p ${{ secrets.ANSIBLE_PORT }} -H ${{ secrets.ANSIBLE_HOST }} >> ~/.ssh/known_hosts
-
-          ansible-galaxy collection install -r requirements.yml
-
-      - name: Run Backup Playbook
+      - name: Run backup playbook
         working-directory: ansible
         run: >
           ansible-playbook -i inventory.ini
           playbooks/backup.yml
           -e @group_vars/${{ matrix.environment }}.yml
-          --extra-vars retention_days=${{ matrix.retention_days }}
+          --extra-vars retention_days=${{ matrix.environment == 'devt' && '7' || '30' }}
+
+  backup:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    name: "Backup 📁"
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    permissions:
+      contents: read
+    environment: ${{ github.ref_name == 'develop' && 'devt' || 'prod' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Prepare Ansible
+        uses: ./.github/actions/ansible-prepare
+        with:
+          vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          ansible_host: ${{ secrets.ANSIBLE_HOST }}
+          ansible_port: ${{ secrets.ANSIBLE_PORT }}
+          ansible_user: ${{ secrets.ANSIBLE_USER }}
+      - name: Run backup playbook
+        working-directory: ansible
+        run: >
+          ansible-playbook -i inventory.ini
+          playbooks/backup.yml
+          -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml
+          --extra-vars retention_days=${{ github.event.inputs.retention_days || '' }}

@@ -18,33 +18,15 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Prepare Ansible
-        working-directory: ansible
-        run: |
-          echo "${{ secrets.ANSIBLE_VAULT_PASSWORD }}" > .vault_pass
-          chmod 600 .vault_pass
-
-          cat <<'EOF' > inventory.ini
-          [hetzner]
-          webserver ansible_host=YOUR_VPS_IP ansible_user=root ansible_port=YOUR_VPS_PORT ansible_ssh_private_key_file=~/.ssh/id_ed25519
-
-          [hetzner:vars]
-          ansible_python_interpreter=/usr/bin/python3
-          EOF
-
-          sed -i 's/YOUR_VPS_IP/${{ secrets.ANSIBLE_HOST }}/g' inventory.ini
-          sed -i 's/YOUR_VPS_PORT/${{ secrets.ANSIBLE_PORT }}/g' inventory.ini
-          sed -i 's/root/${{ secrets.ANSIBLE_USER }}/g' inventory.ini
-          mkdir -p ~/.ssh
-          ansible-vault decrypt files/ansible.key
-          mv files/ansible.key ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan -p ${{ secrets.ANSIBLE_PORT }} -H ${{ secrets.ANSIBLE_HOST }} >> ~/.ssh/known_hosts
-
-          ansible-galaxy collection install -r requirements.yml
+        uses: ./.github/actions/ansible-prepare
+        with:
+          vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          ansible_host: ${{ secrets.ANSIBLE_HOST }}
+          ansible_port: ${{ secrets.ANSIBLE_PORT }}
+          ansible_user: ${{ secrets.ANSIBLE_USER }}
 
       - name: Update system and restart services
         working-directory: ansible
