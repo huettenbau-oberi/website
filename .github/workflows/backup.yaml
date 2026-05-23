@@ -4,8 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       retention_days:
-        description: "Override retention days for both environments (leave blank to use per-environment defaults)"
+        description: "Retention days"
         required: false
+        default: 30
         type: number
   schedule:
     - cron: "0 3 * * */3"
