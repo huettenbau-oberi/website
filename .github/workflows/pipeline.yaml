@@ -34,18 +34,23 @@ jobs:
         env:
           MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
         run: |
+          if [ -z "${MAJOR_VERSION}" ]; then
+            echo "::error::MAJOR_VERSION is not set — define it as a repository variable"
+            exit 1
+          fi
+
           echo "::debug::MAJOR_VERSION=${MAJOR_VERSION}"
           LATEST=$(git tag --list "v${MAJOR_VERSION}.*" --sort=-v:refname | head -n1)
           echo "::debug::Latest tag found: '${LATEST}'"
 
-          if [ -z "$LATEST" ]; then
-            NEW_TAG="v${MAJOR_VERSION}.0.0"
-            echo "::notice::No existing tag found — starting at ${NEW_TAG}"
-          else
-            MINOR=$(echo "$LATEST" | cut -d. -f2)
-            PATCH=$(echo "$LATEST" | cut -d. -f3)
+          if [[ "$LATEST" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            MINOR="${BASH_REMATCH[2]}"
+            PATCH="${BASH_REMATCH[3]}"
             NEW_TAG="v${MAJOR_VERSION}.${MINOR}.$((PATCH + 1))"
             echo "::notice::Bumping patch: ${LATEST} → ${NEW_TAG}"
+          else
+            NEW_TAG="v${MAJOR_VERSION}.0.0"
+            echo "::notice::No parseable tag found — starting at ${NEW_TAG}"
           fi
 
           if [ "$GITHUB_REF_NAME" = "main" ]; then
@@ -56,8 +61,8 @@ jobs:
             git push origin "$NEW_TAG"
             echo "tag=${NEW_TAG}" >> $GITHUB_OUTPUT
           else
-            echo "::notice::Branch '${GITHUB_REF_NAME}' — skipping tag push, reporting latest: '${LATEST}'"
-            echo "tag=${LATEST}" >> $GITHUB_OUTPUT
+            echo "::notice::Branch '${GITHUB_REF_NAME}' — skipping tag push, reporting next version: '${NEW_TAG}'"
+            echo "tag=${NEW_TAG}" >> $GITHUB_OUTPUT
           fi
 
   build:
