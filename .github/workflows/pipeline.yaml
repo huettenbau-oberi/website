@@ -20,6 +20,7 @@ jobs:
   build:
     name: Build 🏗️
     runs-on: blacksmith-8vcpu-ubuntu-2404
+    environment: ${{ github.ref_name == 'develop' && 'devt' || 'prod' }}
     permissions:
       contents: read
       packages: write
@@ -69,6 +70,8 @@ jobs:
           build-args: |
             NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}
             NEXT_PUBLIC_SERVER_URL=https://${{ github.ref_name == 'develop' && 'dev.' || '' }}huettenbau-oberi.ch
+            NEXT_PUBLIC_UMAMI_SCRIPT_URL=${{ vars.UMAMI_SCRIPT_URL || '' }}
+            NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.UMAMI_WEBSITE_ID || '' }}
             COMMIT_HASH=${{ steps.version.outputs.sha }}
             VERSION=${{ steps.version.outputs.tag }}
           cache-from: type=gha
