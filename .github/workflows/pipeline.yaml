@@ -34,23 +34,29 @@ jobs:
         env:
           MAJOR_VERSION: ${{ vars.MAJOR_VERSION }}
         run: |
+          echo "::debug::MAJOR_VERSION=${MAJOR_VERSION}"
           LATEST=$(git tag --list "v${MAJOR_VERSION}.*" --sort=-v:refname | head -n1)
+          echo "::debug::Latest tag found: '${LATEST}'"
 
           if [ -z "$LATEST" ]; then
             NEW_TAG="v${MAJOR_VERSION}.0.0"
+            echo "::notice::No existing tag found — starting at ${NEW_TAG}"
           else
             MINOR=$(echo "$LATEST" | cut -d. -f2)
             PATCH=$(echo "$LATEST" | cut -d. -f3)
             NEW_TAG="v${MAJOR_VERSION}.${MINOR}.$((PATCH + 1))"
+            echo "::notice::Bumping patch: ${LATEST} → ${NEW_TAG}"
           fi
 
           if [ "$GITHUB_REF_NAME" = "main" ]; then
+            echo "::notice::Pushing tag ${NEW_TAG} to origin"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git tag "$NEW_TAG"
             git push origin "$NEW_TAG"
             echo "tag=${NEW_TAG}" >> $GITHUB_OUTPUT
           else
+            echo "::notice::Branch '${GITHUB_REF_NAME}' — skipping tag push, reporting latest: '${LATEST}'"
             echo "tag=${LATEST}" >> $GITHUB_OUTPUT
           fi
 
