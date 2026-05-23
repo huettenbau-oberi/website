@@ -9,9 +9,10 @@
 
 ## Development
 
+- [ ] Tests and linting
 - [ ] Documentation
 - [ ] Ansible
-  - [ ] Create ansible playbook for system maintenance (update, upgrade)
+  - [x] Create ansible playbook for system maintenance (update, upgrade)
   - [ ] Backups / Storage
 
 ## Done
