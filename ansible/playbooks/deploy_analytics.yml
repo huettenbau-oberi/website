@@ -17,9 +17,9 @@
   become: true
 
   vars_files:
-    - files/analytics.vault
-    - files/postgres_users.vault
-    - group_vars/prod.yml
+    - ../files/analytics.vault
+    - ../files/postgres_users.vault
+    - ../group_vars/prod.yml
 
   tasks:
     - name: Create Analytics directory
@@ -31,7 +31,7 @@
         mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
-        src: templates/analytics/docker-compose.yml.j2
+        src: ../templates/analytics/docker-compose.yml.j2
         dest: "{{ deploy_dir_analytics }}/docker-compose.yml"
         owner: root
         group: root

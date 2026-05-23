@@ -4,9 +4,9 @@
   become: true
 
   vars_files:
-    - group_vars/prod.yml
-    - files/cloudflare.vault
-    - files/setup.env.vault
+    - ../group_vars/prod.yml
+    - ../files/cloudflare.vault
+    - ../files/setup.vault
 
   handlers:
     - name: Restart SSH
@@ -83,7 +83,7 @@
 
     - name: Configure Fail2Ban jail
       ansible.builtin.template:
-        src: templates/fail2ban/jail.local.j2
+        src: ../templates/fail2ban/jail.local.j2
         dest: /etc/fail2ban/jail.local
         owner: root
         group: root
@@ -169,7 +169,7 @@
 
     - name: Copy .env file to server
       ansible.builtin.template:
-        src: "templates/traefik/traefik.env.j2"
+        src: "../templates/traefik/traefik.env.j2"
         dest: "{{ traefik_dir }}/.env"
         owner: root
         group: root
@@ -186,7 +186,7 @@
 
     - name: Deploy Traefik static config
       ansible.builtin.template:
-        src: templates/traefik/traefik.yml.j2
+        src: ../templates/traefik/traefik.yml.j2
         dest: "{{ traefik_dir }}/traefik.yml"
         owner: root
         group: root
@@ -195,7 +195,7 @@
 
     - name: Deploy Traefik docker-compose
       ansible.builtin.template:
-        src: templates/traefik/docker-compose.yml.j2
+        src: ../templates/traefik/docker-compose.yml.j2
         dest: "{{ traefik_dir }}/docker-compose.yml"
         owner: root
         group: root

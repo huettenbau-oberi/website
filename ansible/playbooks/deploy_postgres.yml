@@ -17,8 +17,8 @@
   become: true
 
   vars_files:
-    - files/postgres_users.vault
-    - group_vars/prod.yml # always use prod for the database
+    - ../files/postgres_users.vault
+    - ../group_vars/prod.yml # always use prod for the database
 
   tasks:
     - name: Create PostgreSQL directory
