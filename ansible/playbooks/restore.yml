@@ -1,0 +1,172 @@
+---
+# Restore an AES-256 encrypted backup of a Payload CMS environment.
+# Downloads the encrypted archive from Hetzner Object Storage, decrypts it,
+# and restores the PostgreSQL database and media files.
+#
+# The s3_path must be the absolute path within the bucket
+# (e.g. /prod/prod-huettenbau-backup_20260523-202000.tar.gz.enc).
+#
+# Usage:
+#   ansible-playbook -i inventory.ini playbooks/restore.yml -e @group_vars/prod.yml \
+#     -e "s3_path=/prod/prod-huettenbau-backup_20260523-202000.tar.gz.enc"
+#   ansible-playbook -i inventory.ini playbooks/restore.yml -e @group_vars/devt.yml \
+#     -e "s3_path=/devt/devt-huettenbau-backup_20260523-202000.tar.gz.enc"
+
+- name: Restore Payload CMS environment
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../files/postgres_users.vault
+    - ../files/backup.vault
+
+  vars:
+    postgres_container: "{{ project_name }}_postgres"
+    restore_tmp_dir: "/tmp/restore-{{ now().strftime('%Y%m%d-%H%M%S') }}"
+
+  tasks:
+    - name: Validate s3_path is provided
+      ansible.builtin.assert:
+        that:
+          - s3_path is defined
+          - s3_path | length > 0
+        fail_msg: "s3_path must be provided as an extra variable"
+
+    - name: Create restore staging directory
+      ansible.builtin.file:
+        path: "{{ restore_tmp_dir }}/staging"
+        state: directory
+        mode: "0700"
+
+    - name: Ensure s3cmd is installed
+      ansible.builtin.apt:
+        name: s3cmd
+        state: present
+
+    - name: Download backup from Hetzner Object Storage
+      ansible.builtin.shell:
+        cmd: >
+          s3cmd get s3://{{ s3_bucket }}{{ s3_path }}
+          {{ restore_tmp_dir }}/backup.tar.gz.enc
+          --access_key={{ s3_access_key }}
+          --secret_key={{ s3_secret_key }}
+          --host={{ s3_endpoint }}
+          '--host-bucket=%(bucket)s.{{ s3_endpoint }}'
+          --region={{ s3_endpoint.split('.')[0] }}
+          --force
+      no_log: true
+      changed_when: true
+
+    - name: Decrypt backup archive
+      ansible.builtin.shell:
+        cmd: >
+          openssl enc -d -aes-256-cbc -pbkdf2
+          -pass env:BACKUP_PASSWORD
+          -in {{ restore_tmp_dir }}/backup.tar.gz.enc
+          -out {{ restore_tmp_dir }}/backup.tar.gz
+      environment:
+        BACKUP_PASSWORD: "{{ backup_archive_password }}"
+      no_log: true
+      changed_when: true
+
+    - name: Extract backup tarball
+      ansible.builtin.shell:
+        cmd: "tar -xzf {{ restore_tmp_dir }}/backup.tar.gz -C {{ restore_tmp_dir }}/staging --strip-components=1"
+      changed_when: true
+
+    - name: Remove archives from temp
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ restore_tmp_dir }}/backup.tar.gz.enc"
+        - "{{ restore_tmp_dir }}/backup.tar.gz"
+
+    - name: Stop app
+      ansible.builtin.shell:
+        cmd: docker compose stop
+        chdir: "{{ deploy_dir }}"
+      changed_when: true
+
+    - name: Copy database dump into postgres container
+      ansible.builtin.shell:
+        cmd: "docker cp {{ restore_tmp_dir }}/staging/db.dump {{ postgres_container }}:/tmp/restore_db.dump"
+      changed_when: true
+
+    - name: Restore database
+      community.docker.docker_container_exec:
+        container: "{{ postgres_container }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - pg_restore
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ backup_database_name }}"
+          - --clean
+          - --if-exists
+          - --no-owner
+          - --no-acl
+          - /tmp/restore_db.dump
+      no_log: true
+      changed_when: true
+
+    - name: Grant privileges to app user
+      community.docker.docker_container_exec:
+        container: "{{ postgres_container }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ backup_database_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ pg_app_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ pg_app_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_app_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_app_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_app_user }}";
+      no_log: true
+      changed_when: true
+
+    - name: Remove dump from postgres container
+      community.docker.docker_container_exec:
+        container: "{{ postgres_container }}"
+        argv:
+          - rm
+          - -f
+          - /tmp/restore_db.dump
+      changed_when: false
+
+    - name: Replace media files
+      ansible.builtin.shell:
+        cmd: |
+          rm -rf {{ deploy_dir }}/media
+          mv {{ restore_tmp_dir }}/staging/media {{ deploy_dir }}/media
+      changed_when: true
+
+    - name: Fix media ownership
+      ansible.builtin.file:
+        path: "{{ deploy_dir }}/media"
+        owner: "1001"
+        group: root
+        recurse: true
+
+    - name: Start app
+      ansible.builtin.shell:
+        cmd: docker compose up -d
+        chdir: "{{ deploy_dir }}"
+      changed_when: true
+
+    - name: Remove restore staging directory
+      ansible.builtin.file:
+        path: "{{ restore_tmp_dir }}"
+        state: absent
+
+    - name: Report restore status
+      ansible.builtin.debug:
+        msg: "Restore complete for {{ project_name }} from s3://{{ s3_bucket }}{{ s3_path }}"

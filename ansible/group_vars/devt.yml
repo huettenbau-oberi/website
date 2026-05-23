@@ -8,6 +8,7 @@ app_image_tag: develop
 env_file: ../files/devt.env.vault
 
 # --- PostgreSQL ---
+pg_app_user: "{{ pg_devt_user }}"
 devt_database_name: huettenbau-payload-devt
 backup_database_name: "{{ devt_database_name }}"
 
@@ -15,6 +16,7 @@ backup_database_name: "{{ devt_database_name }}"
 s3_bucket: huettenbau-oberi-backup
 s3_endpoint: fsn1.your-objectstorage.com
 path_prefix: devt
+retention_days: 7
 
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch
