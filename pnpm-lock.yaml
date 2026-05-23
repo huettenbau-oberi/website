@@ -138,8 +138,8 @@ importers:
         specifier: 19.2.1
         version: 19.2.1(react@19.2.1)
       react-hook-form:
-        specifier: 7.45.4
-        version: 7.45.4(react@19.2.1)
+        specifier: 7.76.1
+        version: 7.76.1(react@19.2.1)
       sharp:
         specifier: 0.34.2
         version: 0.34.2
@@ -4490,11 +4490,11 @@ packages:
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
 
-  react-hook-form@7.45.4:
-    resolution: {integrity: sha512-HGDV1JOOBPZj10LB3+OZgfDBTn+IeEsNOKiq/cxbQAIbKaiJUe/KV8DBUzsx0Gx/7IG/orWqRRm736JwOfUSWQ==}
-    engines: {node: '>=12.22.0'}
+  react-hook-form@7.76.1:
+    resolution: {integrity: sha512-rYM7tPiWlu3nZchkR/ex7piyzui2vFPyaLnXnI/RnblB/L4qfMmyses8llJVtF1NpE9WBBsJlGtcSZzPCXW1qQ==}
+    engines: {node: '>=18.0.0'}
     peerDependencies:
-      react: ^16.8.0 || ^17 || ^18
+      react: ^16.8.0 || ^17 || ^18 || ^19
 
   react-image-crop@10.1.8:
     resolution: {integrity: sha512-4rb8XtXNx7ZaOZarKKnckgz4xLMvds/YrU6mpJfGhGAsy2Mg4mIw1x+DCCGngVGq2soTBVVOxx2s/C6mTX9+pA==}
@@ -9788,7 +9788,7 @@ snapshots:
     dependencies:
       react: 19.2.1
 
-  react-hook-form@7.45.4(react@19.2.1):
+  react-hook-form@7.76.1(react@19.2.1):
     dependencies:
       react: 19.2.1
 
