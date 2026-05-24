@@ -31,7 +31,7 @@ const NEXT_PUBLIC_SERVER_URL =
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    formats: ['image/avif', 'image/webp'],
+    formats: ['image/webp'],
     qualities: [75],
     minimumCacheTTL: 31536000,
     remotePatterns: [
