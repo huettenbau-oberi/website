@@ -97,11 +97,23 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
               className="relative flex max-h-full max-w-full items-center justify-center"
             >
               <div className="relative">
+                <Media
+                  {...props}
+                  enableZoom={false}
+                  fill={false}
+                  imgClassName={cn(
+                    'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg',
+                    imgClassName,
+                  )}
+                  size="100vw"
+                  priority
+                  onLoad={() => setImageLoaded(true)}
+                />
                 {blurDataUrl && (
                   <div
                     aria-hidden
                     className={cn(
-                      'absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300',
+                      'absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300 pointer-events-none',
                       imageLoaded ? 'opacity-0' : 'opacity-100',
                     )}
                   >
@@ -112,19 +124,6 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
                     />
                   </div>
                 )}
-                <Media
-                  {...props}
-                  enableZoom={false}
-                  fill={false}
-                  imgClassName={cn(
-                    'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg transition-opacity duration-300',
-                    blurDataUrl ? (imageLoaded ? 'opacity-100' : 'opacity-0') : 'opacity-100',
-                    imgClassName,
-                  )}
-                  size="100vw"
-                  priority
-                  onLoad={() => setImageLoaded(true)}
-                />
               </div>
             </motion.div>
           </motion.div>
