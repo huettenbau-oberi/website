@@ -14,7 +14,7 @@ export type TimelinePost = {
   slug?: string | null
   publishedAt?: string | null
   heroImage?: MediaType | number | null
-  meta?: { description?: string | null } | null
+  meta?: { image?: MediaType | number | null; description?: string | null } | null
 }
 
 type Props = {
@@ -137,10 +137,15 @@ export const TimelineClient: React.FC<Props> = ({ posts, urlPrefix = 'posts' }) 
           const isRight = i % 2 === 0
           const year = post.publishedAt ? new Date(post.publishedAt).getFullYear() : null
           const date = post.publishedAt ? formatDate(post.publishedAt) : null
-          const image =
-            post.heroImage && typeof post.heroImage === 'object'
-              ? (post.heroImage as MediaType)
+          const metaImage =
+            post.meta?.image && typeof post.meta.image === 'object'
+              ? (post.meta.image as MediaType)
               : null
+          const image =
+            metaImage ??
+            (post.heroImage && typeof post.heroImage === 'object'
+              ? (post.heroImage as MediaType)
+              : null)
           const description = post.meta?.description ?? null
           const href = post.slug ? `/${urlPrefix}/${post.slug}` : null
 
