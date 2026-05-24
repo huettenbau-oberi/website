@@ -97,14 +97,14 @@ export const hero: Field = {
         condition: (_, { type } = {}) => !['homeHero', 'galleryHero'].includes(type),
       },
     },
-    linkGroup({
-      overrides: {
-        maxRows: 2,
-        admin: {
-          condition: (_, { type } = {}) => !['homeHero', 'galleryHero'].includes(type),
-        },
-      },
-    }),
+    // linkGroup({
+    //   overrides: {
+    //     maxRows: 2,
+    //     admin: {
+    //       condition: (_, { type } = {}) => !['homeHero', 'galleryHero'].includes(type),
+    //     },
+    //   },
+    // }),
   ],
   label: false,
 }

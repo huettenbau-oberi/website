@@ -190,30 +190,6 @@ export interface Page {
       };
       [k: string]: unknown;
     } | null;
-    links?:
-      | {
-          link: {
-            type?: ('reference' | 'custom') | null;
-            newTab?: boolean | null;
-            reference?:
-              | ({
-                  relationTo: 'pages';
-                  value: number | Page;
-                } | null)
-              | ({
-                  relationTo: 'posts';
-                  value: number | Post;
-                } | null);
-            url?: string | null;
-            label: string;
-            /**
-             * Choose how the link should be rendered.
-             */
-            appearance?: ('default' | 'outline') | null;
-          };
-          id?: string | null;
-        }[]
-      | null;
   };
   layout?:
     | (
@@ -402,6 +378,76 @@ export interface Category {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampFactsBlock".
+ */
+export interface CampFactsBlock {
+  title?: string | null;
+  facts?:
+    | {
+        /**
+         * e.g. "Zusammen mit"
+         */
+        prefix?: string | null;
+        /**
+         * The large number or text, e.g. "64"
+         */
+        value: string;
+        /**
+         * e.g. "Kindern"
+         */
+        suffix?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campFacts';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CampGalleryBlock".
+ */
+export interface CampGalleryBlock {
+  title: string;
+  link: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: number | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: number | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+  };
+  /**
+   * Up to 7 images. They fill the mosaic positions from left to right.
+   */
+  images?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Up to 12 icons scattered around the gallery perimeter.
+   */
+  icons?:
+    | {
+        icon: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'campGallery';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -837,76 +883,6 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampFactsBlock".
- */
-export interface CampFactsBlock {
-  title?: string | null;
-  facts?:
-    | {
-        /**
-         * e.g. "Zusammen mit"
-         */
-        prefix?: string | null;
-        /**
-         * The large number or text, e.g. "64"
-         */
-        value: string;
-        /**
-         * e.g. "Kindern"
-         */
-        suffix?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campFacts';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "CampGalleryBlock".
- */
-export interface CampGalleryBlock {
-  title: string;
-  link: {
-    type?: ('reference' | 'custom') | null;
-    newTab?: boolean | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: number | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: number | Post;
-        } | null);
-    url?: string | null;
-    label: string;
-  };
-  /**
-   * Up to 7 images. They fill the mosaic positions from left to right.
-   */
-  images?:
-    | {
-        image: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Up to 12 icons scattered around the gallery perimeter.
-   */
-  icons?:
-    | {
-        icon: number | Media;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'campGallery';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1352,21 +1328,6 @@ export interface PagesSelect<T extends boolean = true> {
         subtitle?: T;
         category?: T;
         richText?: T;
-        links?:
-          | T
-          | {
-              link?:
-                | T
-                | {
-                    type?: T;
-                    newTab?: T;
-                    reference?: T;
-                    url?: T;
-                    label?: T;
-                    appearance?: T;
-                  };
-              id?: T;
-            };
       };
   layout?:
     | T

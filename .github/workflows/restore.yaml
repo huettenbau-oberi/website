@@ -1,4 +1,4 @@
-name: Restore Backup 🛒
+name: Restore 🛒
 
 on:
   workflow_dispatch:

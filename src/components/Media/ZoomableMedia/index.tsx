@@ -12,10 +12,20 @@ import { cn } from '@/utilities/ui'
 export const ZoomableMedia: React.FC<MediaProps> = (props) => {
   const { resource, imgClassName, fill } = props
   const [open, setOpen] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false)
 
   const isVideo = typeof resource === 'object' && resource?.mimeType?.includes('video')
 
+  const blurDataUrl =
+    typeof resource === 'object' && resource !== null
+      ? (resource.blurDataUrl ?? undefined)
+      : undefined
+
   const close = useCallback(() => setOpen(false), [])
+
+  useEffect(() => {
+    if (open) setImageLoaded(false)
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -86,17 +96,35 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
               onClick={(e) => e.stopPropagation()}
               className="relative flex max-h-full max-w-full items-center justify-center"
             >
-              <Media
-                {...props}
-                enableZoom={false}
-                fill={false}
-                imgClassName={cn(
-                  'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg',
-                  imgClassName,
+              <div className="relative">
+                <Media
+                  {...props}
+                  enableZoom={false}
+                  fill={false}
+                  imgClassName={cn(
+                    'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg',
+                    imgClassName,
+                  )}
+                  size="100vw"
+                  priority
+                  onLoad={() => setImageLoaded(true)}
+                />
+                {blurDataUrl && (
+                  <div
+                    aria-hidden
+                    className={cn(
+                      'absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300 pointer-events-none',
+                      imageLoaded ? 'opacity-0' : 'opacity-100',
+                    )}
+                  >
+                    <img
+                      src={blurDataUrl}
+                      alt=""
+                      className="w-full h-full object-cover blur-2xl scale-110"
+                    />
+                  </div>
                 )}
-                size="100vw"
-                priority
-              />
+              </div>
             </motion.div>
           </motion.div>
         )}

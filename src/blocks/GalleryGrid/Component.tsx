@@ -3,6 +3,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import type { GalleryGridBlock as GalleryGridBlockProps, Media as MediaType } from '@/payload-types'
 import { ZoomableMedia } from '@/components/Media/ZoomableMedia'
+import { RichText as ConvertRichText } from '@payloadcms/richtext-lexical/react'
 
 type LayoutType = GalleryGridBlockProps['layout']
 
@@ -28,19 +29,27 @@ function Column({ images }: { images: ColumnImages | null | undefined }) {
         return (
           <motion.div
             key={entry?.id ?? i}
-            className="w-full overflow-hidden"
-            style={{ maxHeight: 480 }}
+            className="w-full"
             initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={vp}
             transition={{ duration: 0.5, delay: i * 0.06, ease: 'easeOut' }}
           >
             {resource && (
-              <ZoomableMedia
-                resource={resource}
-                imgClassName="w-full h-auto block"
-                size="(max-width: 768px) 100vw, 50vw"
-              />
+              <>
+                <div className="w-full overflow-hidden" style={{ maxHeight: 480 }}>
+                  <ZoomableMedia
+                    resource={resource}
+                    imgClassName="w-full h-auto block"
+                    size="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
+                {resource.caption && (
+                  <div className="mt-1 px-1 text-[0.65rem] tracking-wide text-muted-foreground text-center">
+                    <ConvertRichText data={resource.caption} />
+                  </div>
+                )}
+              </>
             )}
           </motion.div>
         )
