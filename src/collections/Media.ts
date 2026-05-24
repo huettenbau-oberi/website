@@ -20,6 +20,9 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
+  admin: {
+    defaultColumns: ['filename', 'alt', 'isDecorative', 'updatedAt', 'folder'],
+  },
   access: {
     create: authenticated,
     delete: authenticated,
@@ -58,6 +61,9 @@ export const Media: CollectionConfig = {
         description:
           'Describes the image content for screen readers and SEO. For purely decorative images, enable the toggle below.',
         condition: (_, siblingData) => !(siblingData as { isDecorative?: boolean })?.isDecorative,
+        components: {
+          Cell: '@/components/AltCell',
+        },
       },
     },
     {

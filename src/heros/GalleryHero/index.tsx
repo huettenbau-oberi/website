@@ -3,7 +3,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
 import type { Category, Page } from '@/payload-types'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 type GalleryHeroProps = Page['hero']
 
@@ -55,7 +55,7 @@ export const GalleryHero: React.FC<GalleryHeroProps> = async ({ subtitle, catego
       : (category as number)
     : null
 
-  const t = useTranslations()
+  const t = await getTranslations()
 
   const yearRange = await fetchYearRange(categoryId)
 
