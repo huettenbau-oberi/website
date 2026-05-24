@@ -1,0 +1,38 @@
+name: Restore Backup 🛒
+
+on:
+  workflow_dispatch:
+    inputs:
+      s3_path:
+        description: "Absolute S3 path"
+        required: true
+        default: "/prod/prod-huettenbau-backup_20260601-030000.tar.gz.enc"
+        type: string
+
+jobs:
+  restore:
+    name: Restore Backup 🛠
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    if: github.ref_name == 'main' || github.ref_name == 'develop'
+    environment: ${{ github.ref_name == 'develop' && 'devt' || 'prod' }}
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Ansible
+        uses: ./.github/actions/ansible-prepare
+        with:
+          vault_password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          ansible_host: ${{ secrets.ANSIBLE_HOST }}
+          ansible_port: ${{ secrets.ANSIBLE_PORT }}
+          ansible_user: ${{ secrets.ANSIBLE_USER }}
+
+      - name: Restore Backup
+        working-directory: ansible
+        run: >
+          ansible-playbook -i inventory.ini
+          playbooks/restore.yml
+          -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml
+          --extra-vars "s3_path=${{ github.event.inputs.s3_path }}"

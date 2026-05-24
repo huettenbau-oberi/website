@@ -5,7 +5,7 @@ on:
     inputs:
       retention_days:
         description: "Retention days"
-        required: false
+        required: true
         default: 30
         type: number
   schedule:
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   auto-backup:
-    name: "Backup ${{ matrix.environment }} 📁"
+    name: "Scheduled Backup 📌"
     runs-on: blacksmith-2vcpu-ubuntu-2404
     if: ${{ github.event_name != 'workflow_dispatch' }}
     permissions:
@@ -25,11 +25,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - environment: devt
-            retention_days: 7
-          - environment: prod
-            retention_days: 30
+        environment: [devt, prod]
     environment: ${{ matrix.environment }}
     steps:
       - name: Checkout
@@ -49,7 +45,7 @@ jobs:
           ansible-playbook -i inventory.ini
           playbooks/backup.yml
           -e @group_vars/${{ matrix.environment }}.yml
-          --extra-vars retention_days=${{ matrix.retention_days }}
+          --extra-vars retention_days=${{ matrix.environment == 'devt' && '7' || '30' }}
 
   backup:
     if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -61,7 +57,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      
+
       - name: Prepare Ansible
         uses: ./.github/actions/ansible-prepare
         with:
