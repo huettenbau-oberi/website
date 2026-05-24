@@ -17,7 +17,7 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
 
   return (
     <section className="w-full bg-background py-16 md:py-24">
-      <div className="container max-w-4xl">
+      <div className="container max-w-6xl">
         {/* Title */}
         {title && (
           <motion.h2
@@ -54,7 +54,7 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
               return (
                 <motion.div
                   key={sponsor.id ?? i}
-                  className="flex items-center justify-center bg-background dark:bg-white p-4 h-20 md:h-24 w-36 md:w-44"
+                  className="flex items-center justify-center bg-background dark:bg-white p-4 h-24 md:h-32 w-44 md:w-56"
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={vp}
