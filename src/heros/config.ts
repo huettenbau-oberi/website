@@ -101,7 +101,7 @@ export const hero: Field = {
       overrides: {
         maxRows: 2,
         admin: {
-          condition: (_, { type } = {}) => type !== 'homeHero',
+          condition: (_, { type } = {}) => !['homeHero', 'galleryHero'].includes(type),
         },
       },
     }),
