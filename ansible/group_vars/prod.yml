@@ -15,6 +15,7 @@ app_image_tag_postgres: "postgres:15-alpine"
 devt_database_name: huettenbau-payload-devt
 prod_database_name: huettenbau-payload-prod
 analytics_database_name: huettenbau-analytics
+postgres_container_name: huettenbau-oberi-prod_postgres
 
 # --- Analytics ---
 deploy_dir_analytics: "/opt/analytics"

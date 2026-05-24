@@ -20,11 +20,11 @@
     - ../files/postgres_users.vault
     - ../files/backup.vault
 
-  vars:
-    postgres_container: "{{ project_name }}_postgres"
-    restore_tmp_dir: "/tmp/restore-{{ now().strftime('%Y%m%d-%H%M%S') }}"
-
   tasks:
+    - name: Set restore temp directory
+      ansible.builtin.set_fact:
+        restore_tmp_dir: "/tmp/restore-{{ now().strftime('%Y%m%d-%H%M%S') }}"
+
     - name: Validate s3_path is provided
       ansible.builtin.assert:
         that:
@@ -90,12 +90,12 @@
 
     - name: Copy database dump into postgres container
       ansible.builtin.shell:
-        cmd: "docker cp {{ restore_tmp_dir }}/staging/db.dump {{ postgres_container }}:/tmp/restore_db.dump"
+        cmd: "docker cp {{ restore_tmp_dir }}/staging/db.dump {{ postgres_container_name }}:/tmp/restore_db.dump"
       changed_when: true
 
     - name: Restore database
       community.docker.docker_container_exec:
-        container: "{{ postgres_container }}"
+        container: "{{ postgres_container_name }}"
         env:
           PGPASSWORD: "{{ pg_admin_password }}"
         argv:
@@ -114,7 +114,7 @@
 
     - name: Grant privileges to app user
       community.docker.docker_container_exec:
-        container: "{{ postgres_container }}"
+        container: "{{ postgres_container_name }}"
         env:
           PGPASSWORD: "{{ pg_admin_password }}"
         argv:
@@ -135,7 +135,7 @@
 
     - name: Remove dump from postgres container
       community.docker.docker_container_exec:
-        container: "{{ postgres_container }}"
+        container: "{{ postgres_container_name }}"
         argv:
           - rm
           - -f
