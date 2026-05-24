@@ -22,7 +22,7 @@ deploy_dir_analytics: "/opt/analytics"
 app_image_analytics: ghcr.io/umami-software/umami:latest
 
 # --- Domain & TLS ---
-domain: huettenbau-oberi.ch
+domain: test.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
 
 # --- Backups ---
