@@ -7,6 +7,7 @@ declare global {
       VERCEL_PROJECT_PRODUCTION_URL: string
       NEXT_PUBLIC_UMAMI_SCRIPT_URL?: string
       NEXT_PUBLIC_UMAMI_WEBSITE_ID?: string
+      NEXT_PUBLIC_UMAMI_RECORDER_URL?: string
     }
   }
 }

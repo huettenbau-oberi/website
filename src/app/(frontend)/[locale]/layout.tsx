@@ -78,6 +78,16 @@ export default async function RootLayout({
             data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
           />
         )}
+        {process.env.NEXT_PUBLIC_UMAMI_RECORDER_URL && process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID && (
+          <script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_RECORDER_URL}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+            data-sample-rate="0.15"
+            data-mask-level="moderate"
+            data-max-duration="300000"
+          ></script>
+        )}
       </head>
       <body>
         <NextIntlClientProvider messages={message}>
