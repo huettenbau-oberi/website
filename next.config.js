@@ -61,6 +61,20 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   redirects,
+  async rewrites() {
+    // Next.js scans public/ once at startup and only serves files present then.
+    // Runtime uploads are invisible to that set, causing 404s until restart.
+    // beforeFiles routes all /media/* through Payload's file handler instead,
+    // which reads from staticDir on every request.
+    return {
+      beforeFiles: [
+        {
+          source: '/media/:path*',
+          destination: '/api/media/file/:path*',
+        },
+      ],
+    }
+  },
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
