@@ -22,6 +22,7 @@ export const Media: CollectionConfig = {
   folders: true,
   admin: {
     defaultColumns: ['filename', 'alt', 'isDecorative', 'updatedAt', 'folder'],
+    listSearchableFields: ['filename', 'alt', 'folder.name'],
   },
   access: {
     create: authenticated,
