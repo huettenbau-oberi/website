@@ -13,6 +13,7 @@ import { authenticated } from '../access/authenticated'
 import { generateBlurDataURL } from './hooks/generateBlurDataURL'
 import { generateBlur } from './endpoints/generateBlur'
 import { cleanupMedia } from './endpoints/cleanupMedia'
+import { renameMedia } from './endpoints/renameMedia'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -41,11 +42,26 @@ export const Media: CollectionConfig = {
       path: '/cleanup',
       handler: cleanupMedia,
     },
+    {
+      method: 'post',
+      path: '/:id/rename',
+      handler: renameMedia,
+    },
   ],
   hooks: {
     beforeChange: [generateBlurDataURL],
   },
   fields: [
+    {
+      name: 'filenameEditor',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/FilenameEditor',
+        },
+        disableListColumn: true,
+      },
+    },
     {
       name: 'alt',
       type: 'text',
