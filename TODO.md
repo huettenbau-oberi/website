@@ -15,6 +15,10 @@
 
 ## Done
 
+- [x] Sponsor section
+- [x] Gallery block title misaligned
+- [x] Gallery Grid display and responsive
+- [x] Search bar in media should search alt and folder name
 - [x] Optimize load time of media
 - [x] Show blurred preview when in Zoomable Media zoom mode
 - [x] ~~Videos optimization~~

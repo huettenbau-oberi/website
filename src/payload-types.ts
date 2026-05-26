@@ -1002,10 +1002,36 @@ export interface CampSponsorsBlock {
     };
     [k: string]: unknown;
   } | null;
+  mainSponsors?:
+    | {
+        image?: (number | null) | Media;
+        name: string;
+        /**
+         * Optional link to sponsor website
+         */
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   sponsors?:
     | {
-        image: number | Media;
-        name?: string | null;
+        image?: (number | null) | Media;
+        name: string;
+        /**
+         * Optional link to sponsor website
+         */
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  goenner?:
+    | {
+        image?: (number | null) | Media;
+        name: string;
+        /**
+         * Optional link to sponsor website
+         */
+        url?: string | null;
         id?: string | null;
       }[]
     | null;
@@ -1024,6 +1050,30 @@ export interface CampSponsorsBlock {
     };
     [k: string]: unknown;
   } | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'campSponsors';
@@ -1455,14 +1505,46 @@ export interface CampMainBlockSelect<T extends boolean = true> {
 export interface CampSponsorsBlockSelect<T extends boolean = true> {
   title?: T;
   introText?: T;
+  mainSponsors?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        url?: T;
+        id?: T;
+      };
   sponsors?:
     | T
     | {
         image?: T;
         name?: T;
+        url?: T;
+        id?: T;
+      };
+  goenner?:
+    | T
+    | {
+        image?: T;
+        name?: T;
+        url?: T;
         id?: T;
       };
   outroText?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
