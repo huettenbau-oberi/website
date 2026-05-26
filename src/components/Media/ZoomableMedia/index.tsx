@@ -63,7 +63,7 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
         // Mirror Media's `fill` mode on the wrapper so position:absolute children
         // (the <picture>) still resolve against the intended ancestor.
         style={fill ? { position: 'absolute', inset: 0 } : undefined}
-        className="cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[0.8rem]"
+        className="cursor-zoom-in focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <Media {...props} enableZoom={false} />
       </div>

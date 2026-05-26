@@ -65,7 +65,7 @@ export const MediaBlock: React.FC<Props> = (props) => {
       {(media || staticImage) && (
         <div style={sizeStyle} className="mx-auto flex justify-center">
           <Media
-            imgClassName={cn('border border-border rounded-[0.8rem] max-w-full h-auto', imgClassName)}
+            imgClassName={cn('border border-border max-w-full h-auto', imgClassName)}
             resource={media}
             src={staticImage}
             showCaption={showCaptionOverlay}
@@ -75,7 +75,12 @@ export const MediaBlock: React.FC<Props> = (props) => {
         </div>
       )}
       {caption && (
-        <div className={cn('mt-3 text-center prose md:prose-md dark:prose-invert mx-auto', captionClassName)}>
+        <div
+          className={cn(
+            'mt-3 text-center prose md:prose-md dark:prose-invert mx-auto',
+            captionClassName,
+          )}
+        >
           <p className="!my-0">{caption}</p>
         </div>
       )}
