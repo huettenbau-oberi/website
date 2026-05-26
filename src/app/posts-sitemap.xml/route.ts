@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPostUrl } from '@/utilities/getPostUrl'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 const getPostsSitemap = unstable_cache(
   async () => {
@@ -35,7 +35,7 @@ const getPostsSitemap = unstable_cache(
 
     const dateFallback = new Date().toISOString()
 
-    const sitemap = results.docs
+    return results.docs
       ? results.docs
           .filter((post) => Boolean(post?.slug))
           .map((post) => ({
@@ -43,12 +43,11 @@ const getPostsSitemap = unstable_cache(
             lastmod: post.updatedAt || dateFallback,
           }))
       : []
-
-    return sitemap
   },
   ['posts-sitemap'],
   {
     tags: ['posts-sitemap'],
+    revalidate: 3600,
   },
 )
 
