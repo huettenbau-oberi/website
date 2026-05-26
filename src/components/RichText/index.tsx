@@ -1,3 +1,4 @@
+import { CtaButtonBlockComponent } from '@/blocks/CtaButton/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
 import { HtmlBlockComponent } from '@/blocks/HtmlBlock/Component'
 import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
@@ -15,6 +16,7 @@ import {
 } from '@payloadcms/richtext-lexical/react'
 
 import type {
+  CtaButtonBlock as CtaButtonBlockProps,
   HtmlBlock as HtmlBlockProps,
   IframeBlock as IframeBlockProps,
   MediaBlock as MediaBlockProps,
@@ -25,7 +27,7 @@ import { getPostUrl } from '@/utilities/getPostUrl'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<MediaBlockProps | IframeBlockProps | HtmlBlockProps | GalleryGridBlockProps>
+  | SerializedBlockNode<CtaButtonBlockProps | MediaBlockProps | IframeBlockProps | HtmlBlockProps | GalleryGridBlockProps>
 
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
@@ -40,6 +42,7 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
   blocks: {
+    ctaButton: ({ node }) => <CtaButtonBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (
       <MediaBlock
         className="col-start-1 col-span-3"

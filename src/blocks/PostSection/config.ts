@@ -8,6 +8,7 @@ import {
   UnorderedListFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { CtaButton } from '../CtaButton/config'
 import { MediaBlock } from '../MediaBlock/config'
 import { HtmlBlock } from '../HtmlBlock/config'
 import { IframeBlock } from '../IframeBlock/config'
@@ -69,7 +70,7 @@ export const PostSection: Block = {
           InlineToolbarFeature(),
           UnorderedListFeature(),
           OrderedListFeature(),
-          BlocksFeature({ blocks: [MediaBlock, HtmlBlock, IframeBlock, GalleryGrid] }),
+          BlocksFeature({ blocks: [CtaButton, MediaBlock, HtmlBlock, IframeBlock, GalleryGrid] }),
         ],
       }),
     },
