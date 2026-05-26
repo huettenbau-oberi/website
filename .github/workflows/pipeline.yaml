@@ -135,6 +135,7 @@ jobs:
             NEXT_PUBLIC_UMAMI_SCRIPT_URL=${{ vars.UMAMI_SCRIPT_URL || '' }}
             NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.UMAMI_WEBSITE_ID || '' }}
             NEXT_PUBLIC_UMAMI_RECORDER_URL=${{ vars.NEXT_PUBLIC_UMAMI_RECORDER_URL || '' }}
+            NEXT_PUBLIC_ROBOTS_NOINDEX=${{ github.ref_name == 'develop' && 'true' || 'false' }}
             COMMIT_HASH=${{ steps.version.outputs.sha }}
             VERSION=${{ needs.version.outputs.tag }}
           cache-from: type=gha
