@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPostUrl } from '@/utilities/getPostUrl'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 const getPostsSitemap = unstable_cache(

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600
 
 const getPagesSitemap = unstable_cache(
