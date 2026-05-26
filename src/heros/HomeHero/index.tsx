@@ -23,7 +23,7 @@ export const HomeHero: React.FC<HomeHeroProps> = ({ tagline, backgroundMedia }) 
 
   return (
     <section
-      className="relative -mt-[10.4rem] h-[60vh] overflow-hidden md:h-[75vh]"
+      className="relative -mt-[10.4rem] h-[50vh] overflow-hidden md:h-[60vh]"
       data-theme="dark"
     >
       {backgroundMedia && typeof backgroundMedia === 'object' && (
