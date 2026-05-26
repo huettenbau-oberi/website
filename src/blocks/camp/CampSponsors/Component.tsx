@@ -2,7 +2,10 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
-import type { CampSponsorsBlock as CampSponsorsBlockProps, Media as MediaType } from '@/payload-types'
+import type {
+  CampSponsorsBlock as CampSponsorsBlockProps,
+  Media as MediaType,
+} from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
@@ -160,7 +163,7 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
   links,
 }) => {
   return (
-    <section className="w-full bg-background py-16 md:py-24">
+    <section className="w-full bg-background py-16 md:py-24" data-nosnippet="">
       <div className="container max-w-5xl">
         {title && (
           <motion.h2
@@ -177,7 +180,7 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
 
         {introText && (
           <motion.div
-            className="mb-12 text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl"
+            className="text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl mb-12 md:mb-24"
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={vp}
@@ -187,13 +190,17 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
           </motion.div>
         )}
 
-        <SponsorSection titleKey="main-sponsors" sponsors={(mainSponsors ?? []) as Sponsor[]} size="lg" />
-        <SponsorSection titleKey="sponsors"      sponsors={(sponsors     ?? []) as Sponsor[]} size="md" />
-        <SponsorSection titleKey="goenner"       sponsors={(goenner      ?? []) as Sponsor[]} size="sm" />
+        <SponsorSection
+          titleKey="main-sponsors"
+          sponsors={(mainSponsors ?? []) as Sponsor[]}
+          size="lg"
+        />
+        <SponsorSection titleKey="sponsors" sponsors={(sponsors ?? []) as Sponsor[]} size="md" />
+        <SponsorSection titleKey="goenner" sponsors={(goenner ?? []) as Sponsor[]} size="sm" />
 
         {outroText && (
           <motion.div
-            className="mt-8 text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl"
+            className="mt-12 md:mt-24 text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl"
             initial={{ opacity: 0, y: 8 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={vp}
