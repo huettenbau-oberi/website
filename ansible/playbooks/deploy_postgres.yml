@@ -159,6 +159,11 @@
               LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
               FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
               LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
+              FOR r IN SELECT typname FROM pg_type
+                       WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+                         AND typowner = (SELECT oid FROM pg_roles WHERE rolname = '{{ pg_admin_user }}')
+                         AND typtype IN ('e', 'c', 'd')
+              LOOP EXECUTE 'ALTER TYPE public.'||quote_ident(r.typname)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
             END $$;
       changed_when: false
 
@@ -236,6 +241,11 @@
               LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
               FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
               LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
+              FOR r IN SELECT typname FROM pg_type
+                       WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+                         AND typowner = (SELECT oid FROM pg_roles WHERE rolname = '{{ pg_admin_user }}')
+                         AND typtype IN ('e', 'c', 'd')
+              LOOP EXECUTE 'ALTER TYPE public.'||quote_ident(r.typname)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
             END $$;
       changed_when: false
 
