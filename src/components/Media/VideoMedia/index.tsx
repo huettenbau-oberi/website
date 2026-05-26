@@ -8,7 +8,7 @@ import type { Props as MediaProps } from '../types'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 
 export const VideoMedia: React.FC<MediaProps> = (props) => {
-  const { onClick, resource, videoClassName } = props
+  const { onClick, resource, videoClassName, onVideoMeta } = props
 
   const videoRef = useRef<HTMLVideoElement>(null)
   // const [showFallback] = useState<boolean>()
@@ -34,6 +34,10 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
         loop
         muted
         onClick={onClick}
+        onLoadedMetadata={(e) => {
+          const v = e.currentTarget
+          onVideoMeta?.(v.videoWidth, v.videoHeight)
+        }}
         playsInline
         ref={videoRef}
       >
