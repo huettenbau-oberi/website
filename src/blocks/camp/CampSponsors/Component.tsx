@@ -97,6 +97,7 @@ function SponsorSection({
 
   const outerRef = useRef<HTMLDivElement>(null)
   const [innerMaxW, setInnerMaxW] = useState<number | undefined>(undefined)
+  const [cols, setCols] = useState<number>(2)
 
   useLayoutEffect(() => {
     const el = outerRef.current
@@ -106,11 +107,12 @@ function SponsorSection({
       const available = el.clientWidth
       // Match the sm: Tailwind breakpoint (640px viewport) so cardPx stays in sync with the CSS card size.
       const cardPx = window.innerWidth >= 640 ? pxDesktop : pxMobile
-      const cols = Math.min(
+      const c = Math.min(
         sponsors.length,
         Math.max(1, Math.floor((available + GAP) / (cardPx + GAP))),
       )
-      setInnerMaxW(cols * cardPx + (cols - 1) * GAP)
+      setCols(c)
+      setInnerMaxW(c * cardPx + (c - 1) * GAP)
     }
 
     const obs = new ResizeObserver(recalc)
@@ -131,12 +133,22 @@ function SponsorSection({
     >
       {/* outerRef measures available width; inner div is sized to the exact card-row width */}
       <div ref={outerRef} className="w-full">
-        <div className="mx-auto" style={{ maxWidth: innerMaxW }}>
+        {/* When only one column fits, let the divider row span the full container width */}
+        {cols === 1 && (
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-foreground/30" />
             <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{t(titleKey)}</h3>
             <div className="flex-1 h-px bg-foreground/30" />
           </div>
+        )}
+        <div className="mx-auto" style={{ maxWidth: innerMaxW }}>
+          {cols > 1 && (
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-foreground/30" />
+              <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{t(titleKey)}</h3>
+              <div className="flex-1 h-px bg-foreground/30" />
+            </div>
+          )}
           <div className="flex flex-wrap items-center justify-center gap-4">
             {sponsors.map((sponsor, i) => (
               <SponsorCard
