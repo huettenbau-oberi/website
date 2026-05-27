@@ -592,7 +592,21 @@ export interface MediaBlock {
    * Maximum image width in pixels.
    */
   maxWidth?: number | null;
-  caption?: string | null;
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   showMediaCaption?: boolean | null;
   id?: string | null;
   blockName?: string | null;
