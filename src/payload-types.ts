@@ -113,11 +113,13 @@ export interface Config {
     header: Header;
     footer: Footer;
     settings: Setting;
+    banner: Banner;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
     settings: SettingsSelect<false> | SettingsSelect<true>;
+    banner: BannerSelect<false> | BannerSelect<true>;
   };
   locale: 'de' | 'en';
   widgets: {
@@ -590,7 +592,21 @@ export interface MediaBlock {
    * Maximum image width in pixels.
    */
   maxWidth?: number | null;
-  caption?: string | null;
+  caption?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   showMediaCaption?: boolean | null;
   id?: string | null;
   blockName?: string | null;
@@ -2238,6 +2254,32 @@ export interface Setting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banner".
+ */
+export interface Banner {
+  id: number;
+  text?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  showFrom?: string | null;
+  showUntil?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
@@ -2323,6 +2365,18 @@ export interface SettingsSelect<T extends boolean = true> {
   darkModeIcon?: T;
   lightModeLogo?: T;
   darkModeLogo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "banner_select".
+ */
+export interface BannerSelect<T extends boolean = true> {
+  text?: T;
+  showFrom?: T;
+  showUntil?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

@@ -2,12 +2,12 @@
 
 ## Important before launch
 
-- Caption localized?
-- Search functionality?
 - Cookie banner, privacy policy
 
 ## Development
 
+- [ ] Tailwind major version 4 upgrade
+- [ ] News posts
 - [ ] Tests and linting
 - [ ] Documentation
 - [ ] Page Optimizations (google)
@@ -15,6 +15,12 @@
 
 ## Done
 
+- [x] Loading hero image blur
+- [x] Important posts as banner
+- [x] Update content on Sponsor us segment
+- [x] Update content on Sponsorkonzept page
+- [x] Sitemaps not working
+- [x] Dynamic robots.txt for development
 - [x] Sponsor section
 - [x] Gallery block title misaligned
 - [x] Gallery Grid display and responsive

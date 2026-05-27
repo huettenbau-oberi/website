@@ -7,6 +7,19 @@ import RichText from '@/components/RichText'
 import { useTranslations } from 'next-intl'
 import { PostHeroClient } from './PostHeroClient'
 
+function hasRichTextContent(content: Post['content']): boolean {
+  if (!content || typeof content === 'string') return false
+  const children = content?.root?.children
+  if (!children || children.length === 0) return false
+  return children.some((child) => {
+    const nodeChildren = child.children as { text?: string }[] | undefined
+    if (Array.isArray(nodeChildren)) {
+      return nodeChildren.some((c) => typeof c.text === 'string' && c.text.trim() !== '')
+    }
+    return false
+  })
+}
+
 function formatPostDate(timestamp: string): string {
   const date = new Date(timestamp)
   const DD = String(date.getDate()).padStart(2, '0')
@@ -115,7 +128,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
       {heroImage && typeof heroImage !== 'string' && (
         <div className={`lg:px-6 xl:px-12 ${hasCaption ? 'xl:mb-6' : 'xl:mb-2'}`}>
           <div className="mx-auto xl:max-w-5xl">
-            <Media resource={heroImage} priority imgClassName="w-full h-auto block" showCaption />
+            <Media resource={heroImage} priority imgClassName="w-full h-auto block" showCaption enableZoom />
           </div>
         </div>
       )}
@@ -158,12 +171,12 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
       </div>
 
       {/* ── Intro / Vorwort ────────────────────────────────────────── */}
-      {content && (
+      {content && hasRichTextContent(content) && (
         <div className="container py-10 md:py-14">
           <div className="flex flex-col gap-6 md:flex-row md:items-start md:gap-12">
             {/* Label — dash on top, text below, whole column top-aligned */}
             <div className="flex shrink-0 flex-col items-start gap-2">
-              <span className="inline-block h-px w-8 bg-primary" aria-hidden />
+              <span className="inline-block h-px w-8 bg-primary shrink-0" aria-hidden />
               <p className="m-0 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-foreground/60">
                 {t('foreword')}
               </p>

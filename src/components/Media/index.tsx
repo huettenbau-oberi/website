@@ -29,12 +29,12 @@ export const Media: React.FC<Props> = (props) => {
       {caption ? (
         <div className="relative">
           {mediaEl}
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-4 md:px-6 md:py-5">
+          <div className="pointer-events-none absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-4 md:px-6 md:py-5">
             <RichText
               data={caption}
               enableGutter={false}
               enableProse={false}
-              className="text-white/75 text-[0.6rem] tracking-[0.18em] uppercase font-semibold font-sans"
+              className="pointer-events-auto text-white/80 text-[0.65rem] tracking-[0.12em] uppercase font-semibold font-sans [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-primary [&_a]:cursor-pointer"
             />
           </div>
         </div>

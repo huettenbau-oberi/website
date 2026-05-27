@@ -6,17 +6,17 @@ import type { CampGalleryBlock as CampGalleryBlockProps } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 
-// Images arranged around a clear central gap (title zone: left 36–67%, top 38–67%).
+// Images arranged around a clear central gap (title zone: left 34–67%, top 38–67%).
 // Every image pair has an explicit gap; icons are kept clear of all image bounds.
 // All values: [left%, top%, width%, height%] of the container.
 const IMAGE_SLOTS: [number, number, number, number][] = [
-  [35,  13, 14, 24], // portrait,       centre-left
-  [51,   2, 13, 35], // tall portrait,  centre
-  [66,  20, 24, 21], // landscape,      right-top
-  [ 8,  27, 25, 19], // wide landscape, left-middle
-  [66,  45, 21, 35], // portrait,       right-bottom
-  [19,  50, 14, 32], // portrait,       left-bottom
-  [35,  69, 29, 27], // landscape,      bottom-centre
+  [35.5,  13, 14, 24], // portrait,       centre-left
+  [51.5,   2, 13, 35], // tall portrait,  centre
+  [66.5,  20, 24, 21], // landscape,      right-top
+  [ 8.5,  27, 25, 19], // wide landscape, left-middle
+  [66.5,  45, 21, 35], // portrait,       right-bottom
+  [19.5,  50, 14, 32], // portrait,       left-bottom
+  [35.5,  69, 29, 27], // landscape,      bottom-centre
 ]
 
 // Icons kept >= 3% clear of every image boundary.

@@ -1,4 +1,5 @@
 import type { Block } from 'payload'
+import { FixedToolbarFeature, InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 
 export const MediaBlock: Block = {
   slug: 'mediaBlock',
@@ -31,14 +32,21 @@ export const MediaBlock: Block = {
     },
     {
       name: 'caption',
-      type: 'text',
+      type: 'richText',
       label: 'Caption',
+      editor: lexicalEditor({
+        features: ({ rootFeatures }) => [
+          ...rootFeatures,
+          FixedToolbarFeature(),
+          InlineToolbarFeature(),
+        ],
+      }),
     },
     {
       name: 'showMediaCaption',
       type: 'checkbox',
       label: 'Show original image caption',
-      defaultValue: false,
+      defaultValue: true,
     },
   ],
 }
