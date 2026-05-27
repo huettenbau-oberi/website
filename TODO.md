@@ -2,8 +2,6 @@
 
 ## Important before launch
 
-- Caption localized?
-- Search functionality?
 - Cookie banner, privacy policy
 
 ## Development
