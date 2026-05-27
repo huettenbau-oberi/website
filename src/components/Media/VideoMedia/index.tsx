@@ -1,15 +1,15 @@
 'use client'
 
 import { cn } from '@/utilities/ui'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
 import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { VideoPlayer } from '../VideoPlayer'
 
 export const VideoMedia: React.FC<MediaProps> = (props) => {
   const { fill, onClick, resource, videoClassName, onVideoMeta } = props
-  const [isLoaded, setIsLoaded] = useState(false)
 
   const videoRef = useRef<HTMLVideoElement>(null)
 
@@ -24,8 +24,9 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
   }, [])
 
   if (resource && typeof resource === 'object') {
-    const { filename, width, height } = resource
+    const { filename } = resource
 
+    // Fill videos are used as silent background loops (e.g. hero backgrounds).
     if (fill) {
       return (
         <video
@@ -47,35 +48,8 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
       )
     }
 
-    // Inline (non-fill) videos: wrap in a correctly-sized container so the page
-    // reserves space while the video is downloading, preventing users from
-    // scrolling past before the content appears.
-    const aspectRatio = width && height ? `${width} / ${height}` : '16 / 9'
-
-    return (
-      <div className="relative w-full overflow-hidden" style={{ aspectRatio }}>
-        {!isLoaded && (
-          <div className="absolute inset-0 animate-pulse bg-foreground/10" />
-        )}
-        <video
-          autoPlay
-          className={cn('absolute inset-0 h-full w-full object-cover', videoClassName)}
-          controls={false}
-          loop
-          muted
-          onClick={onClick}
-          onCanPlay={() => setIsLoaded(true)}
-          onLoadedMetadata={(e) => {
-            const v = e.currentTarget
-            onVideoMeta?.(v.videoWidth, v.videoHeight)
-          }}
-          playsInline
-          ref={videoRef}
-        >
-          <source src={getMediaUrl(`/media/${filename}`)} />
-        </video>
-      </div>
-    )
+    // Inline content videos use the custom branded player.
+    return <VideoPlayer {...props} />
   }
 
   return null
