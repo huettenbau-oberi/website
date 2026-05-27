@@ -3,14 +3,25 @@ import { getCachedGlobal } from '@/utilities/getGlobals'
 import { draftMode } from 'next/headers'
 import React from 'react'
 
-import type { Header } from '@/payload-types'
+import type { Banner, Header } from '@/payload-types'
 import { getLocale } from 'next-intl/server'
 import type { TypedLocale } from 'payload'
 
 export async function Header() {
   const locale = (await getLocale()) as TypedLocale
-  const headerData = (await getCachedGlobal('header', 1, locale)()) as Header
+  const [headerData, bannerData] = await Promise.all([
+    getCachedGlobal('header', 1, locale)() as Promise<Header>,
+    getCachedGlobal('banner', 1, locale)() as Promise<Banner | null>,
+  ])
   const { isEnabled: isPreview } = await draftMode()
 
-  return <HeaderClient data={headerData} isPreview={isPreview} />
+  const now = new Date()
+  const banner =
+    bannerData?.text &&
+    (!bannerData.showFrom || new Date(bannerData.showFrom) <= now) &&
+    (!bannerData.showUntil || new Date(bannerData.showUntil) >= now)
+      ? bannerData
+      : null
+
+  return <HeaderClient data={headerData} banner={banner} isPreview={isPreview} />
 }

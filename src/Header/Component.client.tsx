@@ -5,17 +5,19 @@ import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import React, { useEffect, useState } from 'react'
 
-import type { Header } from '@/payload-types'
+import type { Banner, Header } from '@/payload-types'
+import { BannerClient } from '@/Banner/Component.client'
 
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 
 interface HeaderClientProps {
   data: Header
+  banner: Banner | null
   isPreview: boolean
 }
 
-export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) => {
+export const HeaderClient: React.FC<HeaderClientProps> = ({ data, banner, isPreview }) => {
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
@@ -58,6 +60,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, isPreview }) =
       >
         {t('skip-to-content')}
       </a>
+      {banner && <BannerClient data={banner} />}
       <div
         className={`container flex items-center justify-between transition-[padding] duration-300 ${scrolled ? 'py-2 md:py-4' : 'py-4 md:py-8'}`}
       >
