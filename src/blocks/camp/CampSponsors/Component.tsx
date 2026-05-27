@@ -57,7 +57,7 @@ function SponsorCard({
         />
       ) : (
         <span
-          className="text-center text-[1.375rem] uppercase tracking-wide text-foreground dark:text-background"
+          className="text-center text-sm sm:text-[1.375rem] uppercase tracking-wide text-foreground dark:text-background"
           style={{ fontFamily: 'var(--font-inter), sans-serif', fontWeight: 700 }}
         >
           {sponsor.name}
