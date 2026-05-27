@@ -14,6 +14,7 @@ import {
   LinkJSXConverter,
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
+import { HeadingAnchor } from './HeadingAnchor'
 
 import type {
   CtaButtonBlock as CtaButtonBlockProps,
@@ -29,6 +30,27 @@ type NodeTypes =
   | DefaultNodeTypes
   | SerializedBlockNode<CtaButtonBlockProps | MediaBlockProps | IframeBlockProps | HtmlBlockProps | GalleryGridBlockProps>
 
+function extractNodeText(nodes: any[]): string {
+  return nodes
+    .flatMap((n) => {
+      if (n.type === 'text') return [n.text ?? '']
+      if (Array.isArray(n.children)) return [extractNodeText(n.children)]
+      return []
+    })
+    .join('')
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Mn}/gu, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
+
 const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   const { value, relationTo } = linkNode.fields.doc!
   if (typeof value !== 'object') {
@@ -41,6 +63,17 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
   ...LinkJSXConverter({ internalDocToHref }),
+  heading: ({ node, nodesToJSX }) => {
+    const tag = node.tag
+    const children = nodesToJSX({ nodes: node.children })
+    if (tag === 'h1') return <h1>{children}</h1>
+    const id = slugify(extractNodeText(node.children as any[]))
+    return (
+      <HeadingAnchor key={id} tag={tag} id={id}>
+        {children}
+      </HeadingAnchor>
+    )
+  },
   blocks: {
     ctaButton: ({ node }) => <CtaButtonBlockComponent {...node.fields} />,
     mediaBlock: ({ node }) => (

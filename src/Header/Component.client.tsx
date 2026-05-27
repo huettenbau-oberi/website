@@ -3,7 +3,7 @@ import { useHeaderTheme } from '@/providers/HeaderTheme'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import type { Banner, Header } from '@/payload-types'
 import { BannerClient } from '@/Banner/Component.client'
@@ -21,6 +21,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, banner, isPrev
   /* Storing the value in a useState to avoid hydration errors */
   const [theme, setTheme] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
   const { headerTheme, setHeaderTheme, forceSolid, setForceSolid } = useHeaderTheme()
   const pathname = usePathname()
   const t = useTranslations()
@@ -42,8 +43,19 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, banner, isPrev
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const el = headerRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => {
+      document.documentElement.style.setProperty('--header-height', `${el.offsetHeight}px`)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <header
+      ref={headerRef}
       className={[
         'sticky top-0 z-20 transition-colors duration-300',
         // Transparent over hero pages — those use `-mt-[10.4rem]` to extend their

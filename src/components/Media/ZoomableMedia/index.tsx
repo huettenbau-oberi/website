@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, ZoomIn } from 'lucide-react'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
@@ -24,9 +24,14 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
       ? (resource.blurDataUrl ?? undefined)
       : undefined
 
+  const resourceWidth =
+    typeof resource === 'object' && resource !== null ? (resource.width ?? undefined) : undefined
+  const resourceHeight =
+    typeof resource === 'object' && resource !== null ? (resource.height ?? undefined) : undefined
+
   const close = useCallback(() => setOpen(false), [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (open) setImageLoaded(false)
   }, [open])
 
@@ -208,35 +213,72 @@ export const ZoomableMedia: React.FC<MediaProps> = (props) => {
               onClick={(e) => e.stopPropagation()}
               className="relative flex max-h-full max-w-full cursor-default items-center justify-center"
             >
-              <div className="relative">
-                <Media
-                  {...props}
-                  enableZoom={false}
-                  fill={false}
-                  imgClassName={cn(
-                    'max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg',
-                    imgClassName,
+              {resourceWidth && resourceHeight ? (
+                // Container sized immediately via CSS min() — covers both max-w:90vw and max-h:90vh
+                // constraints while preserving the image aspect ratio, so the blur fills correctly
+                // from the first render without waiting for the actual image to load.
+                <div
+                  className="relative overflow-hidden rounded-lg"
+                  style={{
+                    width: `min(${resourceWidth}px, 90vw, calc(90vh * ${resourceWidth} / ${resourceHeight}))`,
+                    aspectRatio: `${resourceWidth} / ${resourceHeight}`,
+                  }}
+                >
+                  {blurDataUrl && (
+                    <div
+                      aria-hidden
+                      className={cn(
+                        'absolute inset-0 overflow-hidden transition-opacity duration-300 pointer-events-none',
+                        imageLoaded ? 'opacity-0' : 'opacity-100',
+                      )}
+                    >
+                      <img
+                        src={blurDataUrl}
+                        alt=""
+                        className="w-full h-full object-cover blur-2xl scale-110"
+                      />
+                    </div>
                   )}
-                  size="100vw"
-                  priority
-                  onLoad={() => setImageLoaded(true)}
-                />
-                {blurDataUrl && (
-                  <div
-                    aria-hidden
-                    className={cn(
-                      'absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300 pointer-events-none',
-                      imageLoaded ? 'opacity-0' : 'opacity-100',
-                    )}
-                  >
-                    <img
-                      src={blurDataUrl}
-                      alt=""
-                      className="w-full h-full object-cover blur-2xl scale-110"
-                    />
-                  </div>
-                )}
-              </div>
+                  <Media
+                    {...props}
+                    enableZoom={false}
+                    fill={true}
+                    imgClassName=""
+                    pictureClassName={undefined}
+                    size="100vw"
+                    priority
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                </div>
+              ) : (
+                // Fallback when dimensions are unknown: natural sizing, blur overlaid absolutely
+                <div className="relative">
+                  <Media
+                    {...props}
+                    enableZoom={false}
+                    fill={false}
+                    imgClassName={cn('max-h-[90vh] max-w-[90vw] w-auto h-auto rounded-lg', imgClassName)}
+                    size="100vw"
+                    priority
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                  {blurDataUrl && (
+                    <div
+                      aria-hidden
+                      className={cn(
+                        'absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300 pointer-events-none',
+                        imageLoaded ? 'opacity-0' : 'opacity-100',
+                      )}
+                    >
+                      <img
+                        src={blurDataUrl}
+                        alt=""
+                        className="w-full h-full object-cover blur-2xl scale-110"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
