@@ -11,6 +11,7 @@ services:
       - .env
     volumes:
       - ./media:/app/public/media
+      - next_cache:/app/.next/cache/images
     networks:
       - proxy
       - internal
@@ -22,6 +23,9 @@ services:
       - "traefik.http.routers.{{ project_name }}.entrypoints=websecure"
       - "traefik.http.routers.{{ project_name }}.tls.certresolver=cloudflare"
       - "traefik.http.services.{{ project_name }}.loadbalancer.server.port=3000"
+
+volumes:
+  next_cache:
 
 networks:
   postgres:

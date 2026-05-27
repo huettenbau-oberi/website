@@ -4,7 +4,6 @@
 
 - Caption localized?
 - Search functionality?
-- Docker image exposed
 - Cookie banner, privacy policy
 
 ## Development
@@ -12,9 +11,18 @@
 - [ ] Tests and linting
 - [ ] Documentation
 - [ ] Page Optimizations (google)
+- [ ] Run database copy on build
 
 ## Done
 
+- [x] Sponsor section
+- [x] Gallery block title misaligned
+- [x] Gallery Grid display and responsive
+- [x] Search bar in media should search alt and folder name
+- [x] Optimize load time of media
+- [x] Show blurred preview when in Zoomable Media zoom mode
+- [x] ~~Videos optimization~~
+- [x] Use SEO image for gallery timeline (so that you can use video as the hero image on gallery posts)
 - [x] Ansible
   - [x] Create ansible playbook for system maintenance (update, upgrade)
   - [x] Backups / Storage

@@ -21,4 +21,5 @@ export interface Props {
   src?: StaticImageData // for static media
   videoClassName?: string
   showCaption?: boolean
+  onVideoMeta?: (videoWidth: number, videoHeight: number) => void
 }

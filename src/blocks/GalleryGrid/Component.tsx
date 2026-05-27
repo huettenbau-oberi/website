@@ -37,7 +37,7 @@ function Column({ images }: { images: ColumnImages | null | undefined }) {
           >
             {resource && (
               <>
-                <div className="w-full overflow-hidden" style={{ maxHeight: 480 }}>
+                <div className="w-full overflow-hidden">
                   <ZoomableMedia
                     resource={resource}
                     imgClassName="w-full h-auto block"
@@ -68,8 +68,8 @@ export const GalleryGridBlock: React.FC<GalleryGridBlockProps> = ({
   const align = ALIGN[layout ?? 'middle'] ?? ALIGN.middle
 
   return (
-    <section className="w-full">
-      <div className={`flex ${align} gap-1`}>
+    <section className="w-full max-w-3xl mx-auto">
+      <div className={`flex flex-col sm:flex-row ${align} gap-1`}>
         <Column images={leftImages} />
         <Column images={rightImages} />
       </div>

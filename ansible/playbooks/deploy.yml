@@ -57,6 +57,22 @@
         pull: always
         state: present
 
+    - name: Ensure next_cache volume exists
+      community.docker.docker_volume:
+        name: "{{ deploy_dir | basename }}_next_cache"
+        state: present
+
+    - name: Fix next_cache volume permissions
+      community.docker.docker_container:
+        name: fix-next-cache-perms
+        image: alpine:latest
+        command: chown -R 1001:0 /cache
+        volumes:
+          - "{{ deploy_dir | basename }}_next_cache:/cache"
+        detach: false
+        auto_remove: true
+        state: started
+
     # Replace containers that changed — brief restart only for the app container
     - name: Recreate changed containers
       community.docker.docker_compose_v2:

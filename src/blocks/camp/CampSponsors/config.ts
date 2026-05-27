@@ -5,9 +5,36 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
+import { linkGroup } from '../../../fields/linkGroup'
+
+const sponsorFields = [
+  {
+    name: 'image',
+    type: 'upload' as const,
+    relationTo: 'media' as const,
+    required: false,
+    label: 'Logo',
+  },
+  {
+    name: 'name',
+    type: 'text' as const,
+    label: 'Name',
+    required: true,
+  },
+  {
+    name: 'url',
+    type: 'text' as const,
+    label: 'Website URL',
+    required: false,
+    admin: {
+      description: 'Optional link to sponsor website',
+    },
+  },
+]
+
 export const CampSponsors: Block = {
   imageURL: '/blocks/camp-sponsors.svg',
-  imageAltText: 'Scattered sponsor logos with title and intro/outro text',
+  imageAltText: 'Sponsor sections with main sponsors, sponsors and patrons',
   admin: { group: 'Hüttenbau Homepage' },
   slug: 'campSponsors',
   interfaceName: 'CampSponsorsBlock',
@@ -25,7 +52,7 @@ export const CampSponsors: Block = {
     {
       name: 'introText',
       type: 'richText',
-      label: 'Text Above Images',
+      label: 'Text Above Sponsors',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => [
           ...rootFeatures,
@@ -33,29 +60,44 @@ export const CampSponsors: Block = {
           InlineToolbarFeature(),
         ],
       }),
+    },
+    {
+      name: 'mainSponsors',
+      type: 'array',
+      label: 'Main Sponsors (Hauptsponsoren)',
+      admin: {
+        components: {
+          RowLabel: '@/blocks/camp/CampSponsors/SponsorRowLabel#SponsorRowLabel',
+        },
+      },
+      fields: sponsorFields,
     },
     {
       name: 'sponsors',
       type: 'array',
-      label: 'Sponsor Logos',
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
+      label: 'Sponsors (Sponsoren)',
+      admin: {
+        components: {
+          RowLabel: '@/blocks/camp/CampSponsors/SponsorRowLabel#SponsorRowLabel',
         },
-        {
-          name: 'name',
-          type: 'text',
-          label: 'Sponsor Name',
+      },
+      fields: sponsorFields,
+    },
+    {
+      name: 'goenner',
+      type: 'array',
+      label: 'Patrons (Gönner*innen)',
+      admin: {
+        components: {
+          RowLabel: '@/blocks/camp/CampSponsors/SponsorRowLabel#SponsorRowLabel',
         },
-      ],
+      },
+      fields: sponsorFields,
     },
     {
       name: 'outroText',
       type: 'richText',
-      label: 'Text Below Images',
+      label: 'Text Below Sponsors',
       editor: lexicalEditor({
         features: ({ rootFeatures }) => [
           ...rootFeatures,
@@ -64,5 +106,12 @@ export const CampSponsors: Block = {
         ],
       }),
     },
+    linkGroup({
+      appearances: ['default', 'outline'],
+      overrides: {
+        label: 'Buttons',
+        maxRows: 4,
+      },
+    }),
   ],
 }

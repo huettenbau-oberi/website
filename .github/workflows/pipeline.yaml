@@ -43,11 +43,24 @@ jobs:
           LATEST=$(git tag --list "v${MAJOR_VERSION}.*" --sort=-v:refname | head -n1)
           echo "::debug::Latest tag found: '${LATEST}'"
 
+          COMMIT_MSG=$(git log -1 --format="%B")
+          if echo "$COMMIT_MSG" | grep -qi "\bminor\b"; then
+            BUMP="minor"
+            echo "::notice::Commit message contains 'minor' — will bump minor version"
+          else
+            BUMP="patch"
+          fi
+
           if [[ "$LATEST" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
             MINOR="${BASH_REMATCH[2]}"
             PATCH="${BASH_REMATCH[3]}"
-            NEW_TAG="v${MAJOR_VERSION}.${MINOR}.$((PATCH + 1))"
-            echo "::notice::Bumping patch: ${LATEST} → ${NEW_TAG}"
+            if [ "$BUMP" = "minor" ]; then
+              NEW_TAG="v${MAJOR_VERSION}.$((MINOR + 1)).0"
+              echo "::notice::Bumping minor: ${LATEST} → ${NEW_TAG}"
+            else
+              NEW_TAG="v${MAJOR_VERSION}.${MINOR}.$((PATCH + 1))"
+              echo "::notice::Bumping patch: ${LATEST} → ${NEW_TAG}"
+            fi
           else
             NEW_TAG="v${MAJOR_VERSION}.0.0"
             echo "::notice::No parseable tag found — starting at ${NEW_TAG}"
@@ -121,6 +134,8 @@ jobs:
             NEXT_PUBLIC_SERVER_URL=${{ vars.NEXT_PUBLIC_SERVER_URL }}
             NEXT_PUBLIC_UMAMI_SCRIPT_URL=${{ vars.UMAMI_SCRIPT_URL || '' }}
             NEXT_PUBLIC_UMAMI_WEBSITE_ID=${{ vars.UMAMI_WEBSITE_ID || '' }}
+            NEXT_PUBLIC_UMAMI_RECORDER_URL=${{ vars.NEXT_PUBLIC_UMAMI_RECORDER_URL || '' }}
+            NEXT_PUBLIC_ROBOTS_NOINDEX=${{ github.ref_name == 'develop' && 'true' || 'false' }}
             COMMIT_HASH=${{ steps.version.outputs.sha }}
             VERSION=${{ needs.version.outputs.tag }}
           cache-from: type=gha

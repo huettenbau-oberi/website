@@ -61,8 +61,14 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
   let src: StaticImageData | string = srcFromProps || ''
   let blurDataURL: string | undefined
 
+  let objectPosition: string | undefined
+
   if (!src && resource && typeof resource === 'object') {
-    const { alt: altFromResource, height: fullHeight, url, width: fullWidth } = resource
+    const { alt: altFromResource, height: fullHeight, url, width: fullWidth, focalX, focalY } = resource
+
+    if (focalX != null && focalY != null) {
+      objectPosition = `${focalX}% ${focalY}%`
+    }
 
     width = fullWidth!
     height = fullHeight!
@@ -110,6 +116,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
       <NextImage
         alt={alt ?? ''}
         className={cn(imgClassName)}
+        style={objectPosition ? { objectPosition } : undefined}
         fill={fill}
         height={!fill ? height : undefined}
         placeholder={blurDataURL ? 'blur' : 'empty'}

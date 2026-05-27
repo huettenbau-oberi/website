@@ -10,13 +10,13 @@ import { Media } from '@/components/Media'
 // Every image pair has an explicit gap; icons are kept clear of all image bounds.
 // All values: [left%, top%, width%, height%] of the container.
 const IMAGE_SLOTS: [number, number, number, number][] = [
-  [36,  13, 14, 24], // portrait,       centre-left  — right 50%, bottom 37%
-  [52,   2, 13, 35], // tall portrait,  centre       — right 65%, bottom 37%  (2% gap from slot 0)
-  [67,  20, 24, 21], // landscape,      right-top    — left 67% (2% gap from slot 1)
-  [ 9,  27, 25, 19], // wide landscape, left-middle  — right 34% (2% gap from title)
-  [67,  45, 21, 35], // portrait,       right-bottom — left 67% (3% gap below slot 2)
-  [20,  50, 14, 32], // portrait,       left-bottom  — right 34% (2% gap from title)
-  [36,  69, 29, 27], // landscape,      bottom-centre
+  [35,  13, 14, 24], // portrait,       centre-left
+  [51,   2, 13, 35], // tall portrait,  centre
+  [66,  20, 24, 21], // landscape,      right-top
+  [ 8,  27, 25, 19], // wide landscape, left-middle
+  [66,  45, 21, 35], // portrait,       right-bottom
+  [19,  50, 14, 32], // portrait,       left-bottom
+  [35,  69, 29, 27], // landscape,      bottom-centre
 ]
 
 // Icons kept >= 3% clear of every image boundary.
@@ -73,7 +73,7 @@ export const CampGalleryBlock: React.FC<CampGalleryBlockProps> = ({ title, link,
         {/* Centre text + CTA */}
         <div
           className="absolute z-10 flex flex-col items-center justify-center text-center"
-          style={{ left: '36%', top: '53%', width: '31%', transform: 'translateY(-50%)' }}
+          style={{ left: '50%', top: '53%', width: '31%', transform: 'translate(-50%, -50%)' }}
         >
           <motion.div
             initial={{ opacity: 0, y: 12 }}

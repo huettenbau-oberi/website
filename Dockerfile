@@ -32,10 +32,14 @@ ARG NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY="0x4AAAAAADR5MATxA2Q3yJk3"
 ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
+ARG NEXT_PUBLIC_UMAMI_RECORDER_URL=""
+ENV NEXT_PUBLIC_UMAMI_RECORDER_URL=$NEXT_PUBLIC_UMAMI_RECORDER_URL
 ARG NEXT_PUBLIC_UMAMI_SCRIPT_URL=""
 ENV NEXT_PUBLIC_UMAMI_SCRIPT_URL=$NEXT_PUBLIC_UMAMI_SCRIPT_URL
 ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID=""
 ENV NEXT_PUBLIC_UMAMI_WEBSITE_ID=$NEXT_PUBLIC_UMAMI_WEBSITE_ID
+ARG NEXT_PUBLIC_ROBOTS_NOINDEX=false
+ENV NEXT_PUBLIC_ROBOTS_NOINDEX=$NEXT_PUBLIC_ROBOTS_NOINDEX
 ARG COMMIT_HASH=unknown
 ENV COMMIT_HASH=$COMMIT_HASH
 ARG VERSION=unknown
@@ -59,8 +63,9 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# Pre-create .next/cache so Docker doesn't create it as root when mounting volumes inside it
+RUN mkdir -p .next/cache
+RUN chown -R nextjs:nodejs .next
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing

@@ -30,7 +30,7 @@
         mode: "0755"
     - name: Copy production docker-compose to server
       ansible.builtin.template:
-        src: templates/database/docker-compose.yml.j2
+        src: ../templates/database/docker-compose.yml.j2
         dest: "{{ deploy_dir_postgres }}/docker-compose.yml"
         owner: root
         group: root
@@ -38,7 +38,7 @@
 
     - name: Copy .env file to server
       ansible.builtin.template:
-        src: templates/database/postgres.env.j2
+        src: ../templates/database/postgres.env.j2
         dest: "{{ deploy_dir_postgres }}/.env"
         owner: root
         group: root
@@ -152,6 +152,39 @@
             GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_devt_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_devt_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_devt_user }}";
+            DO $$
+            DECLARE r RECORD;
+            BEGIN
+              FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' AND tableowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
+              FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
+              FOR r IN SELECT typname FROM pg_type
+                       WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+                         AND typowner = (SELECT oid FROM pg_roles WHERE rolname = '{{ pg_admin_user }}')
+                         AND typtype IN ('e', 'c', 'd')
+              LOOP EXECUTE 'ALTER TYPE public.'||quote_ident(r.typname)||' OWNER TO "{{ pg_devt_user }}"'; END LOOP;
+            END $$;
+      changed_when: false
+
+    - name: Grant admin read access to devt database for backups
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ devt_database_name }}"
+          - -c
+          - |
+            GRANT USAGE ON SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_devt_user }}" IN SCHEMA public GRANT SELECT ON TABLES TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_devt_user }}" IN SCHEMA public GRANT SELECT ON SEQUENCES TO "{{ pg_admin_user }}";
       changed_when: false
 
     - name: Create prod DB user
@@ -201,6 +234,39 @@
             GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_prod_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_prod_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_prod_user }}";
+            DO $$
+            DECLARE r RECORD;
+            BEGIN
+              FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' AND tableowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
+              FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
+              FOR r IN SELECT typname FROM pg_type
+                       WHERE typnamespace = (SELECT oid FROM pg_namespace WHERE nspname = 'public')
+                         AND typowner = (SELECT oid FROM pg_roles WHERE rolname = '{{ pg_admin_user }}')
+                         AND typtype IN ('e', 'c', 'd')
+              LOOP EXECUTE 'ALTER TYPE public.'||quote_ident(r.typname)||' OWNER TO "{{ pg_prod_user }}"'; END LOOP;
+            END $$;
+      changed_when: false
+
+    - name: Grant admin read access to prod database for backups
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ prod_database_name }}"
+          - -c
+          - |
+            GRANT USAGE ON SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_prod_user }}" IN SCHEMA public GRANT SELECT ON TABLES TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_prod_user }}" IN SCHEMA public GRANT SELECT ON SEQUENCES TO "{{ pg_admin_user }}";
       changed_when: false
 
     - name: Create analytics DB user
@@ -250,4 +316,32 @@
             GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_analytics_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ pg_analytics_user }}";
             ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ pg_analytics_user }}";
+            DO $$
+            DECLARE r RECORD;
+            BEGIN
+              FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' AND tableowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ pg_analytics_user }}"'; END LOOP;
+              FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ pg_analytics_user }}"'; END LOOP;
+            END $$;
+      changed_when: false
+
+    - name: Grant admin read access to analytics database for backups
+      community.docker.docker_container_exec:
+        container: "{{ project_name }}_postgres"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ analytics_database_name }}"
+          - -c
+          - |
+            GRANT USAGE ON SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL TABLES IN SCHEMA public TO "{{ pg_admin_user }}";
+            GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_analytics_user }}" IN SCHEMA public GRANT SELECT ON TABLES TO "{{ pg_admin_user }}";
+            ALTER DEFAULT PRIVILEGES FOR ROLE "{{ pg_analytics_user }}" IN SCHEMA public GRANT SELECT ON SEQUENCES TO "{{ pg_admin_user }}";
       changed_when: false
