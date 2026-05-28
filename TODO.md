@@ -15,6 +15,7 @@
 
 ## Done
 
+- [x] Clean up migrations
 - [x] Loading hero image blur
 - [x] Important posts as banner
 - [x] Update content on Sponsor us segment

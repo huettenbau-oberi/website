@@ -84,17 +84,6 @@ export const CampSponsors: Block = {
       fields: sponsorFields,
     },
     {
-      name: 'goenner',
-      type: 'array',
-      label: 'Patrons (Gönner*innen)',
-      admin: {
-        components: {
-          RowLabel: '@/blocks/camp/CampSponsors/SponsorRowLabel#SponsorRowLabel',
-        },
-      },
-      fields: sponsorFields,
-    },
-    {
       name: 'outroText',
       type: 'richText',
       label: 'Text Below Sponsors',

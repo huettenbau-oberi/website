@@ -17,8 +17,9 @@ import { cn } from '@/utilities/ui'
 type NavLink = NonNullable<HeaderType['navItems']>[number]['link']
 
 function resolveHref(link: NavLink): string | null {
-  if (link.type === 'reference' && typeof link.reference?.value === 'object') {
+  if (link.type === 'reference' && typeof link.reference?.value === 'object' && link.reference.value !== null) {
     const val = link.reference.value as Page | Post
+    if (!val.slug) return null
     const prefix = link.reference.relationTo === 'pages' ? '' : `/${link.reference.relationTo}`
     return `${prefix}/${val.slug}`
   }
@@ -130,43 +131,43 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   return (
     <>
       <nav className="flex items-center gap-1 sm:gap-4">
-        {/* Language switch */}
-        <div className="flex items-center gap-1 text-xs font-bold tracking-widest">
-          {locales.map((l, i) => {
-            const code = typeof l === 'object' ? l.code : l
-            const isActive = locale === code
-            return (
-              <React.Fragment key={code}>
-                {i > 0 && (
-                  <span aria-hidden="true" className="text-foreground/60">
-                    |
-                  </span>
-                )}
-                <button
-                  onClick={() => switchLocale(code)}
-                  className={cn(
-                    // px-2 py-2 gives ~30 px vertical / ~40 px horizontal hit area —
-                    // above the WCAG 2.5.8 (AA, 24×24) minimum without dominating the
-                    // header visually the way `min-h/min-w-[44px]` did.
-                    'inline-flex items-center justify-center px-1 sm:px-2 py-2 uppercase transition-colors',
-                    isActive
-                      ? 'text-foreground cursor-default'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                  disabled={isActive}
-                  aria-label={`Switch to ${code.toUpperCase()}`}
-                >
-                  {code}
-                </button>
-              </React.Fragment>
-            )
-          })}
-        </div>
+        {navItems.length > 0 && (
+          <ul className="hidden lg:flex items-center gap-6 mr-2">
+            {navItems.map(({ link }, i) => {
+              const href = resolveHref(link)
+              if (!href) return null
+              return (
+                <li key={i}>
+                  <Link
+                    href={href}
+                    className={cn(
+                      'text-sm font-bold tracking-widest uppercase transition-colors',
+                      pathname === href ? 'text-foreground' : 'text-foreground/70 hover:text-foreground',
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        <button
+          ref={triggerRef}
+          onClick={() => setOpen(true)}
+          className="lg:hidden inline-flex items-center px-1 sm:px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
+          aria-expanded={open}
+          aria-controls={MENU_DIALOG_ID}
+          aria-haspopup="dialog"
+        >
+          {menuLabel.toUpperCase()}
+        </button>
 
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+          className="hidden lg:flex relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
         >
           <Sun
             size={18}
@@ -184,16 +185,6 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
           />
         </button>
 
-        <button
-          ref={triggerRef}
-          onClick={() => setOpen(true)}
-          className="inline-flex items-center px-1 sm:px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
-          aria-expanded={open}
-          aria-controls={MENU_DIALOG_ID}
-          aria-haspopup="dialog"
-        >
-          {menuLabel.toUpperCase()}
-        </button>
         <UserDropdown isPreview={isPreview} />
       </nav>
 
@@ -263,8 +254,8 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             })}
           </div>
 
-          {/* Language switch */}
-          <div className="container flex justify-center gap-4 py-8">
+          {/* Language switch + theme toggle */}
+          <div className="container flex justify-center items-center gap-4 py-8">
             {locales.map((l) => {
               const code = typeof l === 'object' ? l.code : l
               const rawLabel = typeof l === 'object' ? l.label : l
@@ -284,6 +275,14 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
                 </button>
               )
             })}
+            <span aria-hidden="true" className="text-white/40">|</span>
+            <button
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="inline-flex items-center justify-center p-2 text-white/60 transition-colors hover:text-white"
+            >
+              {isDark ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
           </div>
         </div>
       )}
