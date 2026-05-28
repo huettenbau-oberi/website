@@ -173,7 +173,6 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
   introText,
   mainSponsors,
   sponsors,
-  goenner,
   outroText,
   links,
 }) => {
@@ -211,8 +210,6 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
           size="lg"
         />
         <SponsorSection titleKey="sponsors" sponsors={(sponsors ?? []) as Sponsor[]} size="md" />
-        <SponsorSection titleKey="goenner" sponsors={(goenner ?? []) as Sponsor[]} size="sm" />
-
         {outroText && (
           <motion.div
             className="mt-12 md:mt-24 text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl"

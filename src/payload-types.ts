@@ -1040,17 +1040,6 @@ export interface CampSponsorsBlock {
         id?: string | null;
       }[]
     | null;
-  goenner?:
-    | {
-        image?: (number | null) | Media;
-        name: string;
-        /**
-         * Optional link to sponsor website
-         */
-        url?: string | null;
-        id?: string | null;
-      }[]
-    | null;
   outroText?: {
     root: {
       type: string;
@@ -1530,14 +1519,6 @@ export interface CampSponsorsBlockSelect<T extends boolean = true> {
         id?: T;
       };
   sponsors?:
-    | T
-    | {
-        image?: T;
-        name?: T;
-        url?: T;
-        id?: T;
-      };
-  goenner?:
     | T
     | {
         image?: T;
