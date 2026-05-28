@@ -25,9 +25,6 @@ export default function NotFound() {
         <Button asChild variant="default">
           <Link href="/">{t('not-found-home')}</Link>
         </Button>
-        <Button asChild variant="outline">
-          <Link href="/gallery">{t('not-found-gallery')}</Link>
-        </Button>
       </div>
     </section>
   )

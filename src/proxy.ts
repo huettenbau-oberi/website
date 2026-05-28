@@ -15,7 +15,24 @@ function detectLocale(request: NextRequest): string {
 }
 
 export default function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname === '/') {
+  const { pathname } = request.nextUrl
+
+  // Redirect /{locale}/home → /{locale} (or /home → /) so the active-page
+  // check in the nav always sees the canonical root URL.
+  if (pathname === '/home') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+  for (const locale of routing.locales) {
+    if (locale !== routing.defaultLocale && pathname === `/${locale}/home`) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/${locale}`
+      return NextResponse.redirect(url)
+    }
+  }
+
+  if (pathname === '/') {
     const url = request.nextUrl.clone()
 
     if (!request.cookies.has(LOCALE_COOKIE)) {
