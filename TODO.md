@@ -6,7 +6,6 @@
 
 ## Development
 
-- [ ] Clean up migrations
 - [ ] Tailwind major version 4 upgrade
 - [ ] News posts
 - [ ] Tests and linting
@@ -16,6 +15,7 @@
 
 ## Done
 
+- [x] Clean up migrations
 - [x] Loading hero image blur
 - [x] Important posts as banner
 - [x] Update content on Sponsor us segment
