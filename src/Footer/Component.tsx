@@ -4,6 +4,7 @@ import Link from 'next/link'
 import type { Footer } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
+import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { Logo } from '@/components/Logo/Logo'
 import { SendIcon } from 'lucide-react'
 import { getLocale, getTranslations } from 'next-intl/server'
@@ -54,6 +55,7 @@ export async function Footer() {
               <SendIcon aria-hidden="true" className="size-4 ml-1 stroke-2" />
             </CMSLink>
           ) : null}
+          <LocaleSwitcher />
         </div>
 
         <div className="flex flex-col items-start md:flex-row gap-8 min-w-0">

@@ -130,39 +130,6 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   return (
     <>
       <nav className="flex items-center gap-1 sm:gap-4">
-        {/* Language switch */}
-        <div className="flex items-center gap-1 text-xs font-bold tracking-widest">
-          {locales.map((l, i) => {
-            const code = typeof l === 'object' ? l.code : l
-            const isActive = locale === code
-            return (
-              <React.Fragment key={code}>
-                {i > 0 && (
-                  <span aria-hidden="true" className="text-foreground/60">
-                    |
-                  </span>
-                )}
-                <button
-                  onClick={() => switchLocale(code)}
-                  className={cn(
-                    // px-2 py-2 gives ~30 px vertical / ~40 px horizontal hit area —
-                    // above the WCAG 2.5.8 (AA, 24×24) minimum without dominating the
-                    // header visually the way `min-h/min-w-[44px]` did.
-                    'inline-flex items-center justify-center px-1 sm:px-2 py-2 uppercase transition-colors',
-                    isActive
-                      ? 'text-foreground cursor-default'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                  disabled={isActive}
-                  aria-label={`Switch to ${code.toUpperCase()}`}
-                >
-                  {code}
-                </button>
-              </React.Fragment>
-            )
-          })}
-        </div>
-
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
