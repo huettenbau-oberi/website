@@ -6,6 +6,7 @@
 
 ## Development
 
+- [ ] Clean up migrations
 - [ ] Tailwind major version 4 upgrade
 - [ ] News posts
 - [ ] Tests and linting
