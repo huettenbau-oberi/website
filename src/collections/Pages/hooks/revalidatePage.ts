@@ -5,10 +5,13 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { routing } from '../../../i18n/routing'
 import type { Page } from '../../../payload-types'
 
-function getPagePaths(slug: string): string[] {
+export function getPagePaths(slug: string): string[] {
   if (slug === 'home') {
-    // '/' is the canonical URL; also revalidate locale-prefixed variants used internally
-    return ['/', ...routing.locales.map((locale) => `/${locale}/home`)]
+    // '/' is the canonical German home; non-default locales use /${locale} as their canonical root
+    const nonDefaultRoots = routing.locales
+      .filter((locale) => locale !== routing.defaultLocale)
+      .map((locale) => `/${locale}`)
+    return ['/', ...nonDefaultRoots, ...routing.locales.map((locale) => `/${locale}/home`)]
   }
   return [`/${slug}`, ...routing.locales.map((locale) => `/${locale}/${slug}`)]
 }

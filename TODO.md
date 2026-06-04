@@ -1,9 +1,5 @@
 # TODO List
 
-## Important before launch
-
-- Cookie banner, privacy policy
-
 ## Development
 
 - [ ] Tailwind major version 4 upgrade
