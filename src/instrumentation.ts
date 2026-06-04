@@ -1,12 +1,9 @@
 /**
- * Next.js boot hook. Warms Payload and the Postgres pool on container start
- * so the first user request doesn't pay the ~5-10 s cold-init cost.
+ * Next.js boot hook. Waits for the database, then warms Payload and the
+ * Postgres pool so the first user request doesn't pay the cold-init cost.
  *
- * Without this, getPayload() is lazily invoked by the first call to
- * getCachedGlobal()/payload.find() — meaning whichever visitor lands first
- * after a deploy waits for schema validation, the first DB connection,
- * Sharp's libvips load (via the rest of the request) and the initial RSC
- * module load to complete sequentially.
+ * register() runs before Next.js starts handling routes, so waiting here
+ * guarantees the DB is reachable before any page render fires.
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return
@@ -17,11 +14,30 @@ export async function register() {
   const startedAt = Date.now()
   try {
     const payload = await getPayload({ config: configPromise })
-    payload.logger.info('Warming Payload — instantiating client + pre-fetching globals')
+
+    // Block until the DB accepts queries (up to 60 s). The DB container may
+    // start after the app container, so the first few attempts are expected
+    // to fail. Without this wait the warmup silently skips, routes open
+    // immediately, and the first page render hits an unconnected pool.
+    payload.logger.info('Waiting for database…')
+    let dbReady = false
+    const deadline = Date.now() + 60_000
+    while (!dbReady && Date.now() < deadline) {
+      try {
+        await payload.find({ collection: 'pages', limit: 1, pagination: false, overrideAccess: true })
+        dbReady = true
+      } catch {
+        await new Promise((r) => setTimeout(r, 1_000))
+      }
+    }
+    if (!dbReady) {
+      payload.logger.warn('Database not available after 60 s — skipping startup warmup')
+      return
+    }
+
+    payload.logger.info('Warming Payload — pre-fetching globals')
 
     // Globals fetched on every render of every page, in every supported locale.
-    // Pre-fetching opens a DB connection and populates Payload's internal caches
-    // so the first request just reads from memory.
     const warmups = (['header', 'footer', 'settings'] as const).flatMap((slug) =>
       (['de', 'en'] as const).map((locale) =>
         payload
