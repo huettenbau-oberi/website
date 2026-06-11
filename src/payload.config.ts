@@ -22,13 +22,11 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Settings } from './globals/Settings'
-import localization from './i18n/localization'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  localization,
   admin: {
     components: {
       beforeDashboard: ['@/components/BeforeDashboard'],

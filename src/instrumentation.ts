@@ -37,15 +37,11 @@ export async function register() {
 
     payload.logger.info('Warming Payload — pre-fetching globals')
 
-    // Globals fetched on every render of every page, in every supported locale.
-    const warmups = (['header', 'footer', 'settings'] as const).flatMap((slug) =>
-      (['de', 'en'] as const).map((locale) =>
-        payload
-          .findGlobal({ slug, depth: 1, locale })
-          .catch((err: Error) =>
-            payload.logger.warn(`Warmup skipped for ${slug}/${locale}: ${err.message}`),
-          ),
-      ),
+    // Globals fetched on every render of every page.
+    const warmups = (['header', 'footer', 'settings'] as const).map((slug) =>
+      payload
+        .findGlobal({ slug, depth: 1 })
+        .catch((err: Error) => payload.logger.warn(`Warmup skipped for ${slug}: ${err.message}`)),
     )
 
     await Promise.all(warmups)

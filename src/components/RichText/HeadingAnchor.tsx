@@ -2,7 +2,7 @@
 
 import { Check, Link } from 'lucide-react'
 import React, { useState } from 'react'
-import { usePathname } from '@/i18n/routing'
+import { usePathname } from 'next/navigation'
 
 type HeadingTag = 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 

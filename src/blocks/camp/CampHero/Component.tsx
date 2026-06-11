@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
 import { cn } from '@/utilities/ui'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
@@ -45,21 +44,20 @@ export const CampHeroBlock: React.FC<CampHeroBlockProps> = ({
     return () => clearInterval(id)
   }, [countdownDate])
 
-  const t = useTranslations()
   const pad = (n: number) => String(n).padStart(2, '0')
   const showDays = timeLeft !== null && timeLeft.days > 0
 
   const units = timeLeft
     ? showDays
       ? [
-          { value: String(timeLeft.days), label: t('days') },
-          { value: pad(timeLeft.hours), label: t('hours') },
-          { value: pad(timeLeft.minutes), label: t('minutes') },
+          { value: String(timeLeft.days), label: 'Tage' },
+          { value: pad(timeLeft.hours), label: 'Stunden' },
+          { value: pad(timeLeft.minutes), label: 'Minuten' },
         ]
       : [
-          { value: pad(timeLeft.hours), label: t('hours') },
-          { value: pad(timeLeft.minutes), label: t('minutes') },
-          { value: pad(timeLeft.seconds), label: t('seconds') },
+          { value: pad(timeLeft.hours), label: 'Stunden' },
+          { value: pad(timeLeft.minutes), label: 'Minuten' },
+          { value: pad(timeLeft.seconds), label: 'Sekunden' },
         ]
     : null
 

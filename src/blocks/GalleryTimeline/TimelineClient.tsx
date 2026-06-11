@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { cn } from '@/utilities/ui'
 import { Media } from '@/components/Media'
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import type { Variants } from 'framer-motion'
 import type { Media as MediaType } from '@/payload-types'
 

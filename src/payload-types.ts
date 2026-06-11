@@ -108,7 +108,7 @@ export interface Config {
   db: {
     defaultIDType: number;
   };
-  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('de' | 'en') | ('de' | 'en')[];
+  fallbackLocale: null;
   globals: {
     header: Header;
     footer: Footer;
@@ -121,7 +121,7 @@ export interface Config {
     settings: SettingsSelect<false> | SettingsSelect<true>;
     banner: BannerSelect<false> | BannerSelect<true>;
   };
-  locale: 'de' | 'en';
+  locale: null;
   widgets: {
     collections: CollectionsWidget;
   };

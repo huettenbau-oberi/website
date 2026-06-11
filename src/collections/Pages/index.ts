@@ -45,18 +45,16 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
           slug: data?.slug,
           collection: 'pages',
-          req,
         }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
         collection: 'pages',
-        req,
       }),
     useAsTitle: 'title',
   },
@@ -65,7 +63,6 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
-      localized: true,
     },
     {
       type: 'tabs',
@@ -92,7 +89,6 @@ export const Pages: CollectionConfig<'pages'> = {
                 FormBlock,
                 GalleryTimeline,
               ],
-              localized: true,
               admin: {
                 initCollapsed: true,
               },

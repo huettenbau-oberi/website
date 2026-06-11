@@ -50,19 +50,18 @@ export async function generateStaticParams() {
 
 type Args = {
   params: Promise<{
-    slug?: string    // the URL prefix segment, e.g. "gallery"
+    slug?: string // the URL prefix segment, e.g. "gallery"
     postSlug?: string
-    locale?: string
   }>
 }
 
 export default async function PostByPrefix({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug: urlPrefix = '', postSlug = '', locale } = await paramsPromise
+  const { slug: urlPrefix = '', postSlug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(postSlug)
   const url = `/${urlPrefix}/${decodedSlug}`
 
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const post = await queryPostBySlug({ slug: decodedSlug })
 
   if (!post) return <PayloadRedirects url={url} />
 
@@ -80,7 +79,6 @@ export default async function PostByPrefix({ params: paramsPromise }: Args) {
     postId: post.id,
     publishedAt: post.publishedAt,
     categoryIds,
-    locale,
   })
 
   return (
@@ -103,9 +101,9 @@ export default async function PostByPrefix({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { postSlug = '', locale } = await paramsPromise
+  const { postSlug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(postSlug)
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const post = await queryPostBySlug({ slug: decodedSlug })
 
   return generateMeta({ doc: post })
 }
@@ -115,12 +113,10 @@ const queryAdjacentPosts = cache(
     postId,
     publishedAt,
     categoryIds,
-    locale,
   }: {
     postId: string | number
     publishedAt: string | null | undefined
     categoryIds: (string | number)[]
-    locale?: string
   }) => {
     if (!publishedAt) return { previous: null, next: null }
 
@@ -130,7 +126,6 @@ const queryAdjacentPosts = cache(
       limit: 1,
       pagination: false,
       overrideAccess: false,
-      locale: (locale as any) ?? 'de',
     }
 
     const categoryFilter =
@@ -170,7 +165,7 @@ const queryAdjacentPosts = cache(
   },
 )
 
-const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale?: string }) => {
+const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
@@ -181,7 +176,6 @@ const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale?: 
     limit: 1,
     overrideAccess: draft,
     pagination: false,
-    locale: (locale as any) ?? 'de',
     where: {
       slug: {
         equals: slug,

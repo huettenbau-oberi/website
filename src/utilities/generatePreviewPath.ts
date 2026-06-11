@@ -1,4 +1,4 @@
-import { PayloadRequest, CollectionSlug } from 'payload'
+import { CollectionSlug } from 'payload'
 
 const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   posts: '/posts',
@@ -8,17 +8,14 @@ const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
 type Props = {
   collection: keyof typeof collectionPrefixMap
   slug: string
-  req: PayloadRequest
   urlPrefix?: string
 }
 
-export const generatePreviewPath = ({ collection, slug, req, urlPrefix }: Props) => {
+export const generatePreviewPath = ({ collection, slug, urlPrefix }: Props) => {
   // Allow empty strings, e.g. for the homepage
   if (slug === undefined || slug === null) {
     return null
   }
-
-  const locale = req.locale ?? 'de'
 
   // Encode to support slugs with special characters
   const encodedSlug = encodeURIComponent(slug)
@@ -28,11 +25,11 @@ export const generatePreviewPath = ({ collection, slug, req, urlPrefix }: Props)
   const encodedParams = new URLSearchParams({
     slug: encodedSlug,
     collection,
-    path: `/${locale}${prefix}/${encodedSlug}`,
+    path: `${prefix}/${encodedSlug}`,
     previewSecret: process.env.PREVIEW_SECRET || '',
   })
 
-  const url = `/${locale}/next/preview?${encodedParams.toString()}`
+  const url = `/next/preview?${encodedParams.toString()}`
 
   return url
 }

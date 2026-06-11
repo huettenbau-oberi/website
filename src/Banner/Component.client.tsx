@@ -3,14 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import RichText from '@/components/RichText'
 import type { Banner } from '@/payload-types'
-import { useTranslations } from 'next-intl'
 
 type Props = {
   data: Banner
 }
 
 export function BannerClient({ data }: Props) {
-  const t = useTranslations()
   // Start dismissed to avoid a flash; useEffect reveals it if not yet dismissed.
   const [dismissed, setDismissed] = useState(true)
 
@@ -37,7 +35,7 @@ export function BannerClient({ data }: Props) {
             setDismissed(true)
           }}
           className="shrink-0 p-1 opacity-70 hover:opacity-100 transition-opacity"
-          aria-label={t('banner-dismiss')}
+          aria-label="Banner schliessen"
         >
           <X className="w-4 h-4" />
         </button>

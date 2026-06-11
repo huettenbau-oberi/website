@@ -1,11 +1,8 @@
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
 
 import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
-  const t = useTranslations()
-
   return (
     <section className="container py-20 md:py-12">
       <p
@@ -18,12 +15,14 @@ export default function NotFound() {
         className="text-3xl md:text-5xl font-black text-foreground mb-4"
         style={{ fontFamily: 'var(--font-playfair), serif' }}
       >
-        {t('not-found-title')}
+        Die Hütte staht nöd da.
       </h1>
-      <p className="text-muted-foreground mb-8 max-w-lg">{t('not-found-description')}</p>
+      <p className="text-muted-foreground mb-8 max-w-lg">
+        D&apos;Siite wo du gsuecht häsch, isch entweder no nöd baut oder scho abbroche worde.
+      </p>
       <div className="flex flex-wrap gap-3">
         <Button asChild variant="default">
-          <Link href="/">{t('not-found-home')}</Link>
+          <Link href="/">Zur Startseite</Link>
         </Button>
       </div>
     </section>

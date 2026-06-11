@@ -3,7 +3,6 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { getTranslations } from 'next-intl/server'
 import React from 'react'
 import { Search } from '@/search/Component'
 import PageClient from './page.client'
@@ -16,7 +15,6 @@ type Args = {
 }
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
   const { q: query } = await searchParamsPromise
-  const t = await getTranslations()
   const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
@@ -54,7 +52,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
           <div className="flex items-center gap-3 mb-4">
             <span className="inline-block w-8 h-[2px] bg-primary shrink-0" aria-hidden />
             <p className="text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans m-0 text-foreground/60">
-              {t('search')}
+              Suche
             </p>
           </div>
 
@@ -65,7 +63,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
               fontSize: 'clamp(2.5rem, 10vw, 7rem)',
             }}
           >
-            {t('search')}
+            Suche
           </h1>
 
           <div className="max-w-2xl">
@@ -82,7 +80,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
           <div className="flex items-center gap-3">
             <span className="inline-block w-8 h-[2px] bg-border shrink-0" aria-hidden />
             <p className="text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans text-foreground/40 m-0">
-              {query ? `${t('no-results')} — "${query}"` : t('no-results')}
+              {query ? `Keine Ergebnisse gefunden — "${query}"` : 'Keine Ergebnisse gefunden'}
             </p>
           </div>
         </div>

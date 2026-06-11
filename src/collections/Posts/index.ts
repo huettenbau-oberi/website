@@ -52,19 +52,17 @@ export const Posts: CollectionConfig<'posts'> = {
   admin: {
     defaultColumns: ['title', 'categories', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
           slug: data?.slug,
           collection: 'posts',
-          req,
           urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
         }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
         collection: 'posts',
-        req,
         urlPrefix: getUrlPrefixFromCategories(data?.categories as any),
       }),
     useAsTitle: 'title',
@@ -74,7 +72,6 @@ export const Posts: CollectionConfig<'posts'> = {
       name: 'title',
       type: 'text',
       required: true,
-      localized: true,
     },
     {
       type: 'tabs',
@@ -96,7 +93,6 @@ export const Posts: CollectionConfig<'posts'> = {
                 },
               }),
               label: 'Intro',
-              localized: true,
             },
             {
               name: 'showAuthor',
@@ -121,7 +117,6 @@ export const Posts: CollectionConfig<'posts'> = {
                 PostSection,
                 GalleryGrid,
               ],
-              localized: true,
               admin: {
                 initCollapsed: true,
               },

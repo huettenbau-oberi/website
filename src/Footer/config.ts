@@ -25,7 +25,6 @@ export const Footer: GlobalConfig = {
       name: 'legalItems',
       label: 'Legal Links (Below Logo in Footer)',
       type: 'array',
-      localized: true,
       fields: [
         link({
           appearances: false,
@@ -40,7 +39,6 @@ export const Footer: GlobalConfig = {
     {
       name: 'navItems',
       type: 'array',
-      localized: true,
       fields: [
         {
           name: 'title',

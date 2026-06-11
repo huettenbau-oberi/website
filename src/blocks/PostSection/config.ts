@@ -32,7 +32,6 @@ export const PostSection: Block = {
       name: 'eyebrow',
       type: 'text',
       label: 'Eyebrow',
-      localized: true,
       admin: {
         width: '33%',
         description: 'Small label above the title (e.g. "Tag", "Kapitel")',
@@ -43,14 +42,12 @@ export const PostSection: Block = {
       type: 'text',
       label: 'Title',
       required: true,
-      localized: true,
       admin: { width: '33%' },
     },
     {
       name: 'subtitle',
       type: 'text',
       label: 'Subtitle',
-      localized: true,
       admin: {
         width: '33%',
         description: 'Smaller text below the title (e.g. a date "03.06")',
@@ -61,7 +58,6 @@ export const PostSection: Block = {
       type: 'richText',
       label: 'Content',
       required: true,
-      localized: true,
       editor: lexicalEditor({
         features: ({ rootFeatures }) => [
           ...rootFeatures,

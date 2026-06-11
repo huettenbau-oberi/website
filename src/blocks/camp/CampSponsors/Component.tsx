@@ -1,7 +1,6 @@
 'use client'
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
 import type {
   CampSponsorsBlock as CampSponsorsBlockProps,
   Media as MediaType,
@@ -84,15 +83,14 @@ function SponsorCard({
 }
 
 function SponsorSection({
-  titleKey,
+  title,
   sponsors,
   size,
 }: {
-  titleKey: string
+  title: string
   sponsors: Sponsor[]
   size: keyof typeof TIER
 }) {
-  const t = useTranslations()
   const { card: cardClass, pxMobile, pxDesktop } = TIER[size]
 
   const outerRef = useRef<HTMLDivElement>(null)
@@ -140,7 +138,7 @@ function SponsorSection({
         {cols === 1 && isMobile && (
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-foreground/30" />
-            <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{t(titleKey)}</h3>
+            <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{title}</h3>
             <div className="flex-1 h-px bg-foreground/30" />
           </div>
         )}
@@ -148,7 +146,7 @@ function SponsorSection({
           {(cols > 1 || !isMobile) && (
             <div className="flex items-center gap-4 mb-6">
               <div className="flex-1 h-px bg-foreground/30" />
-              <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{t(titleKey)}</h3>
+              <h3 className="text-xl font-bold whitespace-nowrap shrink-0">{title}</h3>
               <div className="flex-1 h-px bg-foreground/30" />
             </div>
           )}
@@ -205,11 +203,11 @@ export const CampSponsorsBlock: React.FC<CampSponsorsBlockProps> = ({
         )}
 
         <SponsorSection
-          titleKey="main-sponsors"
+          title="Hauptsponsoren"
           sponsors={(mainSponsors ?? []) as Sponsor[]}
           size="lg"
         />
-        <SponsorSection titleKey="sponsors" sponsors={(sponsors ?? []) as Sponsor[]} size="md" />
+        <SponsorSection title="Sponsoren" sponsors={(sponsors ?? []) as Sponsor[]} size="md" />
         {outroText && (
           <motion.div
             className="mt-12 md:mt-24 text-center text-muted-foreground [&_p]:mx-auto [&_p]:max-w-xl"

@@ -43,19 +43,17 @@ export async function generateStaticParams() {
 type Args = {
   params: Promise<{
     slug?: string
-    locale?: string
   }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = 'home', locale } = await paramsPromise
+  const { slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/' + decodedSlug
   const page: RequiredDataFromCollectionSlug<'pages'> | null = await queryPageBySlug({
     slug: decodedSlug,
-    locale,
   })
 
   if (!page) {
@@ -79,18 +77,17 @@ export default async function Page({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = 'home', locale } = await paramsPromise
+  const { slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const page = await queryPageBySlug({
     slug: decodedSlug,
-    locale,
   })
 
   return generateMeta({ doc: page })
 }
 
-const queryPageBySlug = cache(async ({ slug, locale }: { slug: string; locale?: string }) => {
+const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   try {
     const { isEnabled: draft } = await draftMode()
 
@@ -102,7 +99,6 @@ const queryPageBySlug = cache(async ({ slug, locale }: { slug: string; locale?: 
       limit: 1,
       pagination: false,
       overrideAccess: draft,
-      locale: (locale as any) ?? 'de',
       where: {
         slug: {
           equals: slug,

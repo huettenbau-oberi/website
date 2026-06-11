@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useLocale } from 'next-intl'
-import { Link, usePathname, useRouter } from '@/i18n/routing'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ChevronRight, Moon, Sun, X } from 'lucide-react'
 
 import type { Header as HeaderType } from '@/payload-types'
@@ -10,7 +10,6 @@ import type { Page, Post } from '@/payload-types'
 
 import { UserDropdown } from '@/components/UserDropdown'
 import { Logo } from '@/components/Logo/Logo'
-import { locales, localeSlugs } from '@/i18n/localization'
 import { useTheme } from '@/providers/Theme'
 import { cn } from '@/utilities/ui'
 
@@ -37,14 +36,12 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
   isPreview,
 }) => {
   const navItems = data?.navItems || []
-  const locale = useLocale()
   const pathname = usePathname()
-  const router = useRouter()
   const [open, setOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
-  const menuLabel = locale === 'de' ? 'Menü' : 'Menu'
+  const menuLabel = 'Menü'
   const isDark = mounted && theme === 'dark'
 
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -125,8 +122,6 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
       document.body.style.overflow = ''
     }
   }, [open])
-
-  const switchLocale = (next: string) => router.replace(pathname, { locale: next })
 
   return (
     <>
@@ -217,7 +212,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             <button
               ref={closeButtonRef}
               onClick={() => setOpen(false)}
-              aria-label={locale === 'de' ? 'Menü schließen' : 'Close menu'}
+              aria-label="Menü schließen"
               className="inline-flex h-11 w-11 items-center justify-center text-white/70 transition-colors hover:text-white"
             >
               <X size={28} />
@@ -229,10 +224,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             {navItems.map(({ link }, i) => {
               const href = resolveHref(link)
               if (!href) return null
-              const homeSlug = localeSlugs[locale as keyof typeof localeSlugs]
-              const isActive =
-                pathname === href ||
-                (pathname === '/' && href === `/${homeSlug}`)
+              const isActive = pathname === href || (pathname === '/' && href === '/home')
 
               return (
                 <Link
@@ -254,28 +246,8 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
             })}
           </div>
 
-          {/* Language switch + theme toggle */}
+          {/* Theme toggle */}
           <div className="container flex justify-center items-center gap-4 py-8">
-            {locales.map((l) => {
-              const code = typeof l === 'object' ? l.code : l
-              const rawLabel = typeof l === 'object' ? l.label : l
-              const label = typeof rawLabel === 'string' ? rawLabel : code.toUpperCase()
-              const isActive = locale === code
-              return (
-                <button
-                  key={code}
-                  onClick={() => { switchLocale(code); setOpen(false) }}
-                  disabled={isActive}
-                  className={cn(
-                    'inline-flex items-center justify-center px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors',
-                    isActive ? 'text-white cursor-default' : 'text-white/60 hover:text-white',
-                  )}
-                >
-                  {label}
-                </button>
-              )
-            })}
-            <span aria-hidden="true" className="text-white/40">|</span>
             <button
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
