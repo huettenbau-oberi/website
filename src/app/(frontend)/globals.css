@@ -149,6 +149,14 @@
   }
 }
 
+/* Long unbroken strings (e.g. links/URLs) in CMS rich text would otherwise
+   force their flex containers to overflow, causing horizontal scrolling on
+   mobile. `anywhere` lets them wrap and is taken into account when the
+   surrounding flex layout computes its minimum width. */
+.payload-richtext {
+  overflow-wrap: anywhere;
+}
+
 html {
   opacity: 0;
 }
