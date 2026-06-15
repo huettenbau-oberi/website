@@ -13,9 +13,11 @@ services:
       - ./media:/app/public/media
       - next_cache:/app/.next/cache/images
     networks:
-      - proxy
-      - internal
-      - postgres
+      proxy: {}
+      internal: {}
+      postgres: {}
+      ip6net:
+        ipv6_address: {{ ipv6_address }}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
@@ -34,3 +36,8 @@ networks:
     external: true
   internal:
     driver: bridge
+  ip6net:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: {{ ipv6_subnet }}

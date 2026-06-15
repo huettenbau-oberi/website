@@ -7,6 +7,10 @@ app_image: ghcr.io/huettenbau-oberi/website
 app_image_tag: develop
 env_file: ../files/devt.env.vault
 
+# --- IPv6 ---
+ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:d000/116
+ipv6_address: 2a01:4f8:c015:3aa0:0:3773:840:de41
+
 # --- PostgreSQL ---
 pg_app_user: "{{ pg_devt_user }}"
 devt_database_name: huettenbau-payload-devt

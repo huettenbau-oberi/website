@@ -19,6 +19,11 @@
         name: fail2ban
         state: restarted
 
+    - name: Restart Docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+
     - name: Restart Traefik
       community.docker.docker_compose_v2:
         project_src: "{{ traefik_dir }}"
@@ -144,6 +149,19 @@
         name: docker
         enabled: true
         state: started
+
+    - name: Configure Docker daemon for IPv6 support
+      ansible.builtin.copy:
+        content: |
+          {
+            "ipv6": true,
+            "ip6tables": true
+          }
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart Docker
 
     # ── Docker network ───────────────────────────────────────────────────────
     - name: Create shared proxy network for Traefik
