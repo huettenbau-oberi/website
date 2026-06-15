@@ -21,6 +21,13 @@
       ansible.builtin.apt:
         autoclean: true
 
+    # ── Logs ──────────────────────────────────────────────────────────────────
+
+    - name: Vacuum journal logs older than 7 days
+      ansible.builtin.command:
+        cmd: journalctl --vacuum-time=7d
+      changed_when: false
+
     # ── Reboot if required ───────────────────────────────────────────────────
 
     - name: Check if reboot is required
@@ -101,3 +108,45 @@
         state: present
         recreate: always
       when: compose_files.results[0].stat.exists
+
+    # ── Docker cleanup ───────────────────────────────────────────────────────
+
+    - name: Prune unused Docker resources
+      community.docker.docker_prune:
+        containers: true
+        images: true
+        networks: true
+        builder_cache: true
+      register: docker_prune_result
+
+    - name: Report Docker space reclaimed
+      ansible.builtin.debug:
+        msg: >-
+          Reclaimed
+          {{ (docker_prune_result.containers_space_reclaimed
+              + docker_prune_result.images_space_reclaimed
+              + docker_prune_result.builder_cache_space_reclaimed) | filesizeformat }}
+          from Docker containers, images and build cache.
+
+    # ── Health report ────────────────────────────────────────────────────────
+
+    - name: Check for failed systemd units
+      ansible.builtin.command:
+        cmd: systemctl --failed --no-legend
+      register: failed_units
+      changed_when: false
+
+    - name: Report failed systemd units
+      ansible.builtin.debug:
+        msg: "Failed units detected:\n{{ failed_units.stdout }}"
+      when: failed_units.stdout | length > 0
+
+    - name: Check disk usage
+      ansible.builtin.command:
+        cmd: df -h --output=source,size,used,avail,pcent,target -x tmpfs -x devtmpfs
+      register: disk_usage
+      changed_when: false
+
+    - name: Report disk usage
+      ansible.builtin.debug:
+        msg: "{{ disk_usage.stdout_lines }}"

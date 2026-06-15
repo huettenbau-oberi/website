@@ -2,7 +2,7 @@ name: Update 🔄
 
 on:
   schedule:
-    - cron: '0 3 * * 0'
+    - cron: '0 21 * * 0' # Zurich time: 03:00 am
   workflow_dispatch:
 
 concurrency:
