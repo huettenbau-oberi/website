@@ -8,4 +8,10 @@ module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: false,
   exclude: ['/posts-sitemap.xml', '/pages-sitemap.xml', '/*', '/posts/*'],
+  // next-sitemap excludes everything above from sitemap.xml itself, but it
+  // still builds the sitemap index from generatedSitemaps + this list, so
+  // sitemap.xml ends up referencing our dynamic sitemaps.
+  robotsTxtOptions: {
+    additionalSitemaps: [`${SITE_URL}/pages-sitemap.xml`, `${SITE_URL}/posts-sitemap.xml`],
+  },
 }
