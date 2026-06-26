@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@marsidev/react-turnstile": "^1.5.2",
-    "@payloadcms/admin-bar": "^3.84.1",
+    "@payloadcms/admin-bar": "^3.85.1",
     "@payloadcms/db-postgres": "^3.84.1",
     "@payloadcms/live-preview-react": "^3.84.1",
     "@payloadcms/next": "^3.84.1",
