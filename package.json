@@ -21,7 +21,7 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
-    "@marsidev/react-turnstile": "^1.5.2",
+    "@marsidev/react-turnstile": "^1.5.3",
     "@payloadcms/admin-bar": "^3.85.1",
     "@payloadcms/db-postgres": "^3.84.1",
     "@payloadcms/live-preview-react": "^3.84.1",
