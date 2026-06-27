@@ -15,11 +15,11 @@ public/sitemap*.xml
 
 
 # Playwright
-node_modules/
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+# node_modules/
+# /test-results/
+# /playwright-report/
+# /blob-report/
+# /playwright/.cache/
 
 # TypeScript incremental build cache — regenerated on every build.
 tsconfig.tsbuildinfo

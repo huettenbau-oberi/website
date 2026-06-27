@@ -9,6 +9,7 @@ env_file: ../files/prod.env.vault
 
 # --- IPv6 ---
 ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:a000/116
+devt_ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:d000/116
 ipv6_address: 2a01:4f8:c015:3aa0:0:3773:840:aaaa
 
 # --- PostgreSQL ---

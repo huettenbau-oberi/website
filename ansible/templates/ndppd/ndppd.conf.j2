@@ -1,0 +1,18 @@
+# Managed by Ansible — proxies NDP on the public interface for the IPv6
+# subnets carved out of the host's routed /64 for Docker ip6net bridges.
+# Without this, the upstream router can't resolve container addresses
+# and traffic to them never arrives.
+
+route-ttl 30000
+
+proxy {{ public_interface }} {
+    router no
+    timeout 30
+    ttl 30000
+
+{% for subnet in ipv6_ndp_proxy_subnets %}
+    rule {{ subnet }} {
+        static
+    }
+{% endfor %}
+}

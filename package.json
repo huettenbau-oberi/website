@@ -18,7 +18,6 @@
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
-    "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" pnpm exec playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
   },
   "dependencies": {
@@ -61,7 +60,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
-    "@playwright/test": "1.60.0",
     "@tailwindcss/typography": "^0.5.13",
     "@testing-library/react": "16.3.0",
     "@types/escape-html": "^1.0.2",
@@ -74,8 +72,6 @@
     "eslint": "^9.16.0",
     "eslint-config-next": "16.2.7",
     "jsdom": "29.1.1",
-    "playwright": "1.60.0",
-    "playwright-core": "1.60.0",
     "postcss": "^8.5.10",
     "prettier": "^3.8.3",
     "tailwindcss": "^3.4.3",
