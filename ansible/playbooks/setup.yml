@@ -9,7 +9,7 @@
     - ../files/setup.vault
 
   vars:
-    public_interface: "{{ ansible_default_ipv6.interface | default(ansible_default_ipv4.interface) }}"
+    public_interface: "{{ ansible_facts['default_ipv6']['interface'] | default(ansible_facts['default_ipv4']['interface']) }}"
     ipv6_ndp_proxy_subnets:
       - "{{ ipv6_subnet }}"
       - "{{ devt_ipv6_subnet }}"
@@ -170,7 +170,8 @@
         content: |
           {
             "ipv6": true,
-            "ip6tables": true
+            "ip6tables": true,
+            "fixed-cidr-v6": "fd00::/80"
           }
         dest: /etc/docker/daemon.json
         owner: root
