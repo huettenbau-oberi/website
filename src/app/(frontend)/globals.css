@@ -157,6 +157,10 @@
   overflow-wrap: anywhere;
 }
 
+.payload-richtext :is(h1, h2, h3) {
+  hyphens: auto;
+}
+
 html {
   opacity: 0;
 }
