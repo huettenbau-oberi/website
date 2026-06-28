@@ -8,7 +8,7 @@ import type { Banner, Header } from '@/payload-types'
 export async function Header() {
   const [headerData, bannerData] = await Promise.all([
     getCachedGlobal('header', 1)() as Promise<Header>,
-    getCachedGlobal('banner', 1)() as Promise<Banner | null>,
+    getCachedGlobal('banner', 2)() as Promise<Banner | null>,
   ])
   const { isEnabled: isPreview } = await draftMode()
 
