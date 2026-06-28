@@ -30,6 +30,10 @@ function formatDate(dateStr: string): string {
   })
 }
 
+function stripYearPrefix(title: string): string {
+  return title.replace(/^\d{4}\s*[-–—]\s*/, '')
+}
+
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.4, 0, 0.2, 1] } },
@@ -150,18 +154,33 @@ export const TimelineClient: React.FC<Props> = ({ posts, urlPrefix = 'posts' }) 
           const href = post.slug ? `/${urlPrefix}/${post.slug}` : null
 
           return (
-            <div key={String(post.id)} className="relative pt-7">
-              {/* Year badge */}
+            <div key={String(post.id)} className={cn('relative', year ? 'pt-20 sm:pt-24 md:pt-7' : 'pt-7')}>
+              {/* Year title — mobile: absolute, left of card, centered on dot; desktop: opposite side of card */}
               {year && (
-                <div className="absolute left-7 top-0 z-10 -translate-x-1/2 bg-primary px-2 py-0.5 text-[0.58rem] font-bold tracking-[0.14em] text-primary-foreground md:left-1/2">
-                  {year}
+                <div
+                  className={cn(
+                    'absolute top-8 -translate-y-1/2 left-14 z-10',
+                    isRight
+                      ? 'md:left-auto md:right-[calc(50%+2.5rem)]'
+                      : 'md:left-[calc(50%+2.5rem)]',
+                  )}
+                >
+                  <span
+                    className="block text-5xl leading-none text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
+                    style={{ fontFamily: 'var(--font-playfair), serif', fontWeight: 900 }}
+                  >
+                    {year}
+                  </span>
+                  <span
+                    className={cn('mt-3 block h-0.5 md:h-1 w-16 bg-primary', isRight && 'md:ml-auto')}
+                  />
                 </div>
               )}
 
               {/* Circle node */}
               <div
                 ref={isFirst ? firstCircleRef : isLast ? lastCircleRef : null}
-                className="absolute left-7 top-6 z-10 -translate-x-1/2 h-4 w-4 rounded-full border-2 border-primary bg-background md:left-1/2"
+                className="absolute left-7 top-6 z-10 -translate-x-1/2 h-4 w-4 rounded-full border-4 border-primary bg-background md:left-1/2"
               />
 
               {/* Card */}
@@ -182,11 +201,11 @@ export const TimelineClient: React.FC<Props> = ({ posts, urlPrefix = 'posts' }) 
                     href={href}
                     className="group block overflow-hidden rounded-sm bg-card shadow-sm transition-shadow duration-300 hover:shadow-md"
                   >
-                    <CardInner image={image} title={post.title} date={date} description={description} />
+                    <CardInner image={image} title={post.title ? stripYearPrefix(post.title) : post.title} description={description} />
                   </Link>
                 ) : (
                   <div className="overflow-hidden rounded-sm bg-card shadow-sm">
-                    <CardInner image={image} title={post.title} date={date} description={description} />
+                    <CardInner image={image} title={post.title ? stripYearPrefix(post.title) : post.title} description={description} />
                   </div>
                 )}
               </motion.div>
@@ -201,11 +220,10 @@ export const TimelineClient: React.FC<Props> = ({ posts, urlPrefix = 'posts' }) 
 type CardInnerProps = {
   image: MediaType | null
   title?: string | null
-  date: string | null
   description: string | null
 }
 
-function CardInner({ image, title, date, description }: CardInnerProps) {
+function CardInner({ image, title, description }: CardInnerProps) {
   return (
     <>
       {image ? (
@@ -213,7 +231,7 @@ function CardInner({ image, title, date, description }: CardInnerProps) {
           <Media resource={image} fill imgClassName="object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
           <h2
-            className="absolute bottom-4 left-4 right-4 text-xl text-white leading-snug sm:text-2xl md:text-3xl"
+            className="absolute bottom-4 left-4 right-4 text-3xl text-white leading-snug sm:text-4xl md:text-5xl"
             style={{ fontFamily: 'var(--font-playfair), serif', fontWeight: 900 }}
           >
             {title}
@@ -230,18 +248,13 @@ function CardInner({ image, title, date, description }: CardInnerProps) {
         </div>
       )}
 
-      <div className="px-5 py-4">
-        {date && (
-          <p className="mb-2 text-[0.7rem] font-medium tracking-wide text-muted-foreground">
-            {date}
-          </p>
-        )}
-        {description && (
+      {description && (
+        <div className="px-5 py-4">
           <p className="text-sm leading-relaxed text-foreground/70 line-clamp-3">
             {description}
           </p>
-        )}
-      </div>
+        </div>
+      )}
     </>
   )
 }
