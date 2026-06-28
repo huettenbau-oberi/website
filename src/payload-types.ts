@@ -851,7 +851,7 @@ export interface PostSectionBlock {
  */
 export interface GalleryGridBlock {
   /**
-   * Controls how images are distributed vertically within each column. "Top-aligned" piles images at the top, "Space between" spreads them evenly, "Bottom-aligned" anchors them at the bottom.
+   * Controls how the two columns align vertically on desktop (tablet and up). "Top-aligned" piles images at the top, "Space between" spreads them evenly, "Bottom-aligned" anchors them at the bottom. On mobile the images always show as a single centered column in left-right order, so this setting has no effect there.
    */
   layout: 'beginning' | 'middle' | 'end';
   leftImages?:
