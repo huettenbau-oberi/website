@@ -1,0 +1,154 @@
+---
+# Create an AES-256 encrypted backup of the Umami analytics database.
+# Unlike backup.yml this only dumps the analytics PostgreSQL database
+# (no media files) and does not stop the analytics container or anything else.
+#
+# The encrypted archive is uploaded to Hetzner Object Storage under the
+# dedicated "analytics" prefix. Decrypt and extract with:
+#   openssl enc -d -aes-256-cbc -pbkdf2 -pass pass:<password> \
+#     -in <name>.tar.gz.enc | tar -xzf -
+#
+# Analytics always runs on prod, so the prod group_vars are loaded by default
+# and no -e is required.
+#
+# Usage:
+#   ansible-playbook -i inventory.ini playbooks/backup_analytics.yml
+
+- name: Backup Umami analytics database
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../group_vars/prod.yml
+    - ../files/postgres_users.vault
+    - ../files/backup.vault
+
+  vars:
+    analytics_db_name: "{{ analytics_database_name | default('huettenbau-analytics') }}"
+    analytics_postgres_container: "{{ postgres_container_name | default('huettenbau-oberi-prod_postgres') }}"
+    analytics_path_prefix: analytics
+
+  tasks:
+    - name: Freeze backup timestamp
+      ansible.builtin.set_fact:
+        backup_timestamp: "{{ now().strftime('%Y%m%d-%H%M%S') }}"
+
+    - name: Set backup name and paths
+      ansible.builtin.set_fact:
+        backup_name: "analytics-huettenbau-backup_{{ backup_timestamp }}"
+        backup_tmp_dir: "/tmp/analytics-huettenbau-backup_{{ backup_timestamp }}"
+
+    - name: Create backup staging directory
+      ansible.builtin.file:
+        path: "{{ backup_tmp_dir }}"
+        state: directory
+        mode: "0700"
+
+    - name: Dump database into container temp file
+      community.docker.docker_container_exec:
+        container: "{{ analytics_postgres_container }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - pg_dump
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ analytics_db_name }}"
+          - -Fc
+          - -f
+          - /tmp/{{ backup_name }}_db.dump
+      no_log: true
+      changed_when: true
+
+    - name: Copy dump from container to staging directory
+      ansible.builtin.shell:
+        cmd: "docker cp {{ analytics_postgres_container }}:/tmp/{{ backup_name }}_db.dump {{ backup_tmp_dir }}/db.dump"
+      changed_when: true
+
+    - name: Remove dump from container temp
+      community.docker.docker_container_exec:
+        container: "{{ analytics_postgres_container }}"
+        argv:
+          - rm
+          - -f
+          - /tmp/{{ backup_name }}_db.dump
+      changed_when: false
+
+    - name: Create tarball from staging directory
+      ansible.builtin.shell:
+        cmd: "tar -czf /tmp/{{ backup_name }}.tar.gz -C /tmp {{ backup_name }}"
+      changed_when: true
+
+    - name: Encrypt tarball with AES-256-CBC
+      ansible.builtin.shell:
+        cmd: >
+          openssl enc -aes-256-cbc -pbkdf2
+          -pass env:BACKUP_PASSWORD
+          -in /tmp/{{ backup_name }}.tar.gz
+          -out /tmp/{{ backup_name }}.tar.gz.enc
+      environment:
+        BACKUP_PASSWORD: "{{ backup_archive_password }}"
+      changed_when: true
+      no_log: true
+
+    - name: Remove unencrypted tarball
+      ansible.builtin.file:
+        path: "/tmp/{{ backup_name }}.tar.gz"
+        state: absent
+
+    - name: Remove staging directory
+      ansible.builtin.file:
+        path: "{{ backup_tmp_dir }}"
+        state: absent
+
+    - name: Ensure s3cmd is installed
+      ansible.builtin.apt:
+        name: s3cmd
+        state: present
+
+    - name: Upload backup to Hetzner Object Storage
+      ansible.builtin.shell:
+        cmd: >
+          s3cmd put /tmp/{{ backup_name }}.tar.gz.enc
+          s3://{{ s3_bucket }}/{{ analytics_path_prefix }}/{{ backup_name }}.tar.gz.enc
+          --access_key={{ s3_access_key }}
+          --secret_key={{ s3_secret_key }}
+          --host={{ s3_endpoint }}
+          '--host-bucket=%(bucket)s.{{ s3_endpoint }}'
+          --region={{ s3_endpoint.split('.')[0] }}
+          --no-encrypt
+      no_log: true
+      changed_when: true
+
+    - name: Remove encrypted tarball from server
+      ansible.builtin.file:
+        path: "/tmp/{{ backup_name }}.tar.gz.enc"
+        state: absent
+
+    - name: Delete backups older than {{ retention_days }} days
+      ansible.builtin.shell:
+        cmd: |
+          set -e
+          CUTOFF=$(date -u -d "{{ retention_days }} days ago" '+%Y-%m-%d %H:%M')
+          OLD=$(s3cmd ls 's3://{{ s3_bucket }}/{{ analytics_path_prefix }}/' \
+            --access_key={{ s3_access_key }} \
+            --secret_key={{ s3_secret_key }} \
+            --host={{ s3_endpoint }} \
+            '--host-bucket=%(bucket)s.{{ s3_endpoint }}' \
+            --region={{ s3_endpoint.split('.')[0] }} | \
+            awk -v cutoff="$CUTOFF" '($1 " " $2) < cutoff {print $4}')
+          if [ -n "$OLD" ]; then
+            echo "$OLD" | xargs s3cmd del \
+              --access_key={{ s3_access_key }} \
+              --secret_key={{ s3_secret_key }} \
+              --host={{ s3_endpoint }} \
+              '--host-bucket=%(bucket)s.{{ s3_endpoint }}' \
+              --region={{ s3_endpoint.split('.')[0] }}
+          fi
+      no_log: true
+      changed_when: false
+
+    - name: Report backup location
+      ansible.builtin.debug:
+        msg: "Backup uploaded to s3://{{ s3_bucket }}/{{ analytics_path_prefix }}/{{ backup_name }}.tar.gz.enc"
