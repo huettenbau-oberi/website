@@ -11,7 +11,7 @@ services:
       GITHUB_REPO: "{{ agent_github_repo }}"
       GITHUB_REF: "{{ agent_github_ref }}"
       ALLOWED_CONTAINERS: "{{ agent_allowed_containers }}"
-      DISK_PATHS: "/host"
+      DISK_PATHS: "/host,{{ agent_additional_disk_paths }}"
       MEMINFO_PATH: "/host/proc/meminfo"
       HOST_MOUNT_PREFIX: "/host"
       BACKUP_RETENTION_DAYS: "{{ retention_days | default('30') }}"

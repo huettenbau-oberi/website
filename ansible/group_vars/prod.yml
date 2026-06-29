@@ -38,6 +38,7 @@ agent_github_ref: main
 # Containers the agent may restart via `restart-service`
 agent_allowed_containers: "{{ project_name }},{{ project_name }}_analytics"
 # agent_secret + agent_github_token come from files/agent.vault
+agent_additional_disk_paths: "/host/opt/huettenbau-oberi/prod/media"
 
 # --- Domain & TLS ---
 domain: test.huettenbau-oberi.ch

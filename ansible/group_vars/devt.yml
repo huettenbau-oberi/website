@@ -37,3 +37,4 @@ agent_github_repo: huettenbau-oberi/website
 agent_github_ref: develop
 agent_allowed_containers: "{{ project_name }}"
 # agent_secret + agent_github_token come from files/agent.vault
+agent_additional_disk_paths: "/host/opt/huettenbau-oberi/devt/media"
