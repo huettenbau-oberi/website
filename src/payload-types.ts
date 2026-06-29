@@ -883,10 +883,7 @@ export interface User {
    * Role shown below the author name in post headers (e.g. "Vorstand", "Webseite")
    */
   role?: string | null;
-  /**
-   * Grants access to the dashboard system tools (storage, health, maintenance and operations). Only administrators can change this.
-   */
-  isAdmin?: boolean | null;
+  userRole?: ('viewer' | 'editor' | 'admin') | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1858,7 +1855,7 @@ export interface CategoriesSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
-  isAdmin?: T;
+  userRole?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

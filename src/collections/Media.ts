@@ -9,7 +9,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
+import { editor } from '../access/admin'
 import { generateBlurDataURL } from './hooks/generateBlurDataURL'
 import { generateBlur } from './endpoints/generateBlur'
 import { cleanupMedia } from './endpoints/cleanupMedia'
@@ -26,10 +26,10 @@ export const Media: CollectionConfig = {
     listSearchableFields: ['filename', 'alt', 'folder.name'],
   },
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: editor,
+    delete: editor,
     read: anyone,
-    update: authenticated,
+    update: editor,
   },
   endpoints: [
     {

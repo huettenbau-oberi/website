@@ -1,17 +1,17 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
-import { adminFieldAccess } from '../../access/admin'
+import { admin, adminFieldAccess } from '../../access/admin'
 import { validateTurnstile } from './hooks/validateTurnstile'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
     admin: authenticated,
-    create: authenticated,
-    delete: authenticated,
+    create: admin,
+    delete: admin,
     read: authenticated,
-    update: authenticated,
+    update: admin,
   },
   admin: {
     defaultColumns: ['name', 'email'],
@@ -35,20 +35,21 @@ export const Users: CollectionConfig = {
       },
     },
     {
-      // Real privilege boundary for the dashboard system tools. Unlike `role`
-      // (a display label), this flag is enforced by access control. Only an
-      // existing admin can grant or revoke it, so a non-admin cannot escalate.
-      name: 'isAdmin',
-      type: 'checkbox',
-      defaultValue: false,
-      label: 'Administrator',
+      // Three-tier access gate. Unlike `role` (a display label), this field is
+      // enforced by access control. Only an existing admin can change it, so a
+      // non-admin cannot escalate their own privileges.
+      name: 'userRole',
+      type: 'select',
+      defaultValue: 'viewer',
+      label: 'Access Role',
+      options: [
+        { label: 'Viewer (read-only)', value: 'viewer' },
+        { label: 'Editor', value: 'editor' },
+        { label: 'Admin (full access + system tools)', value: 'admin' },
+      ],
       access: {
         create: adminFieldAccess,
         update: adminFieldAccess,
-      },
-      admin: {
-        description:
-          'Grants access to the dashboard system tools (storage, health, maintenance and operations). Only administrators can change this.',
       },
     },
   ],

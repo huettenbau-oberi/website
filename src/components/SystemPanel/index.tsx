@@ -101,8 +101,8 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
 // ---------------------------------------------------------------------------
 const SystemPanel: React.FC = () => {
   const { user } = useAuth()
-  // `isAdmin` is added to the Users collection; the generated type may lag, so read loosely.
-  const isAdmin = Boolean((user as { isAdmin?: boolean } | null)?.isAdmin)
+  // `userRole` drives the three-tier access system; read loosely since generated types may lag.
+  const isAdmin = (user as { userRole?: string } | null)?.userRole === 'admin'
 
   const [stats, setStats] = useState<Async<AppStats>>({ status: 'idle' })
   const [host, setHost] = useState<Async<HostMetrics>>({ status: 'idle' })
