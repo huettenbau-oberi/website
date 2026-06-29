@@ -9,6 +9,11 @@ services:
     #      cpus: '0.5'
     env_file:
       - .env
+    environment:
+      # Internal system agent (host metrics + operations). Empty secret => app treats
+      # the agent as unconfigured and only shows in-app metrics.
+      SYSTEM_AGENT_URL: "http://{{ project_name }}_agent:8080"
+      SYSTEM_AGENT_SECRET: "{{ agent_secret | default('') }}"
     volumes:
       - ./media:/app/public/media
       - next_cache:/app/.next/cache/images
@@ -16,6 +21,8 @@ services:
       proxy: {}
       internal: {}
       postgres: {}
+      # Reach the internal system agent (host metrics + operations) by DNS.
+      agentnet: {}
       ip6net:
         ipv6_address: {{ ipv6_address }}
     labels:
@@ -33,6 +40,8 @@ networks:
   postgres:
     external: true
   proxy:
+    external: true
+  agentnet:
     external: true
   internal:
     driver: bridge

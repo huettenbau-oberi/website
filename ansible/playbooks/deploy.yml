@@ -18,6 +18,8 @@
 
   vars_files:
     - ../files/postgres_users.vault
+    # Provides agent_secret so the app can authenticate to the system agent.
+    - ../files/agent.vault
 
   tasks:
     - name: Create Deployment directory

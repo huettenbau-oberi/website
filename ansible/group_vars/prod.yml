@@ -26,6 +26,18 @@ postgres_container_name: huettenbau-oberi-prod_postgres
 deploy_dir_analytics: "/opt/analytics"
 app_image_analytics: ghcr.io/umami-software/umami:latest
 
+# --- System agent ---
+deploy_dir_agent: "/opt/agent/prod"
+agent_image: ghcr.io/huettenbau-oberi/system-agent
+agent_image_tag: latest
+# Repo whose GitHub Actions workflows the agent dispatches (backup/restore/update/deploy)
+agent_github_repo: huettenbau-oberi/website
+# Branch to dispatch workflows on — selects the prod environment in those workflows
+agent_github_ref: main
+# Containers the agent may restart via `restart-service`
+agent_allowed_containers: "{{ project_name }},{{ project_name }}_analytics"
+# agent_secret + agent_github_token come from files/agent.vault
+
 # --- Domain & TLS ---
 domain: test.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch

@@ -1,0 +1,60 @@
+services:
+  agent:
+    image: {{ agent_image }}:{{ agent_image_tag }}
+    container_name: {{ project_name }}_agent
+    restart: unless-stopped
+    environment:
+      AGENT_SECRET: "{{ agent_secret }}"
+      AGENT_PORT: "8080"
+      DOCKER_PROXY_URL: "http://{{ project_name }}_socket-proxy:2375"
+      GITHUB_TOKEN: "{{ agent_github_token }}"
+      GITHUB_REPO: "{{ agent_github_repo }}"
+      GITHUB_REF: "{{ agent_github_ref }}"
+      ALLOWED_CONTAINERS: "{{ agent_allowed_containers }}"
+      DISK_PATHS: "/host"
+      MEMINFO_PATH: "/host/proc/meminfo"
+      HOST_MOUNT_PREFIX: "/host"
+      BACKUP_RETENTION_DAYS: "{{ retention_days | default('30') }}"
+    volumes:
+      # Read-only host mounts for metrics only (statfs + meminfo). Never read-write.
+      - /:/host:ro
+      - /proc:/host/proc:ro
+    networks:
+      # Reachable by the app over the shared external network…
+      agentnet: {}
+      # …and talks to the socket-proxy over a private project-internal network.
+      socketproxy: {}
+
+  # Read-scoped Docker API in front of the raw socket. The agent never mounts
+  # /var/run/docker.sock directly. Only container endpoints are enabled; EXEC stays
+  # disabled so the agent can never `docker exec` into anything.
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: {{ project_name }}_socket-proxy
+    restart: unless-stopped
+    environment:
+      CONTAINERS: "1"   # GET /containers/json (metrics) + POST /containers/<id>/restart
+      POST: "1"         # required for restart; EXEC remains 0 (default)
+      IMAGES: "0"
+      NETWORKS: "0"
+      VOLUMES: "0"
+      INFO: "0"
+      EXEC: "0"
+      SERVICES: "0"
+      SWARM: "0"
+      SYSTEM: "0"
+      PLUGINS: "0"
+      AUTH: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      socketproxy: {}
+
+networks:
+  # Shared with the app container (created once in setup.yml).
+  agentnet:
+    external: true
+  # Private to this compose project: agent <-> socket-proxy only.
+  socketproxy:
+    driver: bridge
+    internal: true

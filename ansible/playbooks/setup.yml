@@ -261,6 +261,12 @@
         name: "{{ docker_network_name }}"
         state: present
 
+    # Shared network connecting the app to the internal system agent (not Traefik-exposed).
+    - name: Create shared agent network
+      community.docker.docker_network:
+        name: agentnet
+        state: present
+
     # ── Traefik ──────────────────────────────────────────────────────────────
     - name: Create Traefik directory
       ansible.builtin.file:
