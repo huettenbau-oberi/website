@@ -28,6 +28,7 @@ app_image_analytics: ghcr.io/umami-software/umami:latest
 
 # --- System agent ---
 deploy_dir_agent: "/opt/agent/prod"
+agent_network_name: agentnet-prod
 agent_image: ghcr.io/huettenbau-oberi/system-agent
 agent_image_tag: latest
 # Repo whose GitHub Actions workflows the agent dispatches (backup/restore/update/deploy)

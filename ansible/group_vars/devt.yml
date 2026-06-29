@@ -29,6 +29,7 @@ letsencrypt_email: webmaster@huettenbau-oberi.ch
 
 # --- System agent ---
 deploy_dir_agent: "/opt/agent/devt"
+agent_network_name: agentnet-devt
 agent_image: ghcr.io/huettenbau-oberi/system-agent
 agent_image_tag: develop
 agent_github_repo: huettenbau-oberi/website

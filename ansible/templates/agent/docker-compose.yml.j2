@@ -21,7 +21,7 @@ services:
       - /proc:/host/proc:ro
     networks:
       # Reachable by the app over the shared external network…
-      agentnet: {}
+      {{ agent_network_name }}: {}
       # …and talks to the socket-proxy over a private project-internal network.
       socketproxy: {}
 
@@ -51,8 +51,8 @@ services:
       socketproxy: {}
 
 networks:
-  # Shared with the app container (created once in setup.yml).
-  agentnet:
+  # Shared with the app container (created by deploy_agent.yml).
+  {{ agent_network_name }}:
     external: true
   # Private to this compose project: agent <-> socket-proxy only.
   socketproxy:

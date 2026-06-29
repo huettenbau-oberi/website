@@ -22,7 +22,7 @@ services:
       internal: {}
       postgres: {}
       # Reach the internal system agent (host metrics + operations) by DNS.
-      agentnet: {}
+      {{ agent_network_name }}: {}
       ip6net:
         ipv6_address: {{ ipv6_address }}
     labels:
@@ -41,7 +41,7 @@ networks:
     external: true
   proxy:
     external: true
-  agentnet:
+  {{ agent_network_name }}:
     external: true
   internal:
     driver: bridge

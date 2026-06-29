@@ -8,7 +8,7 @@
 #   - ansible/files/agent.vault  with: agent_secret, agent_github_token
 #     (copy from ansible/files/agent.vault.example, fill in, then `ansible-vault encrypt`)
 #   - The agent image must already be published: {{ agent_image }}:{{ agent_image_tag }}
-#   - The `agentnet` network must exist (created by setup.yml)
+#   - agent_network_name must be set in group_vars (e.g. agentnet-devt / agentnet-prod)
 #
 # Usage:
 #   ansible-playbook -i inventory.ini playbooks/deploy_agent.yml -e @group_vars/prod.yml
@@ -21,6 +21,11 @@
     - ../files/agent.vault
 
   tasks:
+    - name: Ensure agent communication network exists
+      community.docker.docker_network:
+        name: "{{ agent_network_name }}"
+        state: present
+
     - name: Create agent deployment directory
       ansible.builtin.file:
         path: "{{ deploy_dir_agent }}"

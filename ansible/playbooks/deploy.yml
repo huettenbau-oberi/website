@@ -22,6 +22,11 @@
     - ../files/agent.vault
 
   tasks:
+    - name: Ensure agent communication network exists
+      community.docker.docker_network:
+        name: "{{ agent_network_name }}"
+        state: present
+
     - name: Create Deployment directory
       ansible.builtin.file:
         path: "{{ deploy_dir }}"
