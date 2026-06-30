@@ -35,6 +35,7 @@ type WorkflowRun = {
   event: string
   createdAt: string
   runUrl: string
+  cmsActor?: string
 }
 
 type AgentSample = { ts: number; cpuPct: number; ramPct: number }
@@ -175,8 +176,6 @@ function MetricsChart({
     ? `${linePath} L100,100 L0,100 Z`
     : ''
 
-  const last = pts[pts.length - 1]
-
   const now = Date.now()
   const spanMs = hasSamples ? now - samples[0]!.ts : 0
   const spanMin = Math.round(spanMs / 60000)
@@ -216,15 +215,6 @@ function MetricsChart({
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
             />
-            {last && (
-              <circle
-                cx={last.x}
-                cy={last.y}
-                r="2"
-                fill={color}
-                vectorEffect="non-scaling-stroke"
-              />
-            )}
           </>
         )}
         {!hasSamples && (
@@ -300,6 +290,8 @@ const SystemPanel: React.FC = () => {
   const [host, setHost] = useState<Async<HostMetrics>>({ status: 'idle' })
   const [workflowRunsData, setWorkflowRunsData] = useState<Async<{ runs: WorkflowRun[]; error?: string }>>({ status: 'idle' })
   const [showAllRuns, setShowAllRuns] = useState(false)
+  const [workflowFilter, setWorkflowFilter] = useState<string>('backup.yaml')
+  const [userFilter, setUserFilter] = useState<string>('')
   const [backupManifest, setBackupManifest] = useState<Async<BackupManifest>>({ status: 'idle' })
   const [orphanScan, setOrphanScan] = useState<Async<OrphanEntry[]>>({ status: 'idle' })
   const [actions, setActions] = useState<Record<string, ActionState>>({})
@@ -343,6 +335,7 @@ const SystemPanel: React.FC = () => {
   const loadWorkflowRuns = useCallback(async () => {
     setWorkflowRunsData({ status: 'loading' })
     setShowAllRuns(false)
+    setUserFilter('')
     try {
       setWorkflowRunsData({
         status: 'done',
@@ -468,9 +461,18 @@ const SystemPanel: React.FC = () => {
   const agentMissing = host.status === 'error' && host.code === 503
   const runs = workflowRunsData.status === 'done' ? workflowRunsData.data.runs : []
   const runsError = workflowRunsData.status === 'done' ? workflowRunsData.data.error : undefined
+  const uniqueWorkflows = Array.from(new Set(runs.map((r) => r.workflow))).sort()
+  const uniqueUsers = Array.from(
+    new Set(runs.map((r) => r.cmsActor ?? r.actor).filter(Boolean)),
+  ).sort()
+  const filteredRuns = runs.filter((r) => {
+    if (workflowFilter && r.workflow !== workflowFilter) return false
+    if (userFilter && (r.cmsActor ?? r.actor) !== userFilter) return false
+    return true
+  })
   const RUNS_INITIAL = 10
-  const visibleRuns = showAllRuns ? runs : runs.slice(0, RUNS_INITIAL)
-  const hiddenRunCount = runs.length - RUNS_INITIAL
+  const visibleRuns = showAllRuns ? filteredRuns : filteredRuns.slice(0, RUNS_INITIAL)
+  const hiddenRunCount = filteredRuns.length - RUNS_INITIAL
   const manifest = backupManifest.status === 'done' ? backupManifest.data : null
   const isRefreshing =
     stats.status === 'loading' ||
@@ -821,7 +823,33 @@ const SystemPanel: React.FC = () => {
       </div>
 
       {/* --------------------------- Recent Activity ---------------------- */}
-      <p className="system-panel__section-label">Recent Activity</p>
+      <div className="system-panel__activity-header">
+        <p className="system-panel__section-label" style={{ margin: 0 }}>Recent Activity</p>
+        {workflowRunsData.status === 'done' && runs.length > 0 && (
+          <div className="system-panel__activity-filters">
+            <select
+              className="system-panel__select"
+              value={workflowFilter}
+              onChange={(e) => { setWorkflowFilter(e.target.value); setShowAllRuns(false) }}
+            >
+              <option value="">All workflows</option>
+              {uniqueWorkflows.map((wf) => (
+                <option key={wf} value={wf}>{workflowLabel(wf)}</option>
+              ))}
+            </select>
+            <select
+              className="system-panel__select"
+              value={userFilter}
+              onChange={(e) => { setUserFilter(e.target.value); setShowAllRuns(false) }}
+            >
+              <option value="">All users</option>
+              {uniqueUsers.map((u) => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
       {runsError && (
         <p className="system-panel__hint system-panel__hint--block system-panel__hint--warn">
           Could not fetch runs: {runsError}
@@ -841,8 +869,12 @@ const SystemPanel: React.FC = () => {
                   {run.conclusion ?? run.status}
                 </span>
                 <span className="system-panel__run-workflow">{run.name || workflowLabel(run.workflow)}</span>
-                <span className="system-panel__run-actor">
-                  {run.event === 'schedule' ? 'scheduled' : run.actor || '—'}
+                <span className="system-panel__run-actor" title={run.cmsActor ? `CMS: ${run.cmsActor}` : undefined}>
+                  {run.event === 'schedule'
+                    ? 'scheduled'
+                    : run.cmsActor
+                      ? run.cmsActor
+                      : run.actor || '—'}
                 </span>
                 <span className="system-panel__run-event">{eventLabel(run.event)}</span>
                 <span className="system-panel__run-time">{timeAgo(run.createdAt)}</span>
@@ -857,6 +889,8 @@ const SystemPanel: React.FC = () => {
         </>
       ) : workflowRunsData.status === 'loading' ? (
         <span className="system-panel__hint">Loading activity…</span>
+      ) : filteredRuns.length === 0 && runs.length > 0 ? (
+        <span className="system-panel__hint">No runs match the selected filters.</span>
       ) : !runsError ? (
         <span className="system-panel__hint">No recent workflow runs found.</span>
       ) : null}

@@ -436,6 +436,24 @@
   flex-shrink: 0;
 }
 
+/* ── Activity section header ─────────────────────── */
+
+.system-panel__activity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0.75rem;
+  flex-wrap: wrap;
+}
+
+.system-panel__activity-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 /* ── Workflow runs ───────────────────────────────── */
 
 .system-panel__runs {
@@ -499,8 +517,8 @@
   letter-spacing: 0.04em;
   white-space: nowrap;
 
-  &--success { background: color-mix(in srgb, var(--theme-success-500) 15%, transparent); color: var(--theme-success-500); }
-  &--failure { background: color-mix(in srgb, var(--theme-error-500) 15%, transparent); color: var(--theme-error-500); }
+  &--success { background: color-mix(in srgb, #16a34a 15%, transparent); color: #16a34a; }
+  &--failure { background: color-mix(in srgb, #dc2626 15%, transparent); color: #dc2626; }
   &--running { background: color-mix(in srgb, var(--theme-warning-500, #d98c0c) 15%, transparent); color: var(--theme-warning-500, #d98c0c); }
   &--cancelled, &--other { background: var(--theme-elevation-150); color: var(--theme-elevation-500); }
 }
