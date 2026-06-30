@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '@payloadcms/ui'
 import './index.scss'
 
@@ -24,6 +24,27 @@ type HostMetrics = {
   uptimeSeconds: number
   containers: Array<{ name: string; state: string; status: string }>
 }
+
+type WorkflowRun = {
+  id: number
+  name: string
+  workflow: string
+  status: string
+  conclusion: string | null
+  actor: string
+  event: string
+  createdAt: string
+  runUrl: string
+}
+
+type AgentSample = { ts: number; cpuPct: number; ramPct: number }
+
+type BackupEntry = { name: string; date: string; sizeBytes: number }
+type BackupManifest = { prefix: string; updatedAt: string; backups: BackupEntry[] }
+
+type OrphanEntry = { id: string; filename: string; filesize: number; alt: string | null; createdAt: string }
+
+type MetricSample = { pct: number; ts: number }
 
 type Async<T> =
   | { status: 'idle' }
@@ -62,6 +83,40 @@ function formatUptime(seconds: number): string {
   return `${m}m`
 }
 
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime()
+  const m = Math.floor(diff / 60000)
+  if (m < 1) return 'just now'
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  return `${Math.floor(h / 24)}d ago`
+}
+
+function workflowLabel(filename: string): string {
+  const map: Record<string, string> = {
+    'backup.yaml': 'Backup',
+    'pipeline.yaml': 'Deploy',
+    'restore.yaml': 'Restore',
+    'update.yaml': 'System Update',
+  }
+  return map[filename] ?? filename.replace('.yaml', '')
+}
+
+function eventLabel(event: string): string {
+  if (event === 'workflow_dispatch') return 'manual'
+  if (event === 'schedule') return 'scheduled'
+  return event
+}
+
+function conclusionTone(run: WorkflowRun): string {
+  if (run.status === 'in_progress' || run.status === 'queued') return 'running'
+  if (run.conclusion === 'success') return 'success'
+  if (run.conclusion === 'failure') return 'failure'
+  if (run.conclusion === 'cancelled') return 'cancelled'
+  return 'other'
+}
+
 async function callJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init)
   const data = (await res.json().catch(() => ({}))) as T & { error?: string }
@@ -87,6 +142,110 @@ function UsageBar({ used, total }: { used: number; total: number }) {
   )
 }
 
+function MetricsChart({
+  samples,
+  tone,
+  chartId,
+}: {
+  samples: MetricSample[]
+  tone: 'ok' | 'warn' | 'danger'
+  chartId: string
+}) {
+  const gradId = `mc-${chartId}-${tone}`
+  const color =
+    tone === 'danger'
+      ? 'var(--theme-error-500)'
+      : tone === 'warn'
+        ? 'var(--theme-warning-500, #d98c0c)'
+        : 'var(--theme-success-500)'
+
+  const hasSamples = samples.length >= 2
+
+  const pts = hasSamples
+    ? samples.map((s, i) => ({
+        x: (i / (samples.length - 1)) * 100,
+        y: 100 - s.pct,
+      }))
+    : []
+
+  const linePath = hasSamples
+    ? pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`).join(' ')
+    : ''
+  const areaPath = hasSamples
+    ? `${linePath} L100,100 L0,100 Z`
+    : ''
+
+  const last = pts[pts.length - 1]
+
+  const now = Date.now()
+  const spanMs = hasSamples ? now - samples[0]!.ts : 0
+  const spanMin = Math.round(spanMs / 60000)
+
+  return (
+    <div className="system-panel__metrics-chart-wrap">
+      <svg
+        className="system-panel__metrics-chart"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+            <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+          </linearGradient>
+        </defs>
+        {/* horizontal grid lines at 25 / 50 / 75 % */}
+        {[25, 50, 75].map((pct) => (
+          <line
+            key={pct}
+            x1="0" y1={100 - pct} x2="100" y2={100 - pct}
+            stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2"
+            vectorEffect="non-scaling-stroke"
+          />
+        ))}
+        {hasSamples && (
+          <>
+            <path d={areaPath} fill={`url(#${gradId})`} />
+            <path
+              d={linePath}
+              fill="none"
+              stroke={color}
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            {last && (
+              <circle
+                cx={last.x}
+                cy={last.y}
+                r="2"
+                fill={color}
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+          </>
+        )}
+        {!hasSamples && (
+          <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeOpacity="0.15" vectorEffect="non-scaling-stroke" />
+        )}
+      </svg>
+      <div className="system-panel__metrics-chart-footer">
+        {hasSamples ? (
+          <>
+            <span>0%</span>
+            <span className="system-panel__metrics-chart-span">{spanMin > 0 ? `${spanMin}m history · ${samples.length} samples` : `${samples.length} samples`}</span>
+            <span>100%</span>
+          </>
+        ) : (
+          <span className="system-panel__metrics-chart-span">Collecting data…</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
 function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="system-panel__stat">
@@ -96,18 +255,58 @@ function Stat({ label, value }: { label: string; value: React.ReactNode }) {
   )
 }
 
+function ContainerList({
+  containers,
+  selected,
+  onSelect,
+}: {
+  containers: Array<{ name: string; state: string; status: string }>
+  selected: string
+  onSelect: (name: string) => void
+}) {
+  if (containers.length === 0) {
+    return <span className="system-panel__hint">No containers available.</span>
+  }
+  return (
+    <div className="system-panel__container-list">
+      {containers.map((c) => (
+        <button
+          key={c.name}
+          type="button"
+          className={`system-panel__container-row${selected === c.name ? ' system-panel__container-row--selected' : ''}`}
+          onClick={() => onSelect(selected === c.name ? '' : c.name)}
+        >
+          <span
+            className={`system-panel__status-dot system-panel__status-dot--${
+              c.state === 'running' ? 'ok' : c.state === 'exited' ? 'stopped' : 'error'
+            }`}
+          />
+          <strong className="system-panel__container-name">{c.name}</strong>
+          <span className="system-panel__container-status">{c.status}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 const SystemPanel: React.FC = () => {
   const { user } = useAuth()
-  // `userRole` drives the three-tier access system; read loosely since generated types may lag.
   const isAdmin = (user as { userRole?: string } | null)?.userRole === 'admin'
 
   const [stats, setStats] = useState<Async<AppStats>>({ status: 'idle' })
   const [host, setHost] = useState<Async<HostMetrics>>({ status: 'idle' })
+  const [workflowRunsData, setWorkflowRunsData] = useState<Async<{ runs: WorkflowRun[]; error?: string }>>({ status: 'idle' })
+  const [showAllRuns, setShowAllRuns] = useState(false)
+  const [backupManifest, setBackupManifest] = useState<Async<BackupManifest>>({ status: 'idle' })
+  const [orphanScan, setOrphanScan] = useState<Async<OrphanEntry[]>>({ status: 'idle' })
   const [actions, setActions] = useState<Record<string, ActionState>>({})
   const [restartTarget, setRestartTarget] = useState<string>('')
+  const [selectedBackup, setSelectedBackup] = useState<string>('')
+
+  const [agentHistory, setAgentHistory] = useState<AgentSample[]>([])
 
   const setAction = useCallback((key: string, state: ActionState) => {
     setActions((prev) => ({ ...prev, [key]: state }))
@@ -132,11 +331,51 @@ const SystemPanel: React.FC = () => {
     }
   }, [])
 
-  useEffect(() => {
-    if (!isAdmin) return
+  const loadMetricsHistory = useCallback(async () => {
+    try {
+      const data = await callJson<{ samples: AgentSample[] }>('/api/system/metrics-history')
+      setAgentHistory(data.samples)
+    } catch {
+      // silent — existing chart data stays visible on transient failures
+    }
+  }, [])
+
+  const loadWorkflowRuns = useCallback(async () => {
+    setWorkflowRunsData({ status: 'loading' })
+    setShowAllRuns(false)
+    try {
+      setWorkflowRunsData({
+        status: 'done',
+        data: await callJson<{ runs: WorkflowRun[]; error?: string }>('/api/system/workflow-runs'),
+      })
+    } catch (err) {
+      setWorkflowRunsData({ status: 'error', message: err instanceof Error ? err.message : 'Failed to load' })
+    }
+  }, [])
+
+  const loadBackups = useCallback(async () => {
+    setBackupManifest({ status: 'loading' })
+    try {
+      setBackupManifest({ status: 'done', data: await callJson<BackupManifest>('/api/system/backups') })
+    } catch (err) {
+      setBackupManifest({ status: 'error', message: err instanceof Error ? err.message : 'Failed to load' })
+    }
+  }, [])
+
+  const refreshAll = useCallback(() => {
     void loadStats()
     void loadHost()
-  }, [isAdmin, loadStats, loadHost])
+    void loadMetricsHistory()
+    void loadWorkflowRuns()
+    void loadBackups()
+  }, [loadStats, loadHost, loadMetricsHistory, loadWorkflowRuns, loadBackups])
+
+  useEffect(() => {
+    if (!isAdmin) return
+    refreshAll()
+    const interval = setInterval(() => { void loadMetricsHistory() }, 30_000)
+    return () => clearInterval(interval)
+  }, [isAdmin, refreshAll, loadMetricsHistory])
 
   const runMaintenance = useCallback(
     async (key: string, url: string, confirmMsg?: string) => {
@@ -182,26 +421,74 @@ const SystemPanel: React.FC = () => {
     [setAction],
   )
 
+  const runDeepScan = useCallback(async () => {
+    setOrphanScan({ status: 'loading' })
+    setAction('deep-media-delete', { status: 'idle' })
+    try {
+      const data = await callJson<{ orphans: OrphanEntry[] }>('/api/system/deep-media-cleanup?dry_run=true', {
+        method: 'POST',
+      })
+      setOrphanScan({ status: 'done', data: data.orphans })
+    } catch (err) {
+      setOrphanScan({ status: 'error', message: err instanceof Error ? err.message : 'Scan failed' })
+    }
+  }, [setAction])
+
+  const runDeepDelete = useCallback(
+    async (ids: string[]) => {
+      if (!window.confirm(`Permanently delete ${ids.length} media record${ids.length !== 1 ? 's' : ''}? This cannot be undone.`)) return
+      setAction('deep-media-delete', { status: 'loading' })
+      try {
+        const data = await callJson<{ deletedCount: number; freedBytes: number; errors: string[] }>(
+          '/api/system/deep-media-cleanup',
+          {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ ids }),
+          },
+        )
+        setAction('deep-media-delete', {
+          status: 'done',
+          message: `Deleted ${data.deletedCount}, freed ${formatBytes(data.freedBytes)}${data.errors.length ? ` (${data.errors.length} error(s))` : ''}`,
+        })
+        setOrphanScan({ status: 'idle' })
+        void loadStats()
+      } catch (err) {
+        setAction('deep-media-delete', { status: 'error', message: err instanceof Error ? err.message : 'Delete failed' })
+      }
+    },
+    [setAction, loadStats],
+  )
+
   if (!isAdmin) return null
 
   const s = stats.status === 'done' ? stats.data : null
   const h = host.status === 'done' ? host.data : null
   const containers = h?.containers ?? []
+  const agentMissing = host.status === 'error' && host.code === 503
+  const runs = workflowRunsData.status === 'done' ? workflowRunsData.data.runs : []
+  const runsError = workflowRunsData.status === 'done' ? workflowRunsData.data.error : undefined
+  const RUNS_INITIAL = 10
+  const visibleRuns = showAllRuns ? runs : runs.slice(0, RUNS_INITIAL)
+  const hiddenRunCount = runs.length - RUNS_INITIAL
+  const manifest = backupManifest.status === 'done' ? backupManifest.data : null
+  const isRefreshing =
+    stats.status === 'loading' ||
+    host.status === 'loading' ||
+    workflowRunsData.status === 'loading' ||
+    backupManifest.status === 'loading'
 
   return (
     <div className="system-panel">
       {/* ----------------------------- System ----------------------------- */}
       <div className="system-panel__header">
-        <p className="system-panel__section-label">System</p>
+        <p className="system-panel__section-label" style={{ margin: 0 }}>System</p>
         <button
           className="system-panel__refresh"
-          onClick={() => {
-            void loadStats()
-            void loadHost()
-          }}
-          disabled={stats.status === 'loading' || host.status === 'loading'}
+          onClick={refreshAll}
+          disabled={isRefreshing}
         >
-          {stats.status === 'loading' || host.status === 'loading' ? 'Refreshing…' : 'Refresh'}
+          {isRefreshing ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
 
@@ -254,32 +541,28 @@ const SystemPanel: React.FC = () => {
           )}
         </div>
 
-        {/* Health (host) */}
+        {/* Health */}
         <div className="system-panel__card">
           <strong className="system-panel__card-title">Health</strong>
           {h ? (
             <>
-              <div className="system-panel__usage">
-                <UsageBar used={h.memory.usedBytes} total={h.memory.totalBytes} />
-                <span className="system-panel__hint">
-                  RAM {formatBytes(h.memory.usedBytes)} / {formatBytes(h.memory.totalBytes)}
-                </span>
-              </div>
-              <Stat label="Load (1m)" value={h.cpu.loadavg[0].toFixed(2)} />
-              <Stat label="CPUs" value={h.cpu.count} />
               <Stat label="Host uptime" value={formatUptime(h.uptimeSeconds)} />
+              <Stat label="Containers" value={`${h.containers.filter((c) => c.state === 'running').length} / ${h.containers.length} running`} />
             </>
-          ) : host.status === 'error' && host.code === 503 ? (
-            <span className="system-panel__hint">System agent not configured — host metrics unavailable.</span>
+          ) : agentMissing ? (
+            <span className="system-panel__hint">System agent not configured.</span>
           ) : (
             <span className="system-panel__hint">{host.status === 'error' ? host.message : 'Loading…'}</span>
           )}
           {s && (
-            <Stat label="App uptime" value={formatUptime(s.process.uptimeSeconds)} />
+            <>
+              <Stat label="App uptime" value={formatUptime(s.process.uptimeSeconds)} />
+              <Stat label="App memory" value={formatBytes(s.process.rssBytes)} />
+            </>
           )}
         </div>
 
-        {/* Host disks (only when agent present and reporting extra mounts) */}
+        {/* Host disks */}
         {h && h.disks.length > 0 && (
           <div className="system-panel__card">
             <strong className="system-panel__card-title">Host disks</strong>
@@ -294,6 +577,53 @@ const SystemPanel: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Metrics — full-width history card */}
+        {(() => {
+          const ramPct = h ? Math.min(100, Math.round((h.memory.usedBytes / Math.max(1, h.memory.totalBytes)) * 100)) : 0
+          const cpuPct = h ? Math.min(100, Math.round((h.cpu.loadavg[0] / Math.max(1, h.cpu.count)) * 100)) : 0
+          const ramTone: 'ok' | 'warn' | 'danger' = ramPct >= 90 ? 'danger' : ramPct >= 75 ? 'warn' : 'ok'
+          const cpuTone: 'ok' | 'warn' | 'danger' = cpuPct >= 90 ? 'danger' : cpuPct >= 75 ? 'warn' : 'ok'
+          const ramSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
+          const cpuSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          return (
+            <div className="system-panel__card system-panel__card--metrics">
+              <strong className="system-panel__card-title">Metrics</strong>
+              {(h || agentMissing || host.status === 'error') ? (
+                agentMissing ? (
+                  <span className="system-panel__hint">System agent not configured — host metrics unavailable.</span>
+                ) : host.status === 'error' ? (
+                  <span className="system-panel__hint">{(host as { message: string }).message}</span>
+                ) : (
+                  <div className="system-panel__metrics-panels">
+                    <div className="system-panel__metrics-panel">
+                      <div className="system-panel__metrics-header">
+                        <span className="system-panel__metrics-label">RAM</span>
+                        <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
+                        <span className="system-panel__metrics-detail">
+                          {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
+                        </span>
+                      </div>
+                      <MetricsChart samples={ramSamples} tone={ramTone} chartId="ram" />
+                    </div>
+                    <div className="system-panel__metrics-panel">
+                      <div className="system-panel__metrics-header">
+                        <span className="system-panel__metrics-label">CPU</span>
+                        <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
+                        <span className="system-panel__metrics-detail">
+                          load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
+                        </span>
+                      </div>
+                      <MetricsChart samples={cpuSamples} tone={cpuTone} chartId="cpu" />
+                    </div>
+                  </div>
+                )
+              ) : (
+                <span className="system-panel__hint">Loading…</span>
+              )}
+            </div>
+          )
+        })()}
       </div>
 
       {/* --------------------------- Maintenance -------------------------- */}
@@ -306,6 +636,83 @@ const SystemPanel: React.FC = () => {
           buttonLabel="Run Cleanup"
           onClick={() => runMaintenance('cleanup', '/api/media/cleanup')}
         />
+
+        {/* Deep media cleanup — two-phase scan → delete */}
+        <div className="system-panel__action system-panel__action--column">
+          <div className="system-panel__action-info">
+            <strong className="system-panel__action-title">Deep Media Cleanup</strong>
+            <span className="system-panel__action-desc">
+              Find media records with no references in any page or post, then remove them permanently.
+            </span>
+          </div>
+
+          {orphanScan.status === 'idle' && (
+            <div className="system-panel__action-control">
+              {actions['deep-media-delete']?.status === 'done' && (
+                <span className="system-panel__result">{actions['deep-media-delete'].message}</span>
+              )}
+              <button className="system-panel__btn" onClick={runDeepScan}>
+                Scan for orphaned media
+              </button>
+            </div>
+          )}
+
+          {orphanScan.status === 'loading' && (
+            <span className="system-panel__hint">Scanning all content for media references…</span>
+          )}
+
+          {orphanScan.status === 'error' && (
+            <div className="system-panel__action-control">
+              <span className="system-panel__result system-panel__result--error">{orphanScan.message}</span>
+              <button className="system-panel__btn" onClick={runDeepScan}>Retry</button>
+            </div>
+          )}
+
+          {orphanScan.status === 'done' && (
+            <>
+              {orphanScan.data.length === 0 ? (
+                <div className="system-panel__action-control">
+                  <span className="system-panel__result">No orphaned media found.</span>
+                  <button className="system-panel__btn" onClick={runDeepScan}>Rescan</button>
+                </div>
+              ) : (
+                <div className="system-panel__orphan-list">
+                  {orphanScan.data.slice(0, 8).map((m) => (
+                    <div key={m.id} className="system-panel__orphan-row">
+                      <span className="system-panel__orphan-name">{m.filename}</span>
+                      <span className="system-panel__orphan-size">{formatBytes(m.filesize)}</span>
+                      {m.alt && <span className="system-panel__orphan-alt">{m.alt}</span>}
+                    </div>
+                  ))}
+                  {orphanScan.data.length > 8 && (
+                    <span className="system-panel__hint">…and {orphanScan.data.length - 8} more</span>
+                  )}
+                  <div className="system-panel__action-control" style={{ marginTop: '0.5rem' }}>
+                    {actions['deep-media-delete']?.status === 'error' && (
+                      <span className="system-panel__result system-panel__result--error">
+                        {actions['deep-media-delete'].message}
+                      </span>
+                    )}
+                    <button
+                      className="system-panel__btn"
+                      onClick={runDeepScan}
+                      disabled={actions['deep-media-delete']?.status === 'loading'}
+                    >
+                      Rescan
+                    </button>
+                    <ActionButton
+                      state={actions['deep-media-delete']}
+                      label={`Delete ${orphanScan.data.length} item${orphanScan.data.length !== 1 ? 's' : ''}`}
+                      danger
+                      onClick={() => runDeepDelete(orphanScan.data.map((m) => m.id))}
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
         <ActionRow
           title="Clear Image Cache"
           desc="Empty the Next.js image-optimization cache. Images regenerate on demand."
@@ -324,37 +731,36 @@ const SystemPanel: React.FC = () => {
 
       {/* ---------------------------- Operations -------------------------- */}
       <p className="system-panel__section-label">Operations</p>
-      {host.status === 'error' && host.code === 503 && (
+      {agentMissing && (
         <p className="system-panel__hint system-panel__hint--block">
           The system agent is not configured, so operations cannot run from here.
         </p>
       )}
       <div className="system-panel__actions">
-        <div className="system-panel__action">
+        {/* Restart Service — visual container list */}
+        <div className="system-panel__action system-panel__action--column">
           <div className="system-panel__action-info">
             <strong className="system-panel__action-title">Restart Service</strong>
             <span className="system-panel__action-desc">Restart a single container on the host.</span>
           </div>
-          <div className="system-panel__action-control">
-            <select
-              className="system-panel__select"
-              value={restartTarget}
-              onChange={(e) => setRestartTarget(e.target.value)}
-            >
-              <option value="">Select container…</option>
-              {containers.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name} ({c.state})
-                </option>
-              ))}
-            </select>
-            <ActionButton
-              state={actions['restart-service']}
-              label="Restart"
-              disabled={!restartTarget}
-              onClick={() => runOp('restart-service', { extra: { service: restartTarget } })}
-            />
-          </div>
+          <ContainerList containers={containers} selected={restartTarget} onSelect={setRestartTarget} />
+          {restartTarget && (
+            <div className="system-panel__action-control">
+              {actions['restart-service']?.status === 'done' && (
+                <span className="system-panel__result">{actions['restart-service'].message}</span>
+              )}
+              {actions['restart-service']?.status === 'error' && (
+                <span className="system-panel__result system-panel__result--error">
+                  {actions['restart-service'].message}
+                </span>
+              )}
+              <ActionButton
+                state={actions['restart-service']}
+                label={`Restart "${restartTarget}"`}
+                onClick={() => runOp('restart-service', { extra: { service: restartTarget } })}
+              />
+            </div>
+          )}
         </div>
 
         <ActionRow
@@ -379,6 +785,8 @@ const SystemPanel: React.FC = () => {
           danger
           onClick={() => runOp('system-update', { destructive: true })}
         />
+
+        {/* Restore — select from backup list or manual entry */}
         <div className="system-panel__action">
           <div className="system-panel__action-info">
             <strong className="system-panel__action-title">Restore</strong>
@@ -387,12 +795,23 @@ const SystemPanel: React.FC = () => {
             </span>
           </div>
           <div className="system-panel__action-control">
+            {actions['restore']?.status === 'done' && (
+              <span className="system-panel__result">{actions['restore'].message}</span>
+            )}
+            {actions['restore']?.status === 'error' && (
+              <span className="system-panel__result system-panel__result--error">{actions['restore'].message}</span>
+            )}
             <ActionButton
               state={actions['restore']}
-              label="Restore…"
+              label={selectedBackup ? `Restore "${selectedBackup}"` : 'Restore…'}
               danger
               onClick={async () => {
-                const path = window.prompt('Absolute S3 path of the backup to restore:')
+                let path: string | null
+                if (selectedBackup && manifest) {
+                  path = `/${manifest.prefix}/${selectedBackup}`
+                } else {
+                  path = window.prompt('Absolute S3 path of the backup to restore:')
+                }
                 if (!path) return
                 await runOp('restore', { destructive: true, extra: { path } })
               }}
@@ -400,6 +819,92 @@ const SystemPanel: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* --------------------------- Recent Activity ---------------------- */}
+      <p className="system-panel__section-label">Recent Activity</p>
+      {runsError && (
+        <p className="system-panel__hint system-panel__hint--block system-panel__hint--warn">
+          Could not fetch runs: {runsError}
+        </p>
+      )}
+      {visibleRuns.length > 0 ? (
+        <>
+          <div className="system-panel__runs">
+            {visibleRuns.map((run) => (
+              <button
+                key={run.id}
+                type="button"
+                className={`system-panel__run-row${run.event === 'workflow_dispatch' ? ' system-panel__run-row--manual' : ''}`}
+                onClick={() => window.open(run.runUrl, '_blank', 'noopener')}
+              >
+                <span className={`system-panel__badge system-panel__badge--${conclusionTone(run)}`}>
+                  {run.conclusion ?? run.status}
+                </span>
+                <span className="system-panel__run-workflow">{run.name || workflowLabel(run.workflow)}</span>
+                <span className="system-panel__run-actor">
+                  {run.event === 'schedule' ? 'scheduled' : run.actor || '—'}
+                </span>
+                <span className="system-panel__run-event">{eventLabel(run.event)}</span>
+                <span className="system-panel__run-time">{timeAgo(run.createdAt)}</span>
+              </button>
+            ))}
+          </div>
+          {!showAllRuns && hiddenRunCount > 0 && (
+            <button className="system-panel__show-more" onClick={() => setShowAllRuns(true)}>
+              Show {hiddenRunCount} more
+            </button>
+          )}
+        </>
+      ) : workflowRunsData.status === 'loading' ? (
+        <span className="system-panel__hint">Loading activity…</span>
+      ) : !runsError ? (
+        <span className="system-panel__hint">No recent workflow runs found.</span>
+      ) : null}
+
+      {/* ----------------------------- Backups ---------------------------- */}
+      <p className="system-panel__section-label">Backups</p>
+      {manifest ? (
+        <div className="system-panel__card">
+          <div className="system-panel__backup-meta">
+            <Stat label="Total backups" value={manifest.backups.length} />
+            <Stat label="Total size" value={formatBytes(manifest.backups.reduce((s, b) => s + b.sizeBytes, 0))} />
+            {manifest.updatedAt && (
+              <span className="system-panel__hint" style={{ marginLeft: 'auto', alignSelf: 'center' }}>
+                Updated {timeAgo(manifest.updatedAt)}
+              </span>
+            )}
+          </div>
+          {manifest.backups.length > 0 && (
+            <div className="system-panel__backup-list">
+              {manifest.backups.map((b) => (
+                <button
+                  key={b.name}
+                  type="button"
+                  className={`system-panel__backup-row${selectedBackup === b.name ? ' system-panel__backup-row--selected' : ''}`}
+                  onClick={() => setSelectedBackup((prev) => (prev === b.name ? '' : b.name))}
+                >
+                  <span className="system-panel__backup-name">{b.name}</span>
+                  <span className="system-panel__backup-size">{formatBytes(b.sizeBytes)}</span>
+                  <span className="system-panel__backup-date">
+                    {new Date(b.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+          {selectedBackup && (
+            <p className="system-panel__hint" style={{ marginTop: '0.5rem' }}>
+              Selected: <strong>{selectedBackup}</strong> — use the Restore button in Operations above.
+            </p>
+          )}
+        </div>
+      ) : backupManifest.status === 'error' ? (
+        <span className="system-panel__hint">{backupManifest.message}</span>
+      ) : backupManifest.status === 'loading' ? (
+        <span className="system-panel__hint">Loading backups…</span>
+      ) : (
+        <span className="system-panel__hint">No backup manifest available yet.</span>
+      )}
     </div>
   )
 }

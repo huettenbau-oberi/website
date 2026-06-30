@@ -2,12 +2,6 @@ name: Backup 📦
 
 on:
   workflow_dispatch:
-    inputs:
-      retention_days:
-        description: "Retention days"
-        required: true
-        default: 30
-        type: number
   schedule:
     - cron: "0 3 * * */3"
 
@@ -45,7 +39,7 @@ jobs:
           ansible-playbook -i inventory.ini
           playbooks/backup.yml
           -e @group_vars/${{ matrix.environment }}.yml
-          --extra-vars retention_days=${{ matrix.environment == 'devt' && '7' || '30' }}
+          --extra-vars retention_days=${{ matrix.environment == 'devt' && '7' || '90' }}
 
   backup:
     if: ${{ github.event_name == 'workflow_dispatch' }}
@@ -71,4 +65,3 @@ jobs:
           ansible-playbook -i inventory.ini
           playbooks/backup.yml
           -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml
-          --extra-vars retention_days=${{ github.event.inputs.retention_days || '' }}

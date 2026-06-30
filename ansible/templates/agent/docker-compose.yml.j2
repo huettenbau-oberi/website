@@ -14,7 +14,7 @@ services:
       DISK_PATHS: "/host,{{ agent_additional_disk_paths }}"
       MEMINFO_PATH: "/host/proc/meminfo"
       HOST_MOUNT_PREFIX: "/host"
-      BACKUP_RETENTION_DAYS: "{{ retention_days | default('30') }}"
+      BACKUP_MANIFEST_PATH: "/host{{ deploy_dir }}/backup-manifest.json"
     volumes:
       # Read-only host mounts for metrics only (statfs + meminfo). Never read-write.
       - /:/host:ro

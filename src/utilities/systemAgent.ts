@@ -65,6 +65,12 @@ export function getHostMetrics(): Promise<AgentResult<HostMetrics>> {
   return call<HostMetrics>('/metrics', { method: 'GET' })
 }
 
+export type HistorySample = { ts: number; cpuPct: number; ramPct: number }
+
+export function getMetricsHistory(): Promise<AgentResult<{ samples: HistorySample[] }>> {
+  return call<{ samples: HistorySample[] }>('/history', { method: 'GET' })
+}
+
 export type OpResult = { ok: boolean; detail?: string; runUrl?: string }
 
 export function runOp(name: string, body: Record<string, unknown>): Promise<AgentResult<OpResult>> {
@@ -72,4 +78,27 @@ export function runOp(name: string, body: Record<string, unknown>): Promise<Agen
     method: 'POST',
     body: JSON.stringify(body ?? {}),
   })
+}
+
+export type WorkflowRun = {
+  id: number
+  name: string
+  workflow: string
+  status: string
+  conclusion: string | null
+  actor: string
+  event: string
+  createdAt: string
+  runUrl: string
+}
+
+export function getWorkflowRuns(): Promise<AgentResult<{ runs: WorkflowRun[]; error?: string }>> {
+  return call<{ runs: WorkflowRun[]; error?: string }>('/workflow-runs', { method: 'GET' })
+}
+
+export type BackupEntry = { name: string; date: string; sizeBytes: number }
+export type BackupManifest = { prefix: string; updatedAt: string; backups: BackupEntry[] }
+
+export function getBackups(): Promise<AgentResult<BackupManifest>> {
+  return call<BackupManifest>('/backups', { method: 'GET' })
 }

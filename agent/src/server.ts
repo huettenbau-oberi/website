@@ -5,6 +5,8 @@
  * Next.js app calls server-side with a shared secret:
  *   GET  /healthz            — unauthenticated liveness probe
  *   GET  /metrics            — read-only host metrics (disk, memory, cpu, containers)
+ *   GET  /workflow-runs      — recent GitHub Actions runs for tracked workflows
+ *   GET  /backups            — backup manifest from last backup run
  *   POST /ops/:name          — run ONE of a fixed allowlist of operations
  *
  * Security model:
@@ -35,7 +37,7 @@ const DISK_PATHS = (process.env.DISK_PATHS ?? '/')
   .map((s) => s.trim())
   .filter(Boolean)
 const MEMINFO_PATH = process.env.MEMINFO_PATH ?? '/proc/meminfo'
-const BACKUP_RETENTION_DAYS = process.env.BACKUP_RETENTION_DAYS ?? '30'
+const BACKUP_MANIFEST_PATH = process.env.BACKUP_MANIFEST_PATH ?? ''
 // Host paths are bind-mounted read-only under this prefix (e.g. /host) so we can
 // statfs them; strip it for display so the UI shows the real mount point.
 const HOST_MOUNT_PREFIX = process.env.HOST_MOUNT_PREFIX ?? '/host'
@@ -156,6 +158,109 @@ async function getMetrics() {
 }
 
 // ---------------------------------------------------------------------------
+// metrics history — in-memory ring buffer, 24 h at 30 s intervals
+// ---------------------------------------------------------------------------
+const HISTORY_INTERVAL_MS = 30_000
+const HISTORY_MAX_SAMPLES = (24 * 60 * 60 * 1000) / HISTORY_INTERVAL_MS  // 2880
+
+type HistorySample = { ts: number; cpuPct: number; ramPct: number }
+const metricsHistory: HistorySample[] = []
+
+async function collectMetricsSample() {
+  try {
+    const mem = await getMemory()
+    const cpuCount = os.cpus().length
+    const cpuLoad = os.loadavg()[0]!
+    const cpuPct = Math.min(100, (cpuLoad / Math.max(1, cpuCount)) * 100)
+    const ramPct = Math.min(100, (mem.usedBytes / Math.max(1, mem.totalBytes)) * 100)
+    metricsHistory.push({ ts: Date.now(), cpuPct, ramPct })
+    if (metricsHistory.length > HISTORY_MAX_SAMPLES) {
+      metricsHistory.splice(0, metricsHistory.length - HISTORY_MAX_SAMPLES)
+    }
+  } catch {
+    // gaps in history are acceptable
+  }
+}
+
+void collectMetricsSample()
+setInterval(() => { void collectMetricsSample() }, HISTORY_INTERVAL_MS)
+
+// ---------------------------------------------------------------------------
+// workflow runs
+// ---------------------------------------------------------------------------
+const TRACKED_WORKFLOWS = new Set(['backup.yaml', 'pipeline.yaml', 'restore.yaml', 'update.yaml'])
+
+type GitHubRun = {
+  id: number
+  name: string
+  path: string
+  status: string
+  conclusion: string | null
+  triggering_actor?: { login?: string }
+  actor?: { login?: string }
+  event: string
+  created_at: string
+  html_url: string
+}
+
+async function getWorkflowRuns(): Promise<{ runs: object[]; error?: string }> {
+  if (!GITHUB_TOKEN || !GITHUB_REPO) return { runs: [], error: 'GitHub is not configured on the agent' }
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/actions/runs?per_page=80`,
+      {
+        headers: {
+          authorization: `Bearer ${GITHUB_TOKEN}`,
+          accept: 'application/vnd.github+json',
+          'x-github-api-version': '2022-11-28',
+          'user-agent': 'huettenbau-system-agent',
+        },
+        signal: AbortSignal.timeout(10_000),
+      },
+    )
+    if (!res.ok) {
+      const text = await res.text().catch(() => '')
+      const msg = `GitHub API error (${res.status}): ${text.slice(0, 200)}`
+      console.error(`[workflow-runs] ${msg}`)
+      return { runs: [], error: msg }
+    }
+    const data = (await res.json()) as { workflow_runs?: GitHubRun[] }
+    const runs = (data.workflow_runs ?? [])
+      .filter((r) => TRACKED_WORKFLOWS.has((r.path ?? '').split('/').pop() ?? ''))
+      .slice(0, 40)
+      .map((r) => ({
+        id: r.id,
+        name: r.name ?? '',
+        workflow: (r.path ?? '').split('/').pop() ?? '',
+        status: r.status,
+        conclusion: r.conclusion,
+        actor: r.triggering_actor?.login ?? r.actor?.login ?? '',
+        event: r.event,
+        createdAt: r.created_at,
+        runUrl: r.html_url,
+      }))
+    return { runs }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Unknown error'
+    console.error(`[workflow-runs] fetch failed: ${msg}`)
+    return { runs: [], error: msg }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// backup manifest
+// ---------------------------------------------------------------------------
+async function getBackups() {
+  if (!BACKUP_MANIFEST_PATH) return { prefix: '', updatedAt: '', backups: [] }
+  try {
+    const text = await readFile(BACKUP_MANIFEST_PATH, 'utf8')
+    return JSON.parse(text) as { prefix: string; updatedAt: string; backups: unknown[] }
+  } catch {
+    return { prefix: '', updatedAt: '', backups: [] }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // operations
 // ---------------------------------------------------------------------------
 type OpResult = { ok: true; detail: string; runUrl?: string }
@@ -208,7 +313,7 @@ async function runOp(name: string, body: Record<string, unknown>): Promise<OpRes
       return { ok: true, detail: 'Triggered redeploy (pipeline.yaml)', runUrl }
     }
     case 'backup': {
-      const runUrl = await dispatchWorkflow('backup.yaml', { retention_days: String(BACKUP_RETENTION_DAYS) })
+      const runUrl = await dispatchWorkflow('backup.yaml', {})
       return { ok: true, detail: 'Triggered backup', runUrl }
     }
     case 'restore': {
@@ -248,6 +353,18 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && pathname === '/metrics') {
       return sendJson(res, 200, await getMetrics())
+    }
+
+    if (req.method === 'GET' && pathname === '/history') {
+      return sendJson(res, 200, { samples: metricsHistory })
+    }
+
+    if (req.method === 'GET' && pathname === '/workflow-runs') {
+      return sendJson(res, 200, await getWorkflowRuns())
+    }
+
+    if (req.method === 'GET' && pathname === '/backups') {
+      return sendJson(res, 200, await getBackups())
     }
 
     const opMatch = pathname.match(/^\/ops\/([a-z][a-z-]{1,40})$/)
