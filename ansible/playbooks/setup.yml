@@ -8,6 +8,12 @@
     - ../files/cloudflare.vault
     - ../files/setup.vault
 
+  vars:
+    public_interface: "{{ ansible_facts['default_ipv6']['interface'] | default(ansible_facts['default_ipv4']['interface']) }}"
+    ipv6_ndp_proxy_subnets:
+      - "{{ ipv6_subnet }}"
+      - "{{ devt_ipv6_subnet }}"
+
   handlers:
     - name: Restart SSH
       ansible.builtin.systemd:
@@ -17,6 +23,20 @@
     - name: Restart Fail2Ban
       ansible.builtin.systemd:
         name: fail2ban
+        state: restarted
+
+    - name: Restart Docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+
+    - name: Reload sysctl
+      ansible.builtin.command: sysctl --system
+      changed_when: false
+
+    - name: Restart ndppd
+      ansible.builtin.systemd:
+        name: ndppd
         state: restarted
 
     - name: Restart Traefik
@@ -75,6 +95,46 @@
         line: "Port {{ ssh_port }}"
         state: present
       notify: Restart SSH
+
+    # ── UFW ─────────────────────────────────────────────────────────────────
+    - name: Enable IPv6 in UFW config
+      ansible.builtin.lineinfile:
+        path: /etc/default/ufw
+        regexp: "^IPV6="
+        line: "IPV6=yes"
+        state: present
+
+    - name: Set UFW default incoming policy to deny
+      community.general.ufw:
+        default: deny
+        direction: incoming
+
+    - name: Set UFW default outgoing policy to allow
+      community.general.ufw:
+        default: allow
+        direction: outgoing
+
+    - name: Allow SSH on custom port
+      community.general.ufw:
+        rule: allow
+        port: "{{ ssh_port }}"
+        proto: tcp
+
+    - name: Allow HTTP
+      community.general.ufw:
+        rule: allow
+        port: "80"
+        proto: tcp
+
+    - name: Allow HTTPS
+      community.general.ufw:
+        rule: allow
+        port: "443"
+        proto: tcp
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
 
     # ── Fail2Ban ────────────────────────────────────────────────────────────
     - name: Install Fail2Ban
@@ -145,10 +205,66 @@
         enabled: true
         state: started
 
+    - name: Configure Docker daemon for IPv6 support
+      ansible.builtin.copy:
+        content: |
+          {
+            "ipv6": true,
+            "ip6tables": true,
+            "fixed-cidr-v6": "fd00::/80"
+          }
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart Docker
+
+    # ── IPv6 NDP Proxy ──────────────────────────────────────────────────────
+    # Docker bridge networks (ip6net) carve subnets out of the host's routed
+    # /64. For the upstream router to deliver traffic for those addresses,
+    # the host must forward IPv6 and proxy NDP for them on its public
+    # interface.
+    - name: Enable IPv6 forwarding and NDP proxying
+      ansible.builtin.copy:
+        content: |
+          net.ipv6.conf.all.forwarding = 1
+          net.ipv6.conf.all.proxy_ndp = 1
+        dest: /etc/sysctl.d/99-ipv6-ndp-proxy.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload sysctl
+
+    - name: Install ndppd
+      ansible.builtin.apt:
+        name: ndppd
+        state: present
+
+    - name: Configure ndppd
+      ansible.builtin.template:
+        src: ../templates/ndppd/ndppd.conf.j2
+        dest: /etc/ndppd.conf
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart ndppd
+
+    - name: Enable and start ndppd
+      ansible.builtin.systemd:
+        name: ndppd
+        enabled: true
+        state: started
+
     # ── Docker network ───────────────────────────────────────────────────────
     - name: Create shared proxy network for Traefik
       community.docker.docker_network:
         name: "{{ docker_network_name }}"
+        state: present
+
+    # Shared network connecting the app to the internal system agent (not Traefik-exposed).
+    - name: Create shared agent network
+      community.docker.docker_network:
+        name: agentnet
         state: present
 
     # ── Traefik ──────────────────────────────────────────────────────────────

@@ -1,6 +1,5 @@
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { Link } from '@/i18n/routing'
-import { useTranslations } from 'next-intl'
+import Link from 'next/link'
 import React from 'react'
 
 import type { Post } from '@/payload-types'
@@ -17,8 +16,6 @@ type Props = {
 }
 
 export const PostNavigation: React.FC<Props> = ({ previous, next }) => {
-  const t = useTranslations()
-
   if (!previous && !next) return null
 
   const both = !!previous && !!next
@@ -28,7 +25,7 @@ export const PostNavigation: React.FC<Props> = ({ previous, next }) => {
       <div className="mb-8 flex items-center gap-3 md:mb-10">
         <span className="inline-block h-px w-8 shrink-0 bg-primary" aria-hidden />
         <p className="m-0 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-foreground/60">
-          {t('read-next')}
+          Lies weiter
         </p>
       </div>
 
@@ -39,9 +36,9 @@ export const PostNavigation: React.FC<Props> = ({ previous, next }) => {
         )}
       >
         {previous && (
-          <NavCard post={previous} direction="previous" label={t('previous-post')} />
+          <NavCard post={previous} direction="previous" label="Vorheriger Beitrag" />
         )}
-        {next && <NavCard post={next} direction="next" label={t('next-post')} />}
+        {next && <NavCard post={next} direction="next" label="Nächster Beitrag" />}
       </div>
     </section>
   )

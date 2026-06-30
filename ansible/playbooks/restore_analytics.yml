@@ -1,0 +1,175 @@
+---
+# Restore an AES-256 encrypted backup of the Umami analytics database.
+# Downloads the encrypted archive from Hetzner Object Storage, decrypts it,
+# stops the analytics container, restores the PostgreSQL database, then brings
+# the analytics container back up.
+#
+# The s3_path must be the absolute path within the bucket
+# (e.g. /analytics/analytics-huettenbau-backup_20260523-202000.tar.gz.enc).
+#
+# Analytics always runs on prod, so the prod group_vars are loaded by default;
+# only s3_path needs to be passed.
+#
+# Usage:
+#   ansible-playbook -i inventory.ini playbooks/restore_analytics.yml \
+#     -e "s3_path=/analytics/analytics-huettenbau-backup_20260523-202000.tar.gz.enc"
+
+- name: Restore Umami analytics database
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../group_vars/prod.yml
+    - ../files/postgres_users.vault
+    - ../files/backup.vault
+
+  vars:
+    analytics_db_name: "{{ analytics_database_name | default('huettenbau-analytics') }}"
+    analytics_postgres_container: "{{ postgres_container_name | default('huettenbau-oberi-prod_postgres') }}"
+    analytics_deploy_dir: "{{ deploy_dir_analytics | default('/opt/analytics') }}"
+    db_app_user: "{{ pg_analytics_user }}"
+
+  tasks:
+    - name: Set restore temp directory
+      ansible.builtin.set_fact:
+        restore_tmp_dir: "/tmp/restore-analytics-{{ now().strftime('%Y%m%d-%H%M%S') }}"
+
+    - name: Validate s3_path is provided
+      ansible.builtin.assert:
+        that:
+          - s3_path is defined
+          - s3_path | length > 0
+        fail_msg: "s3_path must be provided as an extra variable"
+
+    - name: Create restore staging directory
+      ansible.builtin.file:
+        path: "{{ restore_tmp_dir }}/staging"
+        state: directory
+        mode: "0700"
+
+    - name: Ensure s3cmd is installed
+      ansible.builtin.apt:
+        name: s3cmd
+        state: present
+
+    - name: Download backup from Hetzner Object Storage
+      ansible.builtin.shell:
+        cmd: >
+          s3cmd get s3://{{ s3_bucket }}{{ s3_path }}
+          {{ restore_tmp_dir }}/backup.tar.gz.enc
+          --access_key={{ s3_access_key }}
+          --secret_key={{ s3_secret_key }}
+          --host={{ s3_endpoint }}
+          '--host-bucket=%(bucket)s.{{ s3_endpoint }}'
+          --region={{ s3_endpoint.split('.')[0] }}
+          --force
+      no_log: true
+      changed_when: true
+
+    - name: Decrypt backup archive
+      ansible.builtin.shell:
+        cmd: >
+          openssl enc -d -aes-256-cbc -pbkdf2
+          -pass env:BACKUP_PASSWORD
+          -in {{ restore_tmp_dir }}/backup.tar.gz.enc
+          -out {{ restore_tmp_dir }}/backup.tar.gz
+      environment:
+        BACKUP_PASSWORD: "{{ backup_archive_password }}"
+      no_log: true
+      changed_when: true
+
+    - name: Extract backup tarball
+      ansible.builtin.shell:
+        cmd: "tar -xzf {{ restore_tmp_dir }}/backup.tar.gz -C {{ restore_tmp_dir }}/staging --strip-components=1"
+      changed_when: true
+
+    - name: Remove archives from temp
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ restore_tmp_dir }}/backup.tar.gz.enc"
+        - "{{ restore_tmp_dir }}/backup.tar.gz"
+
+    - name: Stop analytics
+      ansible.builtin.shell:
+        cmd: docker compose stop
+        chdir: "{{ analytics_deploy_dir }}"
+      changed_when: true
+
+    - name: Copy database dump into postgres container
+      ansible.builtin.shell:
+        cmd: "docker cp {{ restore_tmp_dir }}/staging/db.dump {{ analytics_postgres_container }}:/tmp/restore_db.dump"
+      changed_when: true
+
+    - name: Restore database
+      community.docker.docker_container_exec:
+        container: "{{ analytics_postgres_container }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - pg_restore
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ analytics_db_name }}"
+          - --clean
+          - --if-exists
+          - --no-owner
+          - --no-acl
+          - /tmp/restore_db.dump
+      no_log: true
+      changed_when: true
+
+    - name: Grant privileges to analytics user
+      community.docker.docker_container_exec:
+        container: "{{ analytics_postgres_container }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ analytics_db_name }}"
+          - -c
+          - |
+            GRANT ALL ON SCHEMA public TO "{{ db_app_user }}";
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO "{{ db_app_user }}";
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO "{{ db_app_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO "{{ db_app_user }}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO "{{ db_app_user }}";
+            DO $$
+            DECLARE r RECORD;
+            BEGIN
+              FOR r IN SELECT tablename FROM pg_tables WHERE schemaname='public' AND tableowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER TABLE public.'||quote_ident(r.tablename)||' OWNER TO "{{ db_app_user }}"'; END LOOP;
+              FOR r IN SELECT sequencename FROM pg_sequences WHERE schemaname='public' AND sequenceowner='{{ pg_admin_user }}'
+              LOOP EXECUTE 'ALTER SEQUENCE public.'||quote_ident(r.sequencename)||' OWNER TO "{{ db_app_user }}"'; END LOOP;
+            END $$;
+      no_log: true
+      changed_when: true
+
+    - name: Remove dump from postgres container
+      community.docker.docker_container_exec:
+        container: "{{ analytics_postgres_container }}"
+        argv:
+          - rm
+          - -f
+          - /tmp/restore_db.dump
+      changed_when: false
+
+    - name: Start analytics
+      ansible.builtin.shell:
+        cmd: docker compose up -d
+        chdir: "{{ analytics_deploy_dir }}"
+      changed_when: true
+
+    - name: Remove restore staging directory
+      ansible.builtin.file:
+        path: "{{ restore_tmp_dir }}"
+        state: absent
+
+    - name: Report restore status
+      ansible.builtin.debug:
+        msg: "Analytics restore complete for {{ project_name | default('huettenbau-oberi') }} from s3://{{ s3_bucket }}{{ s3_path }}"

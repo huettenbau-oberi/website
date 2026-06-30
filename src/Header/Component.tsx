@@ -4,14 +4,11 @@ import { draftMode } from 'next/headers'
 import React from 'react'
 
 import type { Banner, Header } from '@/payload-types'
-import { getLocale } from 'next-intl/server'
-import type { TypedLocale } from 'payload'
 
 export async function Header() {
-  const locale = (await getLocale()) as TypedLocale
   const [headerData, bannerData] = await Promise.all([
-    getCachedGlobal('header', 1, locale)() as Promise<Header>,
-    getCachedGlobal('banner', 1, locale)() as Promise<Banner | null>,
+    getCachedGlobal('header', 1)() as Promise<Header>,
+    getCachedGlobal('banner', 2)() as Promise<Banner | null>,
   ])
   const { isEnabled: isPreview } = await draftMode()
 

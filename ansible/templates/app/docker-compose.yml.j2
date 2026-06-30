@@ -9,13 +9,22 @@ services:
     #      cpus: '0.5'
     env_file:
       - .env
+    environment:
+      # Internal system agent (host metrics + operations). Empty secret => app treats
+      # the agent as unconfigured and only shows in-app metrics.
+      SYSTEM_AGENT_URL: "http://{{ project_name }}_agent:8080"
+      SYSTEM_AGENT_SECRET: "{{ agent_secret | default('') }}"
     volumes:
       - ./media:/app/public/media
       - next_cache:/app/.next/cache/images
     networks:
-      - proxy
-      - internal
-      - postgres
+      proxy: {}
+      internal: {}
+      postgres: {}
+      # Reach the internal system agent (host metrics + operations) by DNS.
+      {{ agent_network_name }}: {}
+      ip6net:
+        ipv6_address: {{ ipv6_address }}
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=proxy"
@@ -32,5 +41,12 @@ networks:
     external: true
   proxy:
     external: true
+  {{ agent_network_name }}:
+    external: true
   internal:
     driver: bridge
+  ip6net:
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: {{ ipv6_subnet }}

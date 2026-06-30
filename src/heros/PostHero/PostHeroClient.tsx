@@ -1,11 +1,9 @@
 'use client'
 
 import { Check, Link } from 'lucide-react'
-import { useTranslations } from 'next-intl'
 import React, { useState } from 'react'
 
 export const PostHeroClient: React.FC = () => {
-  const t = useTranslations()
   const [copied, setCopied] = useState(false)
 
   const handleCopyLink = async () => {
@@ -17,7 +15,7 @@ export const PostHeroClient: React.FC = () => {
   return (
     <div className="flex items-center gap-4 shrink-0">
       <p className="text-[0.55rem] tracking-[0.2em] uppercase font-semibold text-background/50 font-sans m-0">
-        {t('share')}
+        Teilen
       </p>
       <div className="flex items-center gap-3">
         <button

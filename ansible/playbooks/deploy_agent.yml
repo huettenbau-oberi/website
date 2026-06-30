@@ -1,0 +1,61 @@
+---
+# Deploy the internal system agent (+ docker-socket-proxy).
+#
+# The agent is NOT exposed via Traefik. It joins the shared `agentnet` network so the
+# app can reach it, and a private internal network to talk to the socket-proxy.
+#
+# Prerequisites:
+#   - ansible/files/agent.vault  with: agent_secret, agent_github_token
+#     (copy from ansible/files/agent.vault.example, fill in, then `ansible-vault encrypt`)
+#   - The agent image must already be published: {{ agent_image }}:{{ agent_image_tag }}
+#   - agent_network_name must be set in group_vars (e.g. agentnet-devt / agentnet-prod)
+#
+# Usage:
+#   ansible-playbook -i inventory.ini playbooks/deploy_agent.yml -e @group_vars/prod.yml
+
+- name: Deploy System Agent
+  hosts: hetzner
+  become: true
+
+  vars_files:
+    - ../files/agent.vault
+
+  tasks:
+    - name: Ensure agent communication network exists
+      community.docker.docker_network:
+        name: "{{ agent_network_name }}"
+        state: present
+
+    - name: Create agent deployment directory
+      ansible.builtin.file:
+        path: "{{ deploy_dir_agent }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Copy agent docker-compose to server
+      ansible.builtin.template:
+        src: ../templates/agent/docker-compose.yml.j2
+        dest: "{{ deploy_dir_agent }}/docker-compose.yml"
+        owner: root
+        group: root
+        mode: "0640"
+
+    - name: Pull latest agent image
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_agent }}"
+        pull: always
+        state: present
+
+    - name: Recreate changed containers
+      community.docker.docker_compose_v2:
+        project_src: "{{ deploy_dir_agent }}"
+        state: present
+        recreate: auto
+
+    - name: Verify agent container is running
+      community.docker.docker_container_info:
+        name: "{{ project_name }}_agent"
+      register: agent_info
+      failed_when: not agent_info.container.State.Running

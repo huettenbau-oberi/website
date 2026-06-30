@@ -4,7 +4,6 @@ import Link from 'next/link'
 import type { Category, Post } from '@/payload-types'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
-import { useTranslations } from 'next-intl'
 import { PostHeroClient } from './PostHeroClient'
 
 function hasRichTextContent(content: Post['content']): boolean {
@@ -29,7 +28,6 @@ function formatPostDate(timestamp: string): string {
 }
 
 export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
-  const t = useTranslations()
   const { categories, content, heroImage, populatedAuthors, publishedAt, title, showAuthor } = post
 
   const dashIdx = title?.indexOf(' - ') ?? -1
@@ -113,7 +111,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             <div className="flex items-center gap-3 mt-6">
               <span className="inline-block w-8 h-px bg-primary shrink-0" aria-hidden />
               <p className="text-[0.65rem] tracking-[0.2em] uppercase font-semibold font-sans m-0">
-                <span className="text-foreground/40 mr-2">{t('date')}</span>
+                <span className="text-foreground/40 mr-2">Datum</span>
                 <time dateTime={publishedAt}>{formatPostDate(publishedAt)}</time>
               </p>
             </div>
@@ -150,7 +148,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
                 </div>
                 <div>
                   <p className="m-0 mb-0.5 font-sans text-[0.55rem] font-semibold uppercase tracking-[0.2em] text-background/50">
-                    {t('author')}
+                    Autor:in
                   </p>
                   <p className="m-0 font-sans text-sm font-semibold text-background">
                     {firstAuthor.name}
@@ -178,7 +176,7 @@ export const PostHero: React.FC<{ post: Post }> = ({ post }) => {
             <div className="flex shrink-0 flex-col items-start gap-2">
               <span className="inline-block h-px w-8 bg-primary shrink-0" aria-hidden />
               <p className="m-0 font-sans text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-foreground/60">
-                {t('foreword')}
+                Vorwort
               </p>
             </div>
             {/* Content — bold text rendered in primary red */}

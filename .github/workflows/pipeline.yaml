@@ -25,7 +25,7 @@ jobs:
     outputs:
       tag: ${{ steps.tag.outputs.tag }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -90,7 +90,7 @@ jobs:
       image: ${{ steps.meta.outputs.tags }}
       version: ${{ steps.meta.outputs.version }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -140,9 +140,66 @@ jobs:
             VERSION=${{ needs.version.outputs.tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  build-agent:
+    name: Build Agent 🤖
+    needs: version
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      pushed: ${{ steps.changes.outputs.agent }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Detect agent changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            agent:
+              - 'agent/**'
+
+      - name: Set up Docker Buildx
+        if: steps.changes.outputs.agent == 'true'
+        uses: useblacksmith/setup-docker-builder@v1
+
+      - name: Log in to GitHub Container Registry
+        if: steps.changes.outputs.agent == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        if: steps.changes.outputs.agent == 'true'
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/huettenbau-oberi/system-agent
+          tags: |
+            type=sha,format=short,prefix=
+            type=ref,event=branch
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build
+        if: steps.changes.outputs.agent == 'true'
+        uses: useblacksmith/build-push-action@v2
+        with:
+          context: ./agent
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=agent
+          cache-to: type=gha,mode=max,scope=agent
+
   deploy:
     name: Deploy 🚀
-    needs: build
+    needs: [build, build-agent]
     runs-on: blacksmith-2vcpu-ubuntu-2404
     permissions:
       contents: read
@@ -150,7 +207,7 @@ jobs:
     environment: ${{ github.ref_name == 'develop' && 'devt' || 'prod' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Prepare Ansible
         uses: ./.github/actions/ansible-prepare
         with:
@@ -162,3 +219,7 @@ jobs:
         working-directory: ansible
         run: |
           ansible-playbook -i inventory.ini playbooks/deploy.yml -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml
+      - name: Deploy system agent
+        working-directory: ansible
+        run: |
+          ansible-playbook -i inventory.ini playbooks/deploy_agent.yml -e @group_vars/${{ github.ref_name == 'develop' && 'devt' || 'prod' }}.yml

@@ -2,15 +2,10 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 
-import { routing } from '../../../i18n/routing'
 import type { Page } from '../../../payload-types'
 
-function getPagePaths(slug: string): string[] {
-  if (slug === 'home') {
-    // '/' is the canonical URL; also revalidate locale-prefixed variants used internally
-    return ['/', ...routing.locales.map((locale) => `/${locale}/home`)]
-  }
-  return [`/${slug}`, ...routing.locales.map((locale) => `/${locale}/${slug}`)]
+export function getPagePaths(slug: string): string[] {
+  return slug === 'home' ? ['/'] : [`/${slug}`]
 }
 
 export const revalidatePage: CollectionAfterChangeHook<Page> = ({

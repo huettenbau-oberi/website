@@ -7,6 +7,10 @@ app_image: ghcr.io/huettenbau-oberi/website
 app_image_tag: develop
 env_file: ../files/devt.env.vault
 
+# --- IPv6 ---
+ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:d000/116
+ipv6_address: 2a01:4f8:c015:3aa0:0:3773:840:de41
+
 # --- PostgreSQL ---
 pg_app_user: "{{ pg_devt_user }}"
 devt_database_name: huettenbau-payload-devt
@@ -22,3 +26,15 @@ retention_days: 7
 # --- Domain & TLS ---
 domain: dev.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
+
+# --- System agent ---
+deploy_dir_agent: "/opt/agent/devt"
+agent_network_name: agentnet-devt
+agent_image: ghcr.io/huettenbau-oberi/system-agent
+agent_image_tag: develop
+agent_github_repo: huettenbau-oberi/website
+# Branch to dispatch workflows on — selects the devt environment in those workflows
+agent_github_ref: develop
+agent_allowed_containers: "{{ project_name }}"
+# agent_secret + agent_github_token come from files/agent.vault
+agent_additional_disk_paths: "/host/opt/huettenbau-oberi/devt/media"

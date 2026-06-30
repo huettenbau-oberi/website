@@ -150,6 +150,39 @@
       no_log: true
       changed_when: false
 
+    - name: Update backup manifest on server
+      ansible.builtin.shell:
+        cmd: |
+          set -e
+          s3cmd ls 's3://{{ s3_bucket }}/{{ path_prefix }}/' \
+            --access_key={{ s3_access_key }} \
+            --secret_key={{ s3_secret_key }} \
+            --host={{ s3_endpoint }} \
+            '--host-bucket=%(bucket)s.{{ s3_endpoint }}' \
+            --region={{ s3_endpoint.split('.')[0] }} | \
+          python3 -c "
+          import sys, json, os
+          from datetime import datetime, timezone
+          lines = [l.strip() for l in sys.stdin if l.strip()]
+          backups = []
+          for line in lines:
+              parts = line.split()
+              if len(parts) >= 4 and parts[3].endswith('.enc'):
+                  backups.append({
+                      'name': os.path.basename(parts[3]),
+                      'date': parts[0] + 'T' + parts[1] + 'Z',
+                      'sizeBytes': int(parts[2])
+                  })
+          print(json.dumps({
+              'prefix': '{{ path_prefix }}',
+              'updatedAt': datetime.now(timezone.utc).isoformat(),
+              'backups': sorted(backups, key=lambda x: x['date'], reverse=True)
+          }))
+          " > {{ deploy_dir }}/backup-manifest.json
+          chmod 644 {{ deploy_dir }}/backup-manifest.json
+      no_log: true
+      changed_when: true
+
     - name: Report backup location
       ansible.builtin.debug:
         msg: "Backup uploaded to s3://{{ s3_bucket }}/{{ path_prefix }}/{{ backup_name }}.tar.gz.enc"

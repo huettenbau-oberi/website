@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticated } from '../../access/authenticated'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { editor } from '../../access/admin'
 import { CampGallery } from '../../blocks/camp/CampGallery/config'
 import { CampHero } from '../../blocks/camp/CampHero/config'
 import { Content } from '../../blocks/Content/config'
@@ -30,10 +30,10 @@ import { GalleryTimeline } from '@/blocks/GalleryTimeline/config'
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: editor,
+    delete: editor,
     read: authenticatedOrPublished,
-    update: authenticated,
+    update: editor,
   },
   // This config controls what's populated by default when a page is referenced
   // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
@@ -45,18 +45,16 @@ export const Pages: CollectionConfig<'pages'> = {
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
     livePreview: {
-      url: ({ data, req }) =>
+      url: ({ data }) =>
         generatePreviewPath({
           slug: data?.slug,
           collection: 'pages',
-          req,
         }),
     },
-    preview: (data, { req }) =>
+    preview: (data) =>
       generatePreviewPath({
         slug: data?.slug as string,
         collection: 'pages',
-        req,
       }),
     useAsTitle: 'title',
   },
@@ -65,7 +63,6 @@ export const Pages: CollectionConfig<'pages'> = {
       name: 'title',
       type: 'text',
       required: true,
-      localized: true,
     },
     {
       type: 'tabs',
@@ -92,7 +89,6 @@ export const Pages: CollectionConfig<'pages'> = {
                 FormBlock,
                 GalleryTimeline,
               ],
-              localized: true,
               admin: {
                 initCollapsed: true,
               },

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { migrations } from './migrations'
 
+import { AuditLogs } from './collections/AuditLogs'
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -19,16 +20,15 @@ import { Banner } from './Banner/config'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
+import { systemEndpoints } from './endpoints/system'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Settings } from './globals/Settings'
-import localization from './i18n/localization'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
-  localization,
   admin: {
     components: {
       beforeDashboard: ['@/components/BeforeDashboard'],
@@ -93,7 +93,8 @@ export default buildConfig({
     },
     prodMigrations: migrations,
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, Users, AuditLogs],
+  endpoints: systemEndpoints,
   cors: [getServerSideURL()].filter(Boolean),
   csrf: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, Settings, Banner],

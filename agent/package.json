@@ -1,0 +1,20 @@
+{
+  "name": "huettenbau-system-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Internal-only host metrics & operations sidecar for the Hüttenbau admin dashboard",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "node --watch --experimental-strip-types src/server.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.9.3"
+  }
+}

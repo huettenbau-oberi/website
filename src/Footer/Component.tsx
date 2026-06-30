@@ -4,15 +4,11 @@ import Link from 'next/link'
 import type { Footer } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
-import { LocaleSwitcher } from '@/components/LocaleSwitcher'
 import { Logo } from '@/components/Logo/Logo'
 import { SendIcon } from 'lucide-react'
-import { getLocale, getTranslations } from 'next-intl/server'
-import type { TypedLocale } from 'payload'
 
 export async function Footer() {
-  const [locale, t] = await Promise.all([getLocale(), getTranslations()])
-  const footerData = (await getCachedGlobal('footer', 1, locale as TypedLocale)()) as Footer
+  const footerData = (await getCachedGlobal('footer', 1)()) as Footer
 
   const navItems = footerData?.navItems || []
   const legalItems = footerData?.legalItems || []
@@ -51,11 +47,10 @@ export async function Footer() {
           )}
 
           {contactLink?.url || contactLink?.reference ? (
-            <CMSLink className="mt-6" appearance="default" {...contactLink} label={t('contact')}>
+            <CMSLink className="mt-6" appearance="default" {...contactLink} label="Kontakt">
               <SendIcon aria-hidden="true" className="size-4 ml-1 stroke-2" />
             </CMSLink>
           ) : null}
-          <LocaleSwitcher />
         </div>
 
         <div className="flex flex-col items-start md:flex-row gap-8 min-w-0">

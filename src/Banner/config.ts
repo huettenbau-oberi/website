@@ -12,7 +12,6 @@ export const Banner: GlobalConfig = {
     {
       name: 'text',
       type: 'richText',
-      localized: true,
       editor: lexicalEditor({
         features: ({ rootFeatures }) => [...rootFeatures, FixedToolbarFeature()],
       }),

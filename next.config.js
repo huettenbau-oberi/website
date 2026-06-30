@@ -1,6 +1,5 @@
 import { execSync } from 'child_process'
 import { withPayload } from '@payloadcms/next/withPayload'
-import createNextIntlPlugin from 'next-intl/plugin'
 
 import redirects from './redirects.js'
 
@@ -19,8 +18,6 @@ if (!tagVersion) {
 }
 
 const buildVersion = `${tagVersion || 'develop'} - ${commitHash || 'unknown'}`
-
-const withNextIntl = createNextIntlPlugin()
 
 const NEXT_PUBLIC_SERVER_URL =
   process.env.NEXT_PUBLIC_SERVER_URL ||
@@ -80,4 +77,4 @@ const nextConfig = {
   },
 }
 
-export default withNextIntl(withPayload(nextConfig, { devBundleServerPackages: false }))
+export default withPayload(nextConfig, { devBundleServerPackages: false })

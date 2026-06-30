@@ -7,6 +7,11 @@ app_image: ghcr.io/huettenbau-oberi/website
 app_image_tag: latest
 env_file: ../files/prod.env.vault
 
+# --- IPv6 ---
+ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:a000/116
+devt_ipv6_subnet: 2a01:4f8:c015:3aa0:0:3773:840:d000/116
+ipv6_address: 2a01:4f8:c015:3aa0:0:3773:840:aaaa
+
 # --- PostgreSQL ---
 pg_app_user: "{{ pg_prod_user }}"
 deploy_dir_postgres: "/opt/postgres"
@@ -21,6 +26,20 @@ postgres_container_name: huettenbau-oberi-prod_postgres
 deploy_dir_analytics: "/opt/analytics"
 app_image_analytics: ghcr.io/umami-software/umami:latest
 
+# --- System agent ---
+deploy_dir_agent: "/opt/agent/prod"
+agent_network_name: agentnet-prod
+agent_image: ghcr.io/huettenbau-oberi/system-agent
+agent_image_tag: latest
+# Repo whose GitHub Actions workflows the agent dispatches (backup/restore/update/deploy)
+agent_github_repo: huettenbau-oberi/website
+# Branch to dispatch workflows on — selects the prod environment in those workflows
+agent_github_ref: main
+# Containers the agent may restart via `restart-service`
+agent_allowed_containers: "{{ project_name }},{{ project_name }}_analytics"
+# agent_secret + agent_github_token come from files/agent.vault
+agent_additional_disk_paths: "/host/opt/huettenbau-oberi/prod/media"
+
 # --- Domain & TLS ---
 domain: test.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
@@ -29,7 +48,7 @@ letsencrypt_email: webmaster@huettenbau-oberi.ch
 s3_bucket: huettenbau-oberi-backup
 s3_endpoint: fsn1.your-objectstorage.com
 path_prefix: prod
-retention_days: 30
+retention_days: 90
 
 # --- Traefik ---
 traefik_dir: /opt/traefik

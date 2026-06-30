@@ -14,5 +14,19 @@ services:
     volumes:
       - data:/var/lib/postgresql/data
 
+  # Optional for local dev: `docker compose up agent` to exercise the dashboard's
+  # System/Operations panels. No docker-socket-proxy here, so container metrics are
+  # empty and ops are not wired — that's fine for UI work.
+  agent:
+    build: ./agent
+    container_name: system-agent
+    ports:
+      - 8080:8080
+    environment:
+      AGENT_SECRET: ${SYSTEM_AGENT_SECRET:-local-dev-secret-1234567890}
+      AGENT_PORT: "8080"
+      DISK_PATHS: "/"
+    restart: unless-stopped
+
 volumes:
   data:
