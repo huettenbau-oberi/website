@@ -11,11 +11,13 @@ export function HeadingAnchor({
   id,
   children,
   className,
+  style,
 }: {
   tag: HeadingTag
   id: string
   children: React.ReactNode
   className?: string
+  style?: React.CSSProperties
 }) {
   const pathname = usePathname()
   const isHomePage = pathname === '/' || pathname === '/home'
@@ -33,7 +35,7 @@ export function HeadingAnchor({
     <Tag
       id={id}
       className={['group relative', className].filter(Boolean).join(' ')}
-      style={{ scrollMarginTop: 'calc(var(--header-height, 6rem) + 1rem)' }}
+      style={{ scrollMarginTop: 'calc(var(--header-height, 6rem) + 1rem)', ...style }}
     >
       {children}
       {!isHomePage && (
