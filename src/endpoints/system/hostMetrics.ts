@@ -1,6 +1,6 @@
 import type { PayloadHandler } from 'payload'
 
-import { requireAdmin } from './lib'
+import { requireEditor } from './lib'
 import { getHostMetrics, isAgentConfigured } from '../../utilities/systemAgent'
 
 /**
@@ -9,7 +9,7 @@ import { getHostMetrics, isAgentConfigured } from '../../utilities/systemAgent'
  * the agent isn't configured (e.g. local dev without the agent running).
  */
 export const hostMetrics: PayloadHandler = async (req) => {
-  const denied = requireAdmin(req)
+  const denied = requireEditor(req)
   if (denied) return denied
 
   if (!isAgentConfigured()) {

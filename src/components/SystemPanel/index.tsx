@@ -35,6 +35,7 @@ type WorkflowRun = {
   event: string
   createdAt: string
   runUrl: string
+  cmsActor?: string
 }
 
 type AgentSample = { ts: number; cpuPct: number; ramPct: number }
@@ -91,6 +92,10 @@ function timeAgo(iso: string): string {
   const h = Math.floor(m / 60)
   if (h < 24) return `${h}h ago`
   return `${Math.floor(h / 24)}d ago`
+}
+
+function formatClock(ts: number): string {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 }
 
 function workflowLabel(filename: string): string {
@@ -175,72 +180,95 @@ function MetricsChart({
     ? `${linePath} L100,100 L0,100 Z`
     : ''
 
-  const last = pts[pts.length - 1]
-
   const now = Date.now()
   const spanMs = hasSamples ? now - samples[0]!.ts : 0
   const spanMin = Math.round(spanMs / 60000)
 
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+
+  const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!hasSamples) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const relX = (e.clientX - rect.left) / rect.width
+    const idx = Math.max(0, Math.min(samples.length - 1, Math.round(relX * (samples.length - 1))))
+    setHoverIdx(idx)
+  }
+
+  const active =
+    hoverIdx != null && hoverIdx < samples.length
+      ? { pt: pts[hoverIdx]!, sample: samples[hoverIdx]! }
+      : null
+  // keep the tooltip clear of the chart edges
+  const tipLeft = active ? Math.max(16, Math.min(84, active.pt.x)) : 0
+
   return (
     <div className="system-panel__metrics-chart-wrap">
-      <svg
-        className="system-panel__metrics-chart"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        aria-hidden="true"
+      <div
+        className="system-panel__metrics-chart-plot"
+        onPointerMove={handleMove}
+        onPointerLeave={() => setHoverIdx(null)}
       >
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-        {/* horizontal grid lines at 25 / 50 / 75 % */}
-        {[25, 50, 75].map((pct) => (
-          <line
-            key={pct}
-            x1="0" y1={100 - pct} x2="100" y2={100 - pct}
-            stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2"
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
-        {hasSamples && (
-          <>
-            <path d={areaPath} fill={`url(#${gradId})`} />
-            <path
-              d={linePath}
-              fill="none"
-              stroke={color}
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-              strokeLinecap="round"
+        <svg
+          className="system-panel__metrics-chart"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          {/* horizontal grid lines at 25 / 50 / 75 % */}
+          {[25, 50, 75].map((pct) => (
+            <line
+              key={pct}
+              x1="0" y1={100 - pct} x2="100" y2={100 - pct}
+              stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2"
               vectorEffect="non-scaling-stroke"
             />
-            {last && (
-              <circle
-                cx={last.x}
-                cy={last.y}
-                r="2"
-                fill={color}
+          ))}
+          {hasSamples && (
+            <>
+              <path d={areaPath} fill={`url(#${gradId})`} />
+              <path
+                d={linePath}
+                fill="none"
+                stroke={color}
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
               />
-            )}
-          </>
-        )}
-        {!hasSamples && (
-          <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeOpacity="0.15" vectorEffect="non-scaling-stroke" />
-        )}
-      </svg>
-      <div className="system-panel__metrics-chart-footer">
-        {hasSamples ? (
+            </>
+          )}
+          {!hasSamples && (
+            <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeOpacity="0.15" vectorEffect="non-scaling-stroke" />
+          )}
+        </svg>
+        {active && (
           <>
-            <span>0%</span>
-            <span className="system-panel__metrics-chart-span">{spanMin > 0 ? `${spanMin}m history · ${samples.length} samples` : `${samples.length} samples`}</span>
-            <span>100%</span>
+            <div className="system-panel__metrics-crosshair" style={{ left: `${active.pt.x}%` }} />
+            <div
+              className="system-panel__metrics-dot"
+              style={{ left: `${active.pt.x}%`, top: `${active.pt.y}%`, background: color }}
+            />
+            <div className="system-panel__metrics-tooltip" style={{ left: `${tipLeft}%` }}>
+              <strong>{Math.round(active.sample.pct)}%</strong>
+              <span>{formatClock(active.sample.ts)}</span>
+            </div>
           </>
-        ) : (
-          <span className="system-panel__metrics-chart-span">Collecting data…</span>
         )}
+      </div>
+      <div className="system-panel__metrics-chart-footer">
+        <span className="system-panel__metrics-chart-span">
+          {hasSamples
+            ? spanMin > 0
+              ? `${spanMin}m history · ${samples.length} samples`
+              : `${samples.length} samples`
+            : 'Collecting data…'}
+        </span>
       </div>
     </div>
   )
@@ -294,12 +322,16 @@ function ContainerList({
 // ---------------------------------------------------------------------------
 const SystemPanel: React.FC = () => {
   const { user } = useAuth()
-  const isAdmin = (user as { userRole?: string } | null)?.userRole === 'admin'
+  const userRole = (user as { userRole?: string } | null)?.userRole
+  const isAdmin = userRole === 'admin'
+  const isEditor = userRole === 'editor' || userRole === 'admin'
 
   const [stats, setStats] = useState<Async<AppStats>>({ status: 'idle' })
   const [host, setHost] = useState<Async<HostMetrics>>({ status: 'idle' })
   const [workflowRunsData, setWorkflowRunsData] = useState<Async<{ runs: WorkflowRun[]; error?: string }>>({ status: 'idle' })
   const [showAllRuns, setShowAllRuns] = useState(false)
+  const [workflowFilter, setWorkflowFilter] = useState<string>('backup.yaml')
+  const [userFilter, setUserFilter] = useState<string>('')
   const [backupManifest, setBackupManifest] = useState<Async<BackupManifest>>({ status: 'idle' })
   const [orphanScan, setOrphanScan] = useState<Async<OrphanEntry[]>>({ status: 'idle' })
   const [actions, setActions] = useState<Record<string, ActionState>>({})
@@ -343,6 +375,7 @@ const SystemPanel: React.FC = () => {
   const loadWorkflowRuns = useCallback(async () => {
     setWorkflowRunsData({ status: 'loading' })
     setShowAllRuns(false)
+    setUserFilter('')
     try {
       setWorkflowRunsData({
         status: 'done',
@@ -371,11 +404,17 @@ const SystemPanel: React.FC = () => {
   }, [loadStats, loadHost, loadMetricsHistory, loadWorkflowRuns, loadBackups])
 
   useEffect(() => {
-    if (!isAdmin) return
-    refreshAll()
+    if (!isEditor) return
+    void loadStats()
+    void loadHost()
+    void loadMetricsHistory()
+    if (isAdmin) {
+      void loadWorkflowRuns()
+      void loadBackups()
+    }
     const interval = setInterval(() => { void loadMetricsHistory() }, 30_000)
     return () => clearInterval(interval)
-  }, [isAdmin, refreshAll, loadMetricsHistory])
+  }, [isEditor, isAdmin, loadStats, loadHost, loadMetricsHistory, loadWorkflowRuns, loadBackups])
 
   const runMaintenance = useCallback(
     async (key: string, url: string, confirmMsg?: string) => {
@@ -460,7 +499,7 @@ const SystemPanel: React.FC = () => {
     [setAction, loadStats],
   )
 
-  if (!isAdmin) return null
+  if (!isEditor) return null
 
   const s = stats.status === 'done' ? stats.data : null
   const h = host.status === 'done' ? host.data : null
@@ -468,9 +507,18 @@ const SystemPanel: React.FC = () => {
   const agentMissing = host.status === 'error' && host.code === 503
   const runs = workflowRunsData.status === 'done' ? workflowRunsData.data.runs : []
   const runsError = workflowRunsData.status === 'done' ? workflowRunsData.data.error : undefined
+  const uniqueWorkflows = Array.from(new Set(runs.map((r) => r.workflow))).sort()
+  const uniqueUsers = Array.from(
+    new Set(runs.map((r) => r.cmsActor ?? r.actor).filter(Boolean)),
+  ).sort()
+  const filteredRuns = runs.filter((r) => {
+    if (workflowFilter && r.workflow !== workflowFilter) return false
+    if (userFilter && (r.cmsActor ?? r.actor) !== userFilter) return false
+    return true
+  })
   const RUNS_INITIAL = 10
-  const visibleRuns = showAllRuns ? runs : runs.slice(0, RUNS_INITIAL)
-  const hiddenRunCount = runs.length - RUNS_INITIAL
+  const visibleRuns = showAllRuns ? filteredRuns : filteredRuns.slice(0, RUNS_INITIAL)
+  const hiddenRunCount = filteredRuns.length - RUNS_INITIAL
   const manifest = backupManifest.status === 'done' ? backupManifest.data : null
   const isRefreshing =
     stats.status === 'loading' ||
@@ -580,12 +628,20 @@ const SystemPanel: React.FC = () => {
 
         {/* Metrics — full-width history card */}
         {(() => {
+          const toneOf = (pct: number): 'ok' | 'warn' | 'danger' => (pct >= 90 ? 'danger' : pct >= 75 ? 'warn' : 'ok')
+          const avgOf = (arr: MetricSample[]) =>
+            arr.length ? Math.round(arr.reduce((sum, s) => sum + s.pct, 0) / arr.length) : 0
           const ramPct = h ? Math.min(100, Math.round((h.memory.usedBytes / Math.max(1, h.memory.totalBytes)) * 100)) : 0
           const cpuPct = h ? Math.min(100, Math.round((h.cpu.loadavg[0] / Math.max(1, h.cpu.count)) * 100)) : 0
-          const ramTone: 'ok' | 'warn' | 'danger' = ramPct >= 90 ? 'danger' : ramPct >= 75 ? 'warn' : 'ok'
-          const cpuTone: 'ok' | 'warn' | 'danger' = cpuPct >= 90 ? 'danger' : cpuPct >= 75 ? 'warn' : 'ok'
-          const ramSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
-          const cpuSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const ramTone = toneOf(ramPct)
+          const cpuTone = toneOf(cpuPct)
+          const oneHourAgo = Date.now() - 3_600_000
+          const ramSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
+          const cpuSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const ramSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.ramPct, ts: s.ts }))
+          const cpuSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const ramAvg24h = avgOf(ramSamples24h)
+          const cpuAvg24h = avgOf(cpuSamples24h)
           return (
             <div className="system-panel__card system-panel__card--metrics">
               <strong className="system-panel__card-title">Metrics</strong>
@@ -595,26 +651,52 @@ const SystemPanel: React.FC = () => {
                 ) : host.status === 'error' ? (
                   <span className="system-panel__hint">{(host as { message: string }).message}</span>
                 ) : (
-                  <div className="system-panel__metrics-panels">
-                    <div className="system-panel__metrics-panel">
-                      <div className="system-panel__metrics-header">
-                        <span className="system-panel__metrics-label">RAM</span>
-                        <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
-                        <span className="system-panel__metrics-detail">
-                          {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
-                        </span>
+                  <div className="system-panel__metrics-rows">
+                    <div className="system-panel__metrics-row">
+                      <span className="system-panel__metrics-row-label">Last 24 h</span>
+                      <div className="system-panel__metrics-panels">
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">CPU</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${toneOf(cpuAvg24h)}`}>{cpuAvg24h}%</span>
+                            <span className="system-panel__metrics-detail">24 h average</span>
+                          </div>
+                          <MetricsChart samples={cpuSamples24h} tone="danger" chartId="cpu-24h" />
+                        </div>
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">RAM</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${toneOf(ramAvg24h)}`}>{ramAvg24h}%</span>
+                            <span className="system-panel__metrics-detail">24 h average</span>
+                          </div>
+                          <MetricsChart samples={ramSamples24h} tone={ramTone} chartId="ram-24h" />
+                        </div>
                       </div>
-                      <MetricsChart samples={ramSamples} tone={ramTone} chartId="ram" />
                     </div>
-                    <div className="system-panel__metrics-panel">
-                      <div className="system-panel__metrics-header">
-                        <span className="system-panel__metrics-label">CPU</span>
-                        <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
-                        <span className="system-panel__metrics-detail">
-                          load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
-                        </span>
+                    <div className="system-panel__metrics-row">
+                      <span className="system-panel__metrics-row-label">Last 1 h</span>
+                      <div className="system-panel__metrics-panels">
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">CPU</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
+                            </span>
+                          </div>
+                          <MetricsChart samples={cpuSamples1h} tone="danger" chartId="cpu-1h" />
+                        </div>
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">RAM</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
+                            </span>
+                          </div>
+                          <MetricsChart samples={ramSamples1h} tone={ramTone} chartId="ram-1h" />
+                        </div>
                       </div>
-                      <MetricsChart samples={cpuSamples} tone={cpuTone} chartId="cpu" />
                     </div>
                   </div>
                 )
@@ -627,8 +709,8 @@ const SystemPanel: React.FC = () => {
       </div>
 
       {/* --------------------------- Maintenance -------------------------- */}
-      <p className="system-panel__section-label">Maintenance</p>
-      <div className="system-panel__actions">
+      {isAdmin && <p className="system-panel__section-label">Maintenance</p>}
+      {isAdmin && <div className="system-panel__actions">
         <ActionRow
           title="Media Cleanup"
           desc="Delete files on disk that have no matching media record in the database."
@@ -727,16 +809,17 @@ const SystemPanel: React.FC = () => {
           buttonLabel="Revalidate"
           onClick={() => runMaintenance('revalidate', '/api/system/revalidate')}
         />
-      </div>
+      </div>}
 
       {/* ---------------------------- Operations -------------------------- */}
-      <p className="system-panel__section-label">Operations</p>
-      {agentMissing && (
-        <p className="system-panel__hint system-panel__hint--block">
-          The system agent is not configured, so operations cannot run from here.
-        </p>
-      )}
-      <div className="system-panel__actions">
+      {isAdmin && <>
+        <p className="system-panel__section-label">Operations</p>
+        {agentMissing && (
+          <p className="system-panel__hint system-panel__hint--block">
+            The system agent is not configured, so operations cannot run from here.
+          </p>
+        )}
+        <div className="system-panel__actions">
         {/* Restart Service — visual container list */}
         <div className="system-panel__action system-panel__action--column">
           <div className="system-panel__action-info">
@@ -819,9 +902,37 @@ const SystemPanel: React.FC = () => {
           </div>
         </div>
       </div>
+      </>}
 
+      {isAdmin && <>
       {/* --------------------------- Recent Activity ---------------------- */}
-      <p className="system-panel__section-label">Recent Activity</p>
+      <div className="system-panel__activity-header">
+        <p className="system-panel__section-label" style={{ margin: 0 }}>Recent Activity</p>
+        {workflowRunsData.status === 'done' && runs.length > 0 && (
+          <div className="system-panel__activity-filters">
+            <select
+              className="system-panel__select"
+              value={workflowFilter}
+              onChange={(e) => { setWorkflowFilter(e.target.value); setShowAllRuns(false) }}
+            >
+              <option value="">All workflows</option>
+              {uniqueWorkflows.map((wf) => (
+                <option key={wf} value={wf}>{workflowLabel(wf)}</option>
+              ))}
+            </select>
+            <select
+              className="system-panel__select"
+              value={userFilter}
+              onChange={(e) => { setUserFilter(e.target.value); setShowAllRuns(false) }}
+            >
+              <option value="">All users</option>
+              {uniqueUsers.map((u) => (
+                <option key={u} value={u}>{u}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
       {runsError && (
         <p className="system-panel__hint system-panel__hint--block system-panel__hint--warn">
           Could not fetch runs: {runsError}
@@ -841,8 +952,12 @@ const SystemPanel: React.FC = () => {
                   {run.conclusion ?? run.status}
                 </span>
                 <span className="system-panel__run-workflow">{run.name || workflowLabel(run.workflow)}</span>
-                <span className="system-panel__run-actor">
-                  {run.event === 'schedule' ? 'scheduled' : run.actor || '—'}
+                <span className="system-panel__run-actor" title={run.cmsActor ? `CMS: ${run.cmsActor}` : undefined}>
+                  {run.event === 'schedule'
+                    ? 'scheduled'
+                    : run.cmsActor
+                      ? run.cmsActor
+                      : run.actor || '—'}
                 </span>
                 <span className="system-panel__run-event">{eventLabel(run.event)}</span>
                 <span className="system-panel__run-time">{timeAgo(run.createdAt)}</span>
@@ -857,6 +972,8 @@ const SystemPanel: React.FC = () => {
         </>
       ) : workflowRunsData.status === 'loading' ? (
         <span className="system-panel__hint">Loading activity…</span>
+      ) : filteredRuns.length === 0 && runs.length > 0 ? (
+        <span className="system-panel__hint">No runs match the selected filters.</span>
       ) : !runsError ? (
         <span className="system-panel__hint">No recent workflow runs found.</span>
       ) : null}
@@ -905,6 +1022,7 @@ const SystemPanel: React.FC = () => {
       ) : (
         <span className="system-panel__hint">No backup manifest available yet.</span>
       )}
+      </>}
     </div>
   )
 }

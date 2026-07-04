@@ -15,6 +15,7 @@ import { IframeBlockComponent } from '@/blocks/IframeBlock/Component'
 import { GalleryTimelineBlock } from '@/blocks/GalleryTimeline/Component'
 import { PostSectionBlock } from '@/blocks/PostSection/Component'
 import { GalleryGridBlock } from '@/blocks/GalleryGrid/Component'
+import { InArbeitBlockComponent } from '@/blocks/InArbeit/Component'
 
 const blockComponents = {
   campFacts: CampFactsBlock,
@@ -30,6 +31,7 @@ const blockComponents = {
   galleryTimeline: GalleryTimelineBlock,
   postSection: PostSectionBlock,
   galleryGrid: GalleryGridBlock,
+  inArbeit: InArbeitBlockComponent,
 }
 
 export const RenderBlocks: React.FC<{

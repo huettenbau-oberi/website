@@ -1,10 +1,10 @@
 import type { PayloadHandler } from 'payload'
 
-import { requireAdmin } from './lib'
+import { requireEditor } from './lib'
 import { getMetricsHistory, isAgentConfigured } from '../../utilities/systemAgent'
 
 export const metricsHistory: PayloadHandler = async (req) => {
-  const denied = requireAdmin(req)
+  const denied = requireEditor(req)
   if (denied) return denied
 
   if (!isAgentConfigured()) return Response.json({ samples: [] })

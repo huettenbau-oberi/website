@@ -1,6 +1,6 @@
 import type { PayloadHandler } from 'payload'
 
-import { getFsUsage, getMediaUsage, requireAdmin } from './lib'
+import { getFsUsage, getMediaUsage, requireEditor } from './lib'
 
 type PoolLike = {
   query: (text: string) => Promise<{ rows: Array<Record<string, unknown>> }>
@@ -15,7 +15,7 @@ const COUNTED_COLLECTIONS = ['pages', 'posts', 'media', 'categories', 'users'] a
  * media-volume disk usage + footprint, and the app process's own memory/uptime.
  */
 export const appStats: PayloadHandler = async (req) => {
-  const denied = requireAdmin(req)
+  const denied = requireEditor(req)
   if (denied) return denied
 
   // --- Database size + largest tables (raw SQL via the pg pool) ---

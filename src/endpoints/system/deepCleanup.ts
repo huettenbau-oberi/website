@@ -40,7 +40,11 @@ export const deepCleanup: PayloadHandler = async (req) => {
     }
 
     const orphans: OrphanEntry[] = allMedia
-      .filter((m) => !new RegExp(`\\b${m.id}\\b`).test(allContent))
+      .filter((m) => {
+        const referencedById = new RegExp(`\\b${m.id}\\b`).test(allContent)
+        const referencedByFilename = m.filename ? allContent.includes(m.filename) : false
+        return !referencedById && !referencedByFilename
+      })
       .map((m) => ({
         id: String(m.id),
         filename: m.filename ?? '',
