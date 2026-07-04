@@ -94,6 +94,10 @@ function timeAgo(iso: string): string {
   return `${Math.floor(h / 24)}d ago`
 }
 
+function formatClock(ts: number): string {
+  return new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
 function workflowLabel(filename: string): string {
   const map: Record<string, string> = {
     'backup.yaml': 'Backup',
@@ -180,57 +184,91 @@ function MetricsChart({
   const spanMs = hasSamples ? now - samples[0]!.ts : 0
   const spanMin = Math.round(spanMs / 60000)
 
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+
+  const handleMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!hasSamples) return
+    const rect = e.currentTarget.getBoundingClientRect()
+    const relX = (e.clientX - rect.left) / rect.width
+    const idx = Math.max(0, Math.min(samples.length - 1, Math.round(relX * (samples.length - 1))))
+    setHoverIdx(idx)
+  }
+
+  const active =
+    hoverIdx != null && hoverIdx < samples.length
+      ? { pt: pts[hoverIdx]!, sample: samples[hoverIdx]! }
+      : null
+  // keep the tooltip clear of the chart edges
+  const tipLeft = active ? Math.max(16, Math.min(84, active.pt.x)) : 0
+
   return (
     <div className="system-panel__metrics-chart-wrap">
-      <svg
-        className="system-panel__metrics-chart"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        aria-hidden="true"
+      <div
+        className="system-panel__metrics-chart-plot"
+        onPointerMove={handleMove}
+        onPointerLeave={() => setHoverIdx(null)}
       >
-        <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-        {/* horizontal grid lines at 25 / 50 / 75 % */}
-        {[25, 50, 75].map((pct) => (
-          <line
-            key={pct}
-            x1="0" y1={100 - pct} x2="100" y2={100 - pct}
-            stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2"
-            vectorEffect="non-scaling-stroke"
-          />
-        ))}
-        {hasSamples && (
-          <>
-            <path d={areaPath} fill={`url(#${gradId})`} />
-            <path
-              d={linePath}
-              fill="none"
-              stroke={color}
-              strokeWidth="1.5"
-              strokeLinejoin="round"
-              strokeLinecap="round"
+        <svg
+          className="system-panel__metrics-chart"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+              <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+            </linearGradient>
+          </defs>
+          {/* horizontal grid lines at 25 / 50 / 75 % */}
+          {[25, 50, 75].map((pct) => (
+            <line
+              key={pct}
+              x1="0" y1={100 - pct} x2="100" y2={100 - pct}
+              stroke="currentColor" strokeOpacity="0.1" strokeDasharray="2,2"
               vectorEffect="non-scaling-stroke"
             />
-          </>
-        )}
-        {!hasSamples && (
-          <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeOpacity="0.15" vectorEffect="non-scaling-stroke" />
-        )}
-      </svg>
-      <div className="system-panel__metrics-chart-footer">
-        {hasSamples ? (
+          ))}
+          {hasSamples && (
+            <>
+              <path d={areaPath} fill={`url(#${gradId})`} />
+              <path
+                d={linePath}
+                fill="none"
+                stroke={color}
+                strokeWidth="1.5"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </>
+          )}
+          {!hasSamples && (
+            <line x1="0" y1="50" x2="100" y2="50" stroke="currentColor" strokeOpacity="0.15" vectorEffect="non-scaling-stroke" />
+          )}
+        </svg>
+        {active && (
           <>
-            <span>0%</span>
-            <span className="system-panel__metrics-chart-span">{spanMin > 0 ? `${spanMin}m history · ${samples.length} samples` : `${samples.length} samples`}</span>
-            <span>100%</span>
+            <div className="system-panel__metrics-crosshair" style={{ left: `${active.pt.x}%` }} />
+            <div
+              className="system-panel__metrics-dot"
+              style={{ left: `${active.pt.x}%`, top: `${active.pt.y}%`, background: color }}
+            />
+            <div className="system-panel__metrics-tooltip" style={{ left: `${tipLeft}%` }}>
+              <strong>{active.sample.pct}%</strong>
+              <span>{formatClock(active.sample.ts)}</span>
+            </div>
           </>
-        ) : (
-          <span className="system-panel__metrics-chart-span">Collecting data…</span>
         )}
+      </div>
+      <div className="system-panel__metrics-chart-footer">
+        <span className="system-panel__metrics-chart-span">
+          {hasSamples
+            ? spanMin > 0
+              ? `${spanMin}m history · ${samples.length} samples`
+              : `${samples.length} samples`
+            : 'Collecting data…'}
+        </span>
       </div>
     </div>
   )
@@ -614,16 +652,6 @@ const SystemPanel: React.FC = () => {
                       <div className="system-panel__metrics-panels">
                         <div className="system-panel__metrics-panel">
                           <div className="system-panel__metrics-header">
-                            <span className="system-panel__metrics-label">RAM</span>
-                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
-                            <span className="system-panel__metrics-detail">
-                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
-                            </span>
-                          </div>
-                          <MetricsChart samples={ramSamples24h} tone={ramTone} chartId="ram-24h" />
-                        </div>
-                        <div className="system-panel__metrics-panel">
-                          <div className="system-panel__metrics-header">
                             <span className="system-panel__metrics-label">CPU</span>
                             <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
                             <span className="system-panel__metrics-detail">
@@ -632,11 +660,6 @@ const SystemPanel: React.FC = () => {
                           </div>
                           <MetricsChart samples={cpuSamples24h} tone="danger" chartId="cpu-24h" />
                         </div>
-                      </div>
-                    </div>
-                    <div className="system-panel__metrics-row">
-                      <span className="system-panel__metrics-row-label">Last 1 h</span>
-                      <div className="system-panel__metrics-panels">
                         <div className="system-panel__metrics-panel">
                           <div className="system-panel__metrics-header">
                             <span className="system-panel__metrics-label">RAM</span>
@@ -645,8 +668,13 @@ const SystemPanel: React.FC = () => {
                               {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
                             </span>
                           </div>
-                          <MetricsChart samples={ramSamples1h} tone={ramTone} chartId="ram-1h" />
+                          <MetricsChart samples={ramSamples24h} tone={ramTone} chartId="ram-24h" />
                         </div>
+                      </div>
+                    </div>
+                    <div className="system-panel__metrics-row">
+                      <span className="system-panel__metrics-row-label">Last 1 h</span>
+                      <div className="system-panel__metrics-panels">
                         <div className="system-panel__metrics-panel">
                           <div className="system-panel__metrics-header">
                             <span className="system-panel__metrics-label">CPU</span>
@@ -656,6 +684,16 @@ const SystemPanel: React.FC = () => {
                             </span>
                           </div>
                           <MetricsChart samples={cpuSamples1h} tone="danger" chartId="cpu-1h" />
+                        </div>
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">RAM</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
+                            </span>
+                          </div>
+                          <MetricsChart samples={ramSamples1h} tone={ramTone} chartId="ram-1h" />
                         </div>
                       </div>
                     </div>
