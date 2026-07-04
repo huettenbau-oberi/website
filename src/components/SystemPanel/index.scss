@@ -246,6 +246,26 @@
   grid-column: 1 / -1;
 }
 
+.system-panel__metrics-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.system-panel__metrics-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.system-panel__metrics-row-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--theme-elevation-400);
+}
+
 .system-panel__metrics-panels {
   display: grid;
   grid-template-columns: 1fr 1fr;

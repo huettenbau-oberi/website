@@ -586,8 +586,11 @@ const SystemPanel: React.FC = () => {
           const cpuPct = h ? Math.min(100, Math.round((h.cpu.loadavg[0] / Math.max(1, h.cpu.count)) * 100)) : 0
           const ramTone: 'ok' | 'warn' | 'danger' = ramPct >= 90 ? 'danger' : ramPct >= 75 ? 'warn' : 'ok'
           const cpuTone: 'ok' | 'warn' | 'danger' = cpuPct >= 90 ? 'danger' : cpuPct >= 75 ? 'warn' : 'ok'
-          const ramSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
-          const cpuSamples: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const oneHourAgo = Date.now() - 3_600_000
+          const ramSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
+          const cpuSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const ramSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.ramPct, ts: s.ts }))
+          const cpuSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.cpuPct, ts: s.ts }))
           return (
             <div className="system-panel__card system-panel__card--metrics">
               <strong className="system-panel__card-title">Metrics</strong>
@@ -597,26 +600,56 @@ const SystemPanel: React.FC = () => {
                 ) : host.status === 'error' ? (
                   <span className="system-panel__hint">{(host as { message: string }).message}</span>
                 ) : (
-                  <div className="system-panel__metrics-panels">
-                    <div className="system-panel__metrics-panel">
-                      <div className="system-panel__metrics-header">
-                        <span className="system-panel__metrics-label">RAM</span>
-                        <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
-                        <span className="system-panel__metrics-detail">
-                          {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
-                        </span>
+                  <div className="system-panel__metrics-rows">
+                    <div className="system-panel__metrics-row">
+                      <span className="system-panel__metrics-row-label">Last 24 h</span>
+                      <div className="system-panel__metrics-panels">
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">RAM</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
+                            </span>
+                          </div>
+                          <MetricsChart samples={ramSamples24h} tone={ramTone} chartId="ram-24h" />
+                        </div>
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">CPU</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
+                            </span>
+                          </div>
+                          <MetricsChart samples={cpuSamples24h} tone={cpuTone} chartId="cpu-24h" />
+                        </div>
                       </div>
-                      <MetricsChart samples={ramSamples} tone={ramTone} chartId="ram" />
                     </div>
-                    <div className="system-panel__metrics-panel">
-                      <div className="system-panel__metrics-header">
-                        <span className="system-panel__metrics-label">CPU</span>
-                        <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
-                        <span className="system-panel__metrics-detail">
-                          load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
-                        </span>
+                    <div className="system-panel__metrics-row">
+                      <span className="system-panel__metrics-row-label">Last 1 h</span>
+                      <div className="system-panel__metrics-panels">
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">RAM</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
+                            </span>
+                          </div>
+                          <MetricsChart samples={ramSamples1h} tone={ramTone} chartId="ram-1h" />
+                        </div>
+                        <div className="system-panel__metrics-panel">
+                          <div className="system-panel__metrics-header">
+                            <span className="system-panel__metrics-label">CPU</span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
+                            <span className="system-panel__metrics-detail">
+                              load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
+                            </span>
+                          </div>
+                          <MetricsChart samples={cpuSamples1h} tone={cpuTone} chartId="cpu-1h" />
+                        </div>
                       </div>
-                      <MetricsChart samples={cpuSamples} tone={cpuTone} chartId="cpu" />
                     </div>
                   </div>
                 )
