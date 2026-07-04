@@ -255,7 +255,7 @@ function MetricsChart({
               style={{ left: `${active.pt.x}%`, top: `${active.pt.y}%`, background: color }}
             />
             <div className="system-panel__metrics-tooltip" style={{ left: `${tipLeft}%` }}>
-              <strong>{active.sample.pct}%</strong>
+              <strong>{Math.round(active.sample.pct)}%</strong>
               <span>{formatClock(active.sample.ts)}</span>
             </div>
           </>
@@ -628,15 +628,20 @@ const SystemPanel: React.FC = () => {
 
         {/* Metrics — full-width history card */}
         {(() => {
+          const toneOf = (pct: number): 'ok' | 'warn' | 'danger' => (pct >= 90 ? 'danger' : pct >= 75 ? 'warn' : 'ok')
+          const avgOf = (arr: MetricSample[]) =>
+            arr.length ? Math.round(arr.reduce((sum, s) => sum + s.pct, 0) / arr.length) : 0
           const ramPct = h ? Math.min(100, Math.round((h.memory.usedBytes / Math.max(1, h.memory.totalBytes)) * 100)) : 0
           const cpuPct = h ? Math.min(100, Math.round((h.cpu.loadavg[0] / Math.max(1, h.cpu.count)) * 100)) : 0
-          const ramTone: 'ok' | 'warn' | 'danger' = ramPct >= 90 ? 'danger' : ramPct >= 75 ? 'warn' : 'ok'
-          const cpuTone: 'ok' | 'warn' | 'danger' = cpuPct >= 90 ? 'danger' : cpuPct >= 75 ? 'warn' : 'ok'
+          const ramTone = toneOf(ramPct)
+          const cpuTone = toneOf(cpuPct)
           const oneHourAgo = Date.now() - 3_600_000
           const ramSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.ramPct, ts: s.ts }))
           const cpuSamples24h: MetricSample[] = agentHistory.map((s) => ({ pct: s.cpuPct, ts: s.ts }))
           const ramSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.ramPct, ts: s.ts }))
           const cpuSamples1h: MetricSample[] = agentHistory.filter((s) => s.ts >= oneHourAgo).map((s) => ({ pct: s.cpuPct, ts: s.ts }))
+          const ramAvg24h = avgOf(ramSamples24h)
+          const cpuAvg24h = avgOf(cpuSamples24h)
           return (
             <div className="system-panel__card system-panel__card--metrics">
               <strong className="system-panel__card-title">Metrics</strong>
@@ -653,20 +658,16 @@ const SystemPanel: React.FC = () => {
                         <div className="system-panel__metrics-panel">
                           <div className="system-panel__metrics-header">
                             <span className="system-panel__metrics-label">CPU</span>
-                            <span className={`system-panel__metrics-big system-panel__metrics-big--${cpuTone}`}>{cpuPct}%</span>
-                            <span className="system-panel__metrics-detail">
-                              load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
-                            </span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${toneOf(cpuAvg24h)}`}>{cpuAvg24h}%</span>
+                            <span className="system-panel__metrics-detail">24 h average</span>
                           </div>
                           <MetricsChart samples={cpuSamples24h} tone="danger" chartId="cpu-24h" />
                         </div>
                         <div className="system-panel__metrics-panel">
                           <div className="system-panel__metrics-header">
                             <span className="system-panel__metrics-label">RAM</span>
-                            <span className={`system-panel__metrics-big system-panel__metrics-big--${ramTone}`}>{ramPct}%</span>
-                            <span className="system-panel__metrics-detail">
-                              {formatBytes(h!.memory.usedBytes)} / {formatBytes(h!.memory.totalBytes)}
-                            </span>
+                            <span className={`system-panel__metrics-big system-panel__metrics-big--${toneOf(ramAvg24h)}`}>{ramAvg24h}%</span>
+                            <span className="system-panel__metrics-detail">24 h average</span>
                           </div>
                           <MetricsChart samples={ramSamples24h} tone={ramTone} chartId="ram-24h" />
                         </div>
