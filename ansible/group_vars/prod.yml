@@ -41,7 +41,7 @@ agent_allowed_containers: "{{ project_name }},{{ project_name }}_analytics"
 agent_additional_disk_paths: "/host/opt/huettenbau-oberi/prod/media"
 
 # --- Domain & TLS ---
-domain: test.huettenbau-oberi.ch
+domain: huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
 
 # --- Backups ---
