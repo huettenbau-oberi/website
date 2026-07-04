@@ -366,11 +366,17 @@ const SystemPanel: React.FC = () => {
   }, [loadStats, loadHost, loadMetricsHistory, loadWorkflowRuns, loadBackups])
 
   useEffect(() => {
-    if (!isAdmin) return
-    refreshAll()
+    if (!isEditor) return
+    void loadStats()
+    void loadHost()
+    void loadMetricsHistory()
+    if (isAdmin) {
+      void loadWorkflowRuns()
+      void loadBackups()
+    }
     const interval = setInterval(() => { void loadMetricsHistory() }, 30_000)
     return () => clearInterval(interval)
-  }, [isAdmin, refreshAll, loadMetricsHistory])
+  }, [isEditor, isAdmin, loadStats, loadHost, loadMetricsHistory, loadWorkflowRuns, loadBackups])
 
   const runMaintenance = useCallback(
     async (key: string, url: string, confirmMsg?: string) => {
@@ -624,7 +630,7 @@ const SystemPanel: React.FC = () => {
                               load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
                             </span>
                           </div>
-                          <MetricsChart samples={cpuSamples24h} tone={cpuTone} chartId="cpu-24h" />
+                          <MetricsChart samples={cpuSamples24h} tone="danger" chartId="cpu-24h" />
                         </div>
                       </div>
                     </div>
@@ -649,7 +655,7 @@ const SystemPanel: React.FC = () => {
                               load {h!.cpu.loadavg[0].toFixed(2)} · {h!.cpu.count} cores
                             </span>
                           </div>
-                          <MetricsChart samples={cpuSamples1h} tone={cpuTone} chartId="cpu-1h" />
+                          <MetricsChart samples={cpuSamples1h} tone="danger" chartId="cpu-1h" />
                         </div>
                       </div>
                     </div>
@@ -859,6 +865,7 @@ const SystemPanel: React.FC = () => {
       </div>
       </>}
 
+      {isAdmin && <>
       {/* --------------------------- Recent Activity ---------------------- */}
       <div className="system-panel__activity-header">
         <p className="system-panel__section-label" style={{ margin: 0 }}>Recent Activity</p>
@@ -976,6 +983,7 @@ const SystemPanel: React.FC = () => {
       ) : (
         <span className="system-panel__hint">No backup manifest available yet.</span>
       )}
+      </>}
     </div>
   )
 }

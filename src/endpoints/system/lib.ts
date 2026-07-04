@@ -3,7 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import fs from 'fs/promises'
 
-import { admin } from '../../access/admin'
+import { admin, editor } from '../../access/admin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,6 +23,17 @@ export function requireAdmin(req: PayloadRequest): Response | null {
   }
   // admin() only reads req.user; cast to satisfy the AccessArgs signature.
   if (!admin({ req } as Parameters<typeof admin>[0])) {
+    return Response.json({ error: 'Forbidden' }, { status: 403 })
+  }
+  return null
+}
+
+/** Like requireAdmin but allows editors (and admins) through. */
+export function requireEditor(req: PayloadRequest): Response | null {
+  if (!req.user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  if (!editor({ req } as Parameters<typeof editor>[0])) {
     return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
   return null
