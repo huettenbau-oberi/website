@@ -1,0 +1,37 @@
+<svg width="300" height="180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="300" height="180" fill="#C4B7B1"/>
+
+  <defs>
+    <pattern id="hazardTape" width="16" height="16" patternTransform="rotate(-45)" patternUnits="userSpaceOnUse">
+      <rect width="8" height="16" fill="#EA3936"/>
+      <rect x="8" width="8" height="16" fill="#FFFCF7"/>
+    </pattern>
+  </defs>
+
+  <!-- Full-width band -->
+  <rect x="0" y="22" width="300" height="136" fill="#F6F0E5"/>
+
+  <!-- Hazard tape top / bottom -->
+  <rect x="0" y="22" width="300" height="7" fill="url(#hazardTape)"/>
+  <rect x="0" y="151" width="300" height="7" fill="url(#hazardTape)"/>
+
+  <!-- Icon badge with hammer -->
+  <circle cx="150" cy="58" r="14" fill="#EA3936"/>
+  <g transform="rotate(-40 150 58)">
+    <rect x="142" y="52" width="16" height="6" rx="2" fill="#FFFCF7"/>
+    <rect x="148" y="56" width="4" height="12" rx="1.5" fill="#FFFCF7"/>
+  </g>
+
+  <!-- Title -->
+  <rect x="112" y="82" width="76" height="10" rx="2" fill="#171716" opacity="0.85"/>
+
+  <!-- Message lines -->
+  <rect x="94" y="100" width="112" height="5" rx="1" fill="#666160" opacity="0.55"/>
+  <rect x="110" y="109" width="80" height="5" rx="1" fill="#666160" opacity="0.55"/>
+
+  <!-- Progress rail: hairline track, red fill, node dot (timeline idiom) -->
+  <line x1="90" y1="128" x2="210" y2="128" stroke="#C4B7B1" stroke-width="1"/>
+  <line x1="90" y1="128" x2="162" y2="128" stroke="#EA3936" stroke-width="3"/>
+  <circle cx="162" cy="128" r="4" fill="#FFFCF7" stroke="#EA3936" stroke-width="2.5"/>
+</svg>

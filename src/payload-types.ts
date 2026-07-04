@@ -208,6 +208,7 @@ export interface Page {
         | MediaBlock
         | FormBlock
         | GalleryTimelineBlock
+        | InArbeitBlock
       )[]
     | null;
   meta?: {
@@ -478,7 +479,16 @@ export interface Post {
   } | null;
   showAuthor?: boolean | null;
   layout?:
-    | (ContentBlock | HtmlBlock | IframeBlock | MediaBlock | FormBlock | PostSectionBlock | GalleryGridBlock)[]
+    | (
+        | ContentBlock
+        | HtmlBlock
+        | IframeBlock
+        | MediaBlock
+        | FormBlock
+        | PostSectionBlock
+        | GalleryGridBlock
+        | InArbeitBlock
+      )[]
     | null;
   meta?: {
     title?: string | null;
@@ -871,6 +881,28 @@ export interface GalleryGridBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'galleryGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InArbeitBlock".
+ */
+export interface InArbeitBlock {
+  title: string;
+  /**
+   * Short text shown below the title
+   */
+  message?: string | null;
+  /**
+   * Optional: construction progress in percent (0–100). Leave empty to hide the bar.
+   */
+  progress?: number | null;
+  /**
+   * Optional, shown as a badge — e.g. "Fertig bis Sommer 2026"
+   */
+  eta?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'inArbeit';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1428,6 +1460,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
         galleryTimeline?: T | GalleryTimelineBlockSelect<T>;
+        inArbeit?: T | InArbeitBlockSelect<T>;
       };
   meta?:
     | T
@@ -1657,6 +1690,18 @@ export interface GalleryTimelineBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "InArbeitBlock_select".
+ */
+export interface InArbeitBlockSelect<T extends boolean = true> {
+  title?: T;
+  message?: T;
+  progress?: T;
+  eta?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "posts_select".
  */
 export interface PostsSelect<T extends boolean = true> {
@@ -1674,6 +1719,7 @@ export interface PostsSelect<T extends boolean = true> {
         formBlock?: T | FormBlockSelect<T>;
         postSection?: T | PostSectionBlockSelect<T>;
         galleryGrid?: T | GalleryGridBlockSelect<T>;
+        inArbeit?: T | InArbeitBlockSelect<T>;
       };
   meta?:
     | T

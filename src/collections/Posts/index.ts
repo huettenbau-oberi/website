@@ -15,6 +15,7 @@ import { HtmlBlock } from '../../blocks/HtmlBlock/config'
 import { IframeBlock } from '../../blocks/IframeBlock/config'
 import { PostSection } from '../../blocks/PostSection/config'
 import { GalleryGrid } from '../../blocks/GalleryGrid/config'
+import { InArbeit } from '../../blocks/InArbeit/config'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { getUrlPrefixFromCategories } from '../../utilities/getPostUrl'
 import { populateAuthors } from './hooks/populateAuthors'
@@ -116,6 +117,7 @@ export const Posts: CollectionConfig<'posts'> = {
                 FormBlock,
                 PostSection,
                 GalleryGrid,
+                InArbeit,
               ],
               admin: {
                 initCollapsed: true,
