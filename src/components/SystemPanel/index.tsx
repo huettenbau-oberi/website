@@ -284,7 +284,9 @@ function ContainerList({
 // ---------------------------------------------------------------------------
 const SystemPanel: React.FC = () => {
   const { user } = useAuth()
-  const isAdmin = (user as { userRole?: string } | null)?.userRole === 'admin'
+  const userRole = (user as { userRole?: string } | null)?.userRole
+  const isAdmin = userRole === 'admin'
+  const isEditor = userRole === 'editor' || userRole === 'admin'
 
   const [stats, setStats] = useState<Async<AppStats>>({ status: 'idle' })
   const [host, setHost] = useState<Async<HostMetrics>>({ status: 'idle' })
@@ -453,7 +455,7 @@ const SystemPanel: React.FC = () => {
     [setAction, loadStats],
   )
 
-  if (!isAdmin) return null
+  if (!isEditor) return null
 
   const s = stats.status === 'done' ? stats.data : null
   const h = host.status === 'done' ? host.data : null
@@ -662,8 +664,8 @@ const SystemPanel: React.FC = () => {
       </div>
 
       {/* --------------------------- Maintenance -------------------------- */}
-      <p className="system-panel__section-label">Maintenance</p>
-      <div className="system-panel__actions">
+      {isAdmin && <p className="system-panel__section-label">Maintenance</p>}
+      {isAdmin && <div className="system-panel__actions">
         <ActionRow
           title="Media Cleanup"
           desc="Delete files on disk that have no matching media record in the database."
@@ -762,16 +764,17 @@ const SystemPanel: React.FC = () => {
           buttonLabel="Revalidate"
           onClick={() => runMaintenance('revalidate', '/api/system/revalidate')}
         />
-      </div>
+      </div>}
 
       {/* ---------------------------- Operations -------------------------- */}
-      <p className="system-panel__section-label">Operations</p>
-      {agentMissing && (
-        <p className="system-panel__hint system-panel__hint--block">
-          The system agent is not configured, so operations cannot run from here.
-        </p>
-      )}
-      <div className="system-panel__actions">
+      {isAdmin && <>
+        <p className="system-panel__section-label">Operations</p>
+        {agentMissing && (
+          <p className="system-panel__hint system-panel__hint--block">
+            The system agent is not configured, so operations cannot run from here.
+          </p>
+        )}
+        <div className="system-panel__actions">
         {/* Restart Service — visual container list */}
         <div className="system-panel__action system-panel__action--column">
           <div className="system-panel__action-info">
@@ -854,6 +857,7 @@ const SystemPanel: React.FC = () => {
           </div>
         </div>
       </div>
+      </>}
 
       {/* --------------------------- Recent Activity ---------------------- */}
       <div className="system-panel__activity-header">
