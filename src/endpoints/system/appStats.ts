@@ -1,6 +1,6 @@
 import type { PayloadHandler } from 'payload'
 
-import { getFsUsage, getMediaUsage, requireEditor } from './lib'
+import { getContainerResources, getFsUsage, getMediaUsage, requireEditor } from './lib'
 
 type PoolLike = {
   query: (text: string) => Promise<{ rows: Array<Record<string, unknown>> }>
@@ -54,8 +54,12 @@ export const appStats: PayloadHandler = async (req) => {
     }),
   )
 
-  // --- Media volume usage ---
-  const [mediaUsage, fsUsage] = await Promise.all([getMediaUsage(), getFsUsage()])
+  // --- Media volume usage + container resource limits ---
+  const [mediaUsage, fsUsage, resources] = await Promise.all([
+    getMediaUsage(),
+    getFsUsage(),
+    getContainerResources(),
+  ])
 
   // --- App process metrics ---
   const mem = process.memoryUsage()
@@ -77,5 +81,6 @@ export const appStats: PayloadHandler = async (req) => {
       heapUsedBytes: mem.heapUsed,
       nodeVersion: process.version,
     },
+    resources,
   })
 }

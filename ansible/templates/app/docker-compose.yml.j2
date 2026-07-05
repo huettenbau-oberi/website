@@ -3,10 +3,11 @@ services:
     image: {{ app_image }}:{{ app_image_tag }}
     container_name: {{ project_name }}
     restart: unless-stopped
-    #deploy:
-    #  resources:
-    #    limits:
-    #      cpus: '0.5'
+    deploy:
+      resources:
+        limits:
+          cpus: '{{ app_cpu_limit }}'
+          memory: {{ app_memory_limit }}
     env_file:
       - .env
     environment:

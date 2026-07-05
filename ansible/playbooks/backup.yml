@@ -76,6 +76,12 @@
         cmd: "cp -r {{ deploy_dir }}/media {{ backup_tmp_dir }}/media"
       changed_when: true
 
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ deploy_dir }}/docker-compose.yml"
+        dest: "{{ backup_tmp_dir }}/docker-compose.yml"
+        remote_src: true
+
     - name: Create tarball from staging directory
       ansible.builtin.shell:
         cmd: "tar -czf /tmp/{{ backup_name }}.tar.gz -C /tmp {{ backup_name }}"
