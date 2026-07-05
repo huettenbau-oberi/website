@@ -26,6 +26,10 @@ postgres_container_name: huettenbau-oberi-prod_postgres
 deploy_dir_analytics: "/opt/analytics"
 app_image_analytics: ghcr.io/umami-software/umami:latest
 
+# --- Resource limits ---
+app_cpu_limit: '1.00'
+app_memory_limit: 1g
+
 # --- System agent ---
 deploy_dir_agent: "/opt/agent/prod"
 agent_network_name: agentnet-prod

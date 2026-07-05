@@ -27,6 +27,10 @@ retention_days: 7
 domain: dev.huettenbau-oberi.ch
 letsencrypt_email: webmaster@huettenbau-oberi.ch
 
+# --- Resource limits ---
+app_cpu_limit: '0.50'
+app_memory_limit: 512m
+
 # --- System agent ---
 deploy_dir_agent: "/opt/agent/devt"
 agent_network_name: agentnet-devt
