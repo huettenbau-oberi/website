@@ -4,6 +4,7 @@ import * as migration_20260611_120000 from './20260611_120000';
 import * as migration_20260629_190216_add_system_admin_audit from './20260629_190216_add_system_admin_audit';
 import * as migration_20260629_220000_add_user_roles from './20260629_220000_add_user_roles';
 import * as migration_20260704_140842 from './20260704_140842';
+import * as migration_20260705_145441_add_two_factor from './20260705_145441_add_two_factor';
 
 export const migrations = [
   {
@@ -34,6 +35,11 @@ export const migrations = [
   {
     up: migration_20260704_140842.up,
     down: migration_20260704_140842.down,
-    name: '20260704_140842'
+    name: '20260704_140842',
+  },
+  {
+    up: migration_20260705_145441_add_two_factor.up,
+    down: migration_20260705_145441_add_two_factor.down,
+    name: '20260705_145441_add_two_factor'
   },
 ];

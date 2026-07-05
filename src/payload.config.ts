@@ -21,6 +21,7 @@ import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { systemEndpoints } from './endpoints/system'
+import { accountEndpoints } from './endpoints/account'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Settings } from './globals/Settings'
@@ -33,9 +34,18 @@ export default buildConfig({
     components: {
       beforeDashboard: ['@/components/BeforeDashboard'],
       beforeLogin: ['@/components/BeforeLogin'],
+      // Blocks the panel for users an admin has flagged as `twoFactorEnforced` until
+      // they finish 2FA enrollment.
+      providers: ['@/components/TwoFactorGate'],
       graphics: {
         Logo: '@/graphics/Logo/index.tsx#Logos',
         Icon: '@/graphics/Icon/index.tsx#Icons',
+      },
+      views: {
+        // Custom login view adds the two-step TOTP prompt (native form has no code field).
+        login: {
+          Component: '@/components/TwoFactorLogin',
+        },
       },
     },
     importMap: {
@@ -94,7 +104,7 @@ export default buildConfig({
     prodMigrations: migrations,
   }),
   collections: [Pages, Posts, Media, Categories, Users, AuditLogs],
-  endpoints: systemEndpoints,
+  endpoints: [...systemEndpoints, ...accountEndpoints],
   cors: [getServerSideURL()].filter(Boolean),
   csrf: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer, Settings, Banner],

@@ -3,6 +3,11 @@ import type { CollectionConfig } from 'payload'
 import { authenticated } from '../../access/authenticated'
 import { admin, adminFieldAccess } from '../../access/admin'
 import { validateTurnstile } from './hooks/validateTurnstile'
+import { enforceTwoFactor } from './hooks/enforceTwoFactor'
+
+// Managed exclusively by the /account/2fa endpoints (via overrideAccess) — no one
+// may flip these through the normal API, so a stolen session can't silently toggle 2FA.
+const denyWrite = () => false
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -20,6 +25,7 @@ export const Users: CollectionConfig = {
   auth: true,
   hooks: {
     beforeOperation: [validateTurnstile],
+    beforeLogin: [enforceTwoFactor],
   },
   fields: [
     {
@@ -50,6 +56,71 @@ export const Users: CollectionConfig = {
       access: {
         create: adminFieldAccess,
         update: adminFieldAccess,
+      },
+    },
+    // --- Two-factor authentication ---------------------------------------------
+    {
+      // Admin-controlled: when set, the user is forced into 2FA setup on their next
+      // login (enforced by TwoFactorGate) and cannot use the panel until enrolled.
+      name: 'twoFactorEnforced',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Require Two-Factor Authentication',
+      admin: {
+        description:
+          'When enabled, this user must set up an authenticator app the next time they log in before they can use the admin panel.',
+      },
+      access: {
+        create: adminFieldAccess,
+        update: adminFieldAccess,
+      },
+    },
+    {
+      // Whether the user has completed 2FA setup. Read-only in the UI; only the
+      // /account/2fa endpoints change it.
+      name: 'twoFactorEnabled',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Two-Factor Authentication Active',
+      admin: {
+        readOnly: true,
+      },
+      access: {
+        create: denyWrite,
+        update: denyWrite,
+      },
+    },
+    {
+      // Active TOTP secret, AES-encrypted at rest. Never exposed through the API.
+      name: 'twoFactorSecret',
+      type: 'text',
+      hidden: true,
+      access: {
+        read: denyWrite,
+        create: denyWrite,
+        update: denyWrite,
+      },
+    },
+    {
+      // Encrypted secret held while the user is setting up 2FA, before their first
+      // code is verified. Promoted to twoFactorSecret on successful verification.
+      name: 'twoFactorPendingSecret',
+      type: 'text',
+      hidden: true,
+      access: {
+        read: denyWrite,
+        create: denyWrite,
+        update: denyWrite,
+      },
+    },
+    {
+      // Renders the self-service 2FA panel in the account/edit view.
+      name: 'twoFactorUI',
+      type: 'ui',
+      admin: {
+        components: {
+          Field: '@/components/TwoFactorSettings',
+        },
       },
     },
   ],
