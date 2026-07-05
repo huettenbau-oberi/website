@@ -15,6 +15,10 @@ type AppStats = {
     volume: { totalBytes: number; freeBytes: number; availableBytes: number } | null
   }
   process: { uptimeSeconds: number; rssBytes: number; heapUsedBytes: number; nodeVersion: string }
+  resources?: {
+    memory: { usageBytes: number | null; limitBytes: number | null }
+    cpu: { limitCores: number | null; usageCores: number | null }
+  }
 }
 
 type HostMetrics = {
@@ -73,6 +77,10 @@ function formatBytes(bytes: number | null | undefined): string {
     i++
   }
   return `${value.toFixed(value < 10 ? 2 : 1)} ${units[i]}`
+}
+
+function formatCores(cores: number): string {
+  return cores.toFixed(2)
 }
 
 function formatUptime(seconds: number): string {
@@ -610,6 +618,45 @@ const SystemPanel: React.FC = () => {
           )}
         </div>
 
+        {/* App resources — this environment's container CPU/memory limits */}
+        {s?.resources && (s.resources.memory.limitBytes != null || s.resources.cpu.limitCores != null) && (
+          <div className="system-panel__card">
+            <strong className="system-panel__card-title">App resources</strong>
+            <span className="system-panel__hint">Usage against this environment&rsquo;s container limits</span>
+
+            <div className="system-panel__usage">
+              <span className="system-panel__hint system-panel__hint--strong">Memory</span>
+              {s.resources.memory.limitBytes != null ? (
+                <>
+                  <UsageBar used={s.resources.memory.usageBytes ?? 0} total={s.resources.memory.limitBytes} />
+                  <span className="system-panel__hint">
+                    {formatBytes(s.resources.memory.usageBytes)} / {formatBytes(s.resources.memory.limitBytes)} limit
+                  </span>
+                </>
+              ) : (
+                <span className="system-panel__hint">{formatBytes(s.resources.memory.usageBytes)} used · no limit</span>
+              )}
+            </div>
+
+            <div className="system-panel__usage">
+              <span className="system-panel__hint system-panel__hint--strong">CPU</span>
+              {s.resources.cpu.limitCores != null ? (
+                <>
+                  <UsageBar used={s.resources.cpu.usageCores ?? 0} total={s.resources.cpu.limitCores} />
+                  <span className="system-panel__hint">
+                    {s.resources.cpu.usageCores != null ? `${formatCores(s.resources.cpu.usageCores)} / ` : ''}
+                    {formatCores(s.resources.cpu.limitCores)} cores limit
+                  </span>
+                </>
+              ) : (
+                <span className="system-panel__hint">
+                  {s.resources.cpu.usageCores != null ? `${formatCores(s.resources.cpu.usageCores)} cores · ` : ''}no limit
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Host disks */}
         {h && h.disks.length > 0 && (
           <div className="system-panel__card">
@@ -645,6 +692,7 @@ const SystemPanel: React.FC = () => {
           return (
             <div className="system-panel__card system-panel__card--metrics">
               <strong className="system-panel__card-title">Metrics</strong>
+              {h && <span className="system-panel__hint">Full host load across all containers</span>}
               {(h || agentMissing || host.status === 'error') ? (
                 agentMissing ? (
                   <span className="system-panel__hint">System agent not configured — host metrics unavailable.</span>
