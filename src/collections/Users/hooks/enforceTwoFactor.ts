@@ -3,6 +3,7 @@ import type { CollectionBeforeLoginHook } from 'payload'
 
 import { decryptSecret, verifyToken } from '../../../utilities/twoFactor'
 import { TWO_FACTOR_REQUIRED } from '../../../utilities/twoFactorConstants'
+import { createPendingCookieHeader } from '../../../utilities/twoFactorPending'
 
 /**
  * Runs after the password has been verified but before a session token is issued.
@@ -32,6 +33,9 @@ export const enforceTwoFactor: CollectionBeforeLoginHook = async ({ req, user })
 
   const otp = typeof req.data?.otp === 'string' ? req.data.otp : ''
   if (!otp) {
+    const email = typeof req.data?.email === 'string' ? req.data.email : ''
+    if (!req.responseHeaders) req.responseHeaders = new Headers()
+    req.responseHeaders.append('Set-Cookie', createPendingCookieHeader(email))
     throw new APIError(TWO_FACTOR_REQUIRED, 401, undefined, true)
   }
 
