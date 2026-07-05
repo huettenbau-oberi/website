@@ -84,6 +84,7 @@ const TwoFactorLogin: React.FC = () => {
 
         if (message === TWO_FACTOR_REQUIRED) {
           setStep('otp')
+          setHasToken(true)
           setError(null)
         } else {
           setError(message)
@@ -158,7 +159,7 @@ const TwoFactorLogin: React.FC = () => {
           </div>
         )}
 
-        {siteKey && (
+        {siteKey && step === 'credentials' && (
           <div className="tfa-login__turnstile">
             <Turnstile
               ref={turnstileRef}
