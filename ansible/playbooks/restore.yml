@@ -33,6 +33,18 @@
           - s3_path.startswith('/')
         fail_msg: "s3_path must be provided as an extra variable and must start with '/'"
 
+    - name: Detect backup origin environment
+      ansible.builtin.set_fact:
+        backup_origin_env: "{{ (s3_path | basename).split('-huettenbau-backup_')[0] }}"
+        current_env: "{{ deploy_dir | basename }}"
+
+    - name: Report environment match status
+      ansible.builtin.debug:
+        msg: >-
+          Backup origin: '{{ backup_origin_env }}', target env: '{{ current_env }}' —
+          {{ 'same environment, docker-compose.yml will be restored.' if backup_origin_env == current_env
+             else 'cross-environment restore, docker-compose.yml will NOT be replaced.' }}
+
     - name: Create restore staging directory
       ansible.builtin.file:
         path: "{{ restore_tmp_dir }}/staging"
@@ -201,6 +213,7 @@
         src: "{{ restore_tmp_dir }}/staging/docker-compose.yml"
         dest: "{{ deploy_dir }}/docker-compose.yml"
         remote_src: true
+      when: backup_origin_env == current_env
 
     - name: Fix media ownership
       ansible.builtin.file:
