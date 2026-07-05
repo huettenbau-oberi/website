@@ -121,6 +121,18 @@
   gap: base(0.75);
   width: 100%;
 
+  &__logo {
+    width: 80%;
+    margin: 0 auto base(0.5);
+
+    img {
+      width: 100%;
+      height: auto;
+      min-height: 48px;
+      display: block;
+    }
+  }
+
   &__field {
     display: flex;
     flex-direction: column;
@@ -146,10 +158,6 @@
       outline: none;
       border-color: var(--theme-elevation-400);
     }
-  }
-
-  &__forgot {
-    font-size: 0.85rem;
   }
 
   &__turnstile {

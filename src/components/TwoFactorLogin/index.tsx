@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
-import { Button, useAuth } from '@payloadcms/ui'
+import { Button, useAuth, useTheme } from '@payloadcms/ui'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 import { Logo } from '@/components/Logo/Logo'
@@ -23,6 +23,7 @@ type Step = 'credentials' | 'otp'
  */
 const TwoFactorLogin: React.FC = () => {
   const { user, setUser } = useAuth()
+  const { theme } = useTheme()
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -108,8 +109,8 @@ const TwoFactorLogin: React.FC = () => {
 
   return (
     <>
-      <div className="login__brand" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-        <Logo />
+      <div className="tfa-login__logo">
+        <Logo theme={theme === 'dark' ? 'light' : 'dark'} />
       </div>
 
       <form className="tfa-login" onSubmit={onSubmit}>
@@ -138,9 +139,6 @@ const TwoFactorLogin: React.FC = () => {
                 required
               />
             </div>
-            <a className="tfa-login__forgot" href="/admin/forgot">
-              Forgot your password?
-            </a>
           </>
         ) : (
           <div className="tfa-login__field">
