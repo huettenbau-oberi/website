@@ -30,7 +30,8 @@
         that:
           - s3_path is defined
           - s3_path | length > 0
-        fail_msg: "s3_path must be provided as an extra variable"
+          - s3_path.startswith('/')
+        fail_msg: "s3_path must be provided as an extra variable and must start with '/'"
 
     - name: Create restore staging directory
       ansible.builtin.file:
@@ -54,8 +55,14 @@
           '--host-bucket=%(bucket)s.{{ s3_endpoint }}'
           --region={{ s3_endpoint.split('.')[0] }}
           --force
+      register: s3cmd_result
       no_log: true
       changed_when: true
+
+    - name: Show download error
+      ansible.builtin.debug:
+        msg: "s3cmd rc={{ s3cmd_result.rc }} stderr={{ s3cmd_result.stderr }}"
+      when: s3cmd_result.rc != 0
 
     - name: Decrypt backup archive
       ansible.builtin.shell:
