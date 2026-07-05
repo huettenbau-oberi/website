@@ -106,6 +106,22 @@
         cmd: "docker cp {{ restore_tmp_dir }}/staging/db.dump {{ postgres_container_name }}:/tmp/restore_db.dump"
       changed_when: true
 
+    - name: Reset database schema
+      community.docker.docker_container_exec:
+        container: "{{ postgres_container_name }}"
+        env:
+          PGPASSWORD: "{{ pg_admin_password }}"
+        argv:
+          - psql
+          - -U
+          - "{{ pg_admin_user }}"
+          - -d
+          - "{{ backup_database_name }}"
+          - -c
+          - "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+      no_log: true
+      changed_when: true
+
     - name: Restore database
       community.docker.docker_container_exec:
         container: "{{ postgres_container_name }}"
@@ -117,8 +133,6 @@
           - "{{ pg_admin_user }}"
           - -d
           - "{{ backup_database_name }}"
-          - --clean
-          - --if-exists
           - --no-owner
           - --no-acl
           - /tmp/restore_db.dump
