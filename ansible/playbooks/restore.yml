@@ -157,6 +157,12 @@
           mv {{ restore_tmp_dir }}/staging/media {{ deploy_dir }}/media
       changed_when: true
 
+    - name: Restore docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ restore_tmp_dir }}/staging/docker-compose.yml"
+        dest: "{{ deploy_dir }}/docker-compose.yml"
+        remote_src: true
+
     - name: Fix media ownership
       ansible.builtin.file:
         path: "{{ deploy_dir }}/media"
