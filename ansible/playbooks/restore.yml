@@ -122,8 +122,20 @@
           - --no-owner
           - --no-acl
           - /tmp/restore_db.dump
+      register: pg_restore_result
+      ignore_errors: true
       no_log: true
       changed_when: true
+
+    - name: Show pg_restore error
+      ansible.builtin.debug:
+        msg: "pg_restore rc={{ pg_restore_result.rc }} stderr={{ pg_restore_result.stderr }}"
+      when: pg_restore_result.rc != 0
+
+    - name: Fail if restore failed
+      ansible.builtin.fail:
+        msg: "pg_restore failed (rc={{ pg_restore_result.rc }}), see error above"
+      when: pg_restore_result.rc != 0
 
     - name: Grant privileges to app user
       community.docker.docker_container_exec:
