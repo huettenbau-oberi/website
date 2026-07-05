@@ -25,6 +25,7 @@ import { default as default_03bba7f5c296f001270e254113b051b9 } from '@/component
 import { default as default_7e9c33b6bb7cdbc3a8fdbfb2a261bc72 } from '@/components/BlurDataURLPreview'
 import { FolderTableCell as FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { FolderField as FolderField_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
+import { default as default_d0b1e38c989ea696542dc6c6fc0bbf49 } from '@/components/TwoFactorSettings'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { FolderTypeField as FolderTypeField_2b8867833a34864a02ddf429b0728a40 } from '@payloadcms/next/client'
@@ -34,6 +35,8 @@ import { Icons as Icons_537d74cd4b75d6c420c521af18c7f707 } from '@/graphics/Icon
 import { Logos as Logos_6c8490617bef60039b781082d4fedeae } from '@/graphics/Logo/index.tsx'
 import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/components/BeforeDashboard'
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
+import { default as default_edaeb9eade0cd605dfdd197509255c22 } from '@/components/TwoFactorGate'
+import { default as default_0af5719675bceed89d060285e7a09ae7 } from '@/components/TwoFactorLogin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -65,6 +68,7 @@ export const importMap = {
   "@/components/BlurDataURLPreview#default": default_7e9c33b6bb7cdbc3a8fdbfb2a261bc72,
   "@payloadcms/next/rsc#FolderTableCell": FolderTableCell_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/next/rsc#FolderField": FolderField_f9c02e79a4aed9a3924487c0cd4cafb1,
+  "@/components/TwoFactorSettings#default": default_d0b1e38c989ea696542dc6c6fc0bbf49,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/next/client#FolderTypeField": FolderTypeField_2b8867833a34864a02ddf429b0728a40,
@@ -74,5 +78,7 @@ export const importMap = {
   "@/graphics/Logo/index.tsx#Logos": Logos_6c8490617bef60039b781082d4fedeae,
   "@/components/BeforeDashboard#default": default_1a7510af427896d367a49dbf838d2de6,
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
+  "@/components/TwoFactorGate#default": default_edaeb9eade0cd605dfdd197509255c22,
+  "@/components/TwoFactorLogin#default": default_0af5719675bceed89d060285e7a09ae7,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

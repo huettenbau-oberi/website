@@ -916,6 +916,13 @@ export interface User {
    */
   role?: string | null;
   userRole?: ('viewer' | 'editor' | 'admin') | null;
+  /**
+   * When enabled, this user must set up an authenticator app the next time they log in before they can use the admin panel.
+   */
+  twoFactorEnforced?: boolean | null;
+  twoFactorEnabled?: boolean | null;
+  twoFactorSecret?: string | null;
+  twoFactorPendingSecret?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1902,6 +1909,10 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   userRole?: T;
+  twoFactorEnforced?: T;
+  twoFactorEnabled?: T;
+  twoFactorSecret?: T;
+  twoFactorPendingSecret?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
