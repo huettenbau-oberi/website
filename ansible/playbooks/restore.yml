@@ -56,12 +56,18 @@
           --region={{ s3_endpoint.split('.')[0] }}
           --force
       register: s3cmd_result
+      ignore_errors: true
       no_log: true
       changed_when: true
 
     - name: Show download error
       ansible.builtin.debug:
         msg: "s3cmd rc={{ s3cmd_result.rc }} stderr={{ s3cmd_result.stderr }}"
+      when: s3cmd_result.rc != 0
+
+    - name: Fail if download failed
+      ansible.builtin.fail:
+        msg: "Download failed (rc={{ s3cmd_result.rc }}), see s3cmd error above"
       when: s3cmd_result.rc != 0
 
     - name: Decrypt backup archive
