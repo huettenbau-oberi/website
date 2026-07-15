@@ -169,14 +169,16 @@ html[data-theme='light'] {
   opacity: initial;
 }
 
-button {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
-}
+@layer base {
+  button {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
 
-button:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
+  button:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
 }
 
 button.primary {

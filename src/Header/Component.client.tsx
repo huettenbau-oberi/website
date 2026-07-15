@@ -36,9 +36,31 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data, banner, isPrev
   }, [headerTheme])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
+    // Hysteresis is required, not cosmetic: the header is `sticky`, so it sits in
+    // normal flow and shrinking it (py-8 -> py-4 = 32px on md) pulls the page
+    // content up. The browser's scroll anchoring compensates by moving scrollY by
+    // that same delta — which is the value driving `scrolled`. A single threshold
+    // inside that 32px range oscillates forever. The enter/exit gap must stay
+    // wider than the largest header height change.
+    const ENTER = 64
+    const EXIT = 16
+
+    let frame: number | null = null
+    const onScroll = () => {
+      if (frame !== null) return
+      frame = requestAnimationFrame(() => {
+        frame = null
+        const y = window.scrollY
+        setScrolled((prev) => (prev ? y > EXIT : y > ENTER))
+      })
+    }
+
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (frame !== null) cancelAnimationFrame(frame)
+    }
   }, [])
 
   useEffect(() => {

@@ -127,7 +127,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
     <>
       <nav className="flex items-center gap-1 sm:gap-4">
         {navItems.length > 0 && (
-          <ul className="hidden lg:flex items-center gap-6 mr-2">
+          <ul className="hidden xl:flex items-center gap-6 mr-2">
             {navItems.map(({ link }, i) => {
               const href = resolveHref(link)
               if (!href) return null
@@ -151,7 +151,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           ref={triggerRef}
           onClick={() => setOpen(true)}
-          className="lg:hidden inline-flex items-center px-1 sm:px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
+          className="xl:hidden inline-flex items-center px-1 sm:px-2 py-2 text-sm font-bold tracking-widest text-foreground transition-colors hover:text-primary"
           aria-expanded={open}
           aria-controls={MENU_DIALOG_ID}
           aria-haspopup="dialog"
@@ -162,7 +162,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
         <button
           onClick={() => setTheme(isDark ? 'light' : 'dark')}
           aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="hidden lg:flex relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
+          className="hidden xl:flex relative h-9 w-9 overflow-hidden rounded-full transition-colors hover:text-primary text-foreground"
         >
           <Sun
             size={18}
@@ -190,6 +190,7 @@ export const HeaderNav: React.FC<{ data: HeaderType; isPreview: boolean }> = ({
           id={MENU_DIALOG_ID}
           className="fixed inset-0 z-50 flex flex-col"
           style={{ backgroundColor: '#3d2b24' }}
+          data-theme="dark"
           role="dialog"
           aria-modal="true"
           aria-labelledby={MENU_DIALOG_LABEL_ID}
