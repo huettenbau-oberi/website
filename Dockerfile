@@ -48,6 +48,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN PAYLOAD_SECRET=build-time-placeholder pnpm run build
 
+# Sharp loads its libvips shared library (libvips-cpp.so) at runtime via dlopen from
+# the separate @img/sharp-libvips-linuxmusl-x64 package. Next.js output file tracing
+# can't follow the dlopen, so that .so never lands in .next/standalone and the server
+# crashes at boot with ERR_DLOPEN_FAILED. Copy the sharp native packages into the
+# standalone tree ourselves (glob keeps this version-agnostic across sharp bumps).
+RUN set -eux; cd /app; \
+    for p in node_modules/.pnpm/@img+sharp-linuxmusl-x64@* \
+             node_modules/.pnpm/@img+sharp-libvips-linuxmusl-x64@*; do \
+      rm -rf ".next/standalone/$p"; \
+      mkdir -p ".next/standalone/$(dirname "$p")"; \
+      cp -R "$p" ".next/standalone/$(dirname "$p")/"; \
+    done
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
